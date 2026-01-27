@@ -1,0 +1,46 @@
+{
+  "name": "open-quran-view",
+  "version": "0.1.0",
+  "description": "Universal, cross-platform Quran component library for high-fidelity Mushaf rendering.",
+  "type": "module",
+  "main": "./dist/core/index.js",
+  "exports": {
+    "./core": "./dist/core/index.js",
+    "./react": "./dist/view/react/index.js",
+    "./native": "./dist/view/native/index.js"
+  },
+  "files": [
+    "dist",
+    "assets",
+    "docs"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint src/**"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "@shopify/react-native-skia": ">=0.1",
+    "canvaskit-wasm": ">=0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "tsup": "^8.0.0",
+    "react": "^18.0.0",
+    "@types/react": "^18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iTarek/Java-Quran-Web.git"
+  },
+  "keywords": [
+    "quran",
+    "mushaf",
+    "skia",
+    "react",
+    "react-native"
+  ],
+  "author": "adelpro <adelpro@github.com>",
+  "license": "MIT"
+}
