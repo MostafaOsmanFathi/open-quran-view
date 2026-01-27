@@ -1,59 +1,53 @@
-import { MushafMetadata, PageMapping, LayoutRow, AssetFetcher, Recitation } from './types';
+import { RiwayaMetadata, SurahMetadata, AssetFetcher, Recitation } from './types';
 
 export class DynamicDataLoader {
   private fetcher: AssetFetcher;
+  private recitation: Recitation;
   private cache: {
-    metadata?: MushafMetadata;
-    mapping?: PageMapping;
-    layout: Record<string, LayoutRow[]>;
-  } = { layout: {} };
+    surahs?: SurahMetadata[];
+    riwaya: Record<string, RiwayaMetadata[]>;
+  } = { riwaya: {} };
 
-  constructor(fetcher: AssetFetcher) {
+  constructor(fetcher: AssetFetcher, recitation: Recitation = 'hafs') {
     this.fetcher = fetcher;
+    this.recitation = recitation;
   }
 
-  async getMetadata(): Promise<MushafMetadata> {
-    if (!this.cache.metadata) {
-      this.cache.metadata = await this.fetcher.fetchJSON<MushafMetadata>('data/mushaf_metadata.json');
+  setRecitation(recitation: Recitation) {
+    this.recitation = recitation;
+  }
+
+  async getSurahs(): Promise<SurahMetadata[]> {
+    if (!this.cache.surahs) {
+      this.cache.surahs = await this.fetcher.fetchJSON<SurahMetadata[]>('data/shared/suras.json');
     }
-    return this.cache.metadata;
+    return this.cache.surahs;
   }
 
-  async getPageMapping(): Promise<PageMapping> {
-    if (!this.cache.mapping) {
-      this.cache.mapping = await this.fetcher.fetchJSON<PageMapping>('data/page_mapping.json');
+  async getRiwayaData(): Promise<RiwayaMetadata[]> {
+    if (!this.cache.riwaya[this.recitation]) {
+      this.cache.riwaya[this.recitation] = await this.fetcher.fetchJSON<RiwayaMetadata[]>(
+        `data/riwaya/${this.recitation}/metadata.json`
+      );
     }
-    return this.cache.mapping;
+    return this.cache.riwaya[this.recitation];
   }
 
-  async getLayoutForPage(page: number): Promise<LayoutRow[]> {
-    const cacheKey = `p${page}`;
-    if (!this.cache.layout[cacheKey]) {
-      // In a real implementation, we might fetch a per-page CSV or a full CSV and filter.
-      // Based on the current repo, it's one large CSV. We'll handle slicing or full load.
-      const csv = await this.fetcher.fetchText('data/quran_layout.csv');
-      this.cache.layout[cacheKey] = this.parseCSV(csv).filter(row => row.page === page);
-    }
-    return this.cache.layout[cacheKey];
+  async getVersesForPage(page: number): Promise<RiwayaMetadata[]> {
+    const data = await this.getRiwayaData();
+    return data.filter(row => row.page === page);
   }
 
-  getFontUrl(recitation: Recitation, page: number): string {
-    const pageStr = page.toString().padStart(page < 10 ? 2 : 1, '0');
-    return this.fetcher.getAssetUrl(`assets/fonts/qcf4/QCF4_${recitation}_${pageStr}_W.woff2`);
+  async getVerse(surah: number, ayah: number): Promise<RiwayaMetadata | undefined> {
+    const data = await this.getRiwayaData();
+    return data.find(row => row.sora === surah && row.aya_no === ayah);
   }
 
-  private parseCSV(csv: string): LayoutRow[] {
-    const lines = csv.split('\n');
-    const headers = lines[0].split(',');
-    return lines.slice(1).filter(l => l.trim()).map(line => {
-      const values = line.split(',');
-      const row: any = {};
-      headers.forEach((h, i) => {
-        const val = values[i];
-        row[h.trim()] = isNaN(val as any) ? val : Number(val);
-      });
-      return row as LayoutRow;
-    });
+  getFontUrl(page: number): string {
+    // KFGQPC fonts are now located in data/riwaya/${recitation}/fonts/
+    // Example: data/riwaya/hafs/fonts/hafs.18.woff2
+    // Note: The specific font version/name might vary, current structure uses index-based or single file.
+    return this.fetcher.getAssetUrl(`data/riwaya/${this.recitation}/fonts/${this.recitation}.woff2`);
   }
 }
 

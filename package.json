@@ -7,7 +7,8 @@
   "exports": {
     "./core": "./dist/core/index.js",
     "./react": "./dist/view/react/index.js",
-    "./native": "./dist/view/native/index.js"
+    "./native": "./dist/view/native/index.js",
+    "./web": "./dist/view/web/index.js"
   },
   "files": [
     "dist",

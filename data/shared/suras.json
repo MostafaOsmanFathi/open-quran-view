@@ -1,0 +1,686 @@
+[
+  {
+    "number": 1,
+    "name": "الفَاتِحة",
+    "name_en": "Al-Fātiḥah",
+    "verse_count": 7
+  },
+  {
+    "number": 2,
+    "name": "البَقَرَة",
+    "name_en": "Al-Baqarah",
+    "verse_count": 286
+  },
+  {
+    "number": 3,
+    "name": "آل عِمران",
+    "name_en": "Āl-‘Imrān",
+    "verse_count": 200
+  },
+  {
+    "number": 4,
+    "name": "النِّسَاء",
+    "name_en": "An-Nisā’",
+    "verse_count": 176
+  },
+  {
+    "number": 5,
+    "name": "المَائدة",
+    "name_en": "Al-Mā’idah",
+    "verse_count": 120
+  },
+  {
+    "number": 6,
+    "name": "الأنعَام",
+    "name_en": "Al-An‘ām",
+    "verse_count": 165
+  },
+  {
+    "number": 7,
+    "name": "الأعرَاف",
+    "name_en": "Al-A‘rāf",
+    "verse_count": 206
+  },
+  {
+    "number": 8,
+    "name": "الأنفَال",
+    "name_en": "Al-Anfāl",
+    "verse_count": 75
+  },
+  {
+    "number": 9,
+    "name": "التوبَة",
+    "name_en": "At-Taubah",
+    "verse_count": 129
+  },
+  {
+    "number": 10,
+    "name": "يُونس",
+    "name_en": "Yūnus",
+    "verse_count": 109
+  },
+  {
+    "number": 11,
+    "name": "هُود",
+    "name_en": "Hūd",
+    "verse_count": 123
+  },
+  {
+    "number": 12,
+    "name": "يُوسُف",
+    "name_en": "Yūsuf",
+    "verse_count": 111
+  },
+  {
+    "number": 13,
+    "name": "الرَّعد",
+    "name_en": "Ar-Ra‘d",
+    "verse_count": 43
+  },
+  {
+    "number": 14,
+    "name": "إبراهِيم",
+    "name_en": "Ibrāhīm",
+    "verse_count": 52
+  },
+  {
+    "number": 15,
+    "name": "الحِجر",
+    "name_en": "Al-Ḥijr",
+    "verse_count": 99
+  },
+  {
+    "number": 16,
+    "name": "النَّحل",
+    "name_en": "An-Naḥl",
+    "verse_count": 128
+  },
+  {
+    "number": 17,
+    "name": "الإسرَاء",
+    "name_en": "Al-Isrā’",
+    "verse_count": 111
+  },
+  {
+    "number": 18,
+    "name": "الكَهف",
+    "name_en": "Al-Kahf",
+    "verse_count": 110
+  },
+  {
+    "number": 19,
+    "name": "مَريَم",
+    "name_en": "Maryam",
+    "verse_count": 98
+  },
+  {
+    "number": 20,
+    "name": "طه",
+    "name_en": "Ṭā-Hā",
+    "verse_count": 135
+  },
+  {
+    "number": 21,
+    "name": "الأنبيَاء",
+    "name_en": "Al-Anbiyā’",
+    "verse_count": 112
+  },
+  {
+    "number": 22,
+    "name": "الحج",
+    "name_en": "Al-Ḥajj",
+    "verse_count": 78
+  },
+  {
+    "number": 23,
+    "name": "المؤمنُون",
+    "name_en": "Al-Mu’minūn",
+    "verse_count": 118
+  },
+  {
+    "number": 24,
+    "name": "النور",
+    "name_en": "An-Nūr",
+    "verse_count": 64
+  },
+  {
+    "number": 25,
+    "name": "الفُرقَان",
+    "name_en": "Al-Furqān",
+    "verse_count": 77
+  },
+  {
+    "number": 26,
+    "name": "الشعراء",
+    "name_en": "Ash-Shu‘arā’",
+    "verse_count": 227
+  },
+  {
+    "number": 27,
+    "name": "النَّمل",
+    "name_en": "An-Naml",
+    "verse_count": 93
+  },
+  {
+    "number": 28,
+    "name": "القَصَص",
+    "name_en": "Al-Qaṣaṣ",
+    "verse_count": 88
+  },
+  {
+    "number": 29,
+    "name": "العَنكبُوت",
+    "name_en": "Al-‘Ankabūt",
+    "verse_count": 69
+  },
+  {
+    "number": 30,
+    "name": "الرُّوم",
+    "name_en": "Ar-Rūm",
+    "verse_count": 60
+  },
+  {
+    "number": 31,
+    "name": "لُقمَان",
+    "name_en": "Luqmān",
+    "verse_count": 34
+  },
+  {
+    "number": 32,
+    "name": "السَّجدة",
+    "name_en": "As-Sajdah",
+    "verse_count": 30
+  },
+  {
+    "number": 33,
+    "name": "الأحزَاب",
+    "name_en": "Al-Aḥzāb",
+    "verse_count": 73
+  },
+  {
+    "number": 34,
+    "name": "سَبإ",
+    "name_en": "Saba’",
+    "verse_count": 54
+  },
+  {
+    "number": 35,
+    "name": "فَاطِر",
+    "name_en": "Fāṭir",
+    "verse_count": 45
+  },
+  {
+    "number": 36,
+    "name": "يسٓ",
+    "name_en": "Yā-Sīn",
+    "verse_count": 83
+  },
+  {
+    "number": 37,
+    "name": "الصَّافَات",
+    "name_en": "Aṣ-Ṣāffāt",
+    "verse_count": 182
+  },
+  {
+    "number": 38,
+    "name": "صٓ",
+    "name_en": "Ṣād",
+    "verse_count": 88
+  },
+  {
+    "number": 39,
+    "name": "الزُّمَر",
+    "name_en": "Az-Zumar",
+    "verse_count": 75
+  },
+  {
+    "number": 40,
+    "name": "غَافِر",
+    "name_en": "Ghāfir",
+    "verse_count": 85
+  },
+  {
+    "number": 41,
+    "name": "فُصِّلَت",
+    "name_en": "Fuṣṣilat",
+    "verse_count": 54
+  },
+  {
+    "number": 42,
+    "name": "الشُّوري",
+    "name_en": "Ash-Shūra",
+    "verse_count": 53
+  },
+  {
+    "number": 43,
+    "name": "الزُّخرُف",
+    "name_en": "Az-Zukhruf",
+    "verse_count": 89
+  },
+  {
+    "number": 44,
+    "name": "الدُّخان",
+    "name_en": "Ad-Dukhān",
+    "verse_count": 59
+  },
+  {
+    "number": 45,
+    "name": "الجاثِية",
+    "name_en": "Al-Jāthiyah",
+    "verse_count": 37
+  },
+  {
+    "number": 46,
+    "name": "الأحقَاف",
+    "name_en": "Al-Aḥqāf",
+    "verse_count": 35
+  },
+  {
+    "number": 47,
+    "name": "مُحمد",
+    "name_en": "Muḥammad",
+    "verse_count": 38
+  },
+  {
+    "number": 48,
+    "name": "الفَتح",
+    "name_en": "Al-Fatḥ",
+    "verse_count": 29
+  },
+  {
+    "number": 49,
+    "name": "الحُجُرَات",
+    "name_en": "Al-Ḥujurāt",
+    "verse_count": 18
+  },
+  {
+    "number": 50,
+    "name": "قٓ",
+    "name_en": "Qāf",
+    "verse_count": 45
+  },
+  {
+    "number": 51,
+    "name": "الذَّاريَات",
+    "name_en": "Adh-Dhāriyāt",
+    "verse_count": 60
+  },
+  {
+    "number": 52,
+    "name": "الطُّور",
+    "name_en": "Aṭ-Ṭūr",
+    "verse_count": 49
+  },
+  {
+    "number": 53,
+    "name": "النَّجم",
+    "name_en": "An-Najm",
+    "verse_count": 62
+  },
+  {
+    "number": 54,
+    "name": "القَمَر",
+    "name_en": "Al-Qamar",
+    "verse_count": 55
+  },
+  {
+    "number": 55,
+    "name": "الرَّحمٰن",
+    "name_en": "Ar-Raḥmān",
+    "verse_count": 78
+  },
+  {
+    "number": 56,
+    "name": "الوَاقِعة",
+    "name_en": "Al-Wāqi‘ah",
+    "verse_count": 96
+  },
+  {
+    "number": 57,
+    "name": "الحدِيد",
+    "name_en": "Al-Ḥadīd",
+    "verse_count": 29
+  },
+  {
+    "number": 58,
+    "name": "المُجَادلة",
+    "name_en": "Al-Mujādilah",
+    "verse_count": 22
+  },
+  {
+    "number": 59,
+    "name": "الحَشر",
+    "name_en": "Al-Ḥashr",
+    "verse_count": 24
+  },
+  {
+    "number": 60,
+    "name": "المُمتَحنَة",
+    "name_en": "Al-Mumtaḥanah",
+    "verse_count": 13
+  },
+  {
+    "number": 61,
+    "name": "الصَّف",
+    "name_en": "Aṣ-Ṣaff",
+    "verse_count": 14
+  },
+  {
+    "number": 62,
+    "name": "الجُمعَة",
+    "name_en": "Al-Jumu‘ah",
+    "verse_count": 11
+  },
+  {
+    "number": 63,
+    "name": "المُنَافِقُونَ",
+    "name_en": "Al-Munāfiqūn",
+    "verse_count": 11
+  },
+  {
+    "number": 64,
+    "name": "التغَابُن",
+    "name_en": "At-Taghābun",
+    "verse_count": 18
+  },
+  {
+    "number": 65,
+    "name": "الطَّلَاق",
+    "name_en": "Aṭ-Ṭalāq",
+    "verse_count": 12
+  },
+  {
+    "number": 66,
+    "name": "التَّحرِيم",
+    "name_en": "At-Taḥrīm",
+    "verse_count": 12
+  },
+  {
+    "number": 67,
+    "name": "المُلك",
+    "name_en": "Al-Mulk",
+    "verse_count": 30
+  },
+  {
+    "number": 68,
+    "name": "القَلَم",
+    "name_en": "Al-Qalam",
+    "verse_count": 52
+  },
+  {
+    "number": 69,
+    "name": "الحَاقة",
+    "name_en": "Al-Ḥāqqah",
+    "verse_count": 52
+  },
+  {
+    "number": 70,
+    "name": "المَعَارج",
+    "name_en": "Al-Ma‘ārij",
+    "verse_count": 44
+  },
+  {
+    "number": 71,
+    "name": "نُوح",
+    "name_en": "Nūḥ",
+    "verse_count": 28
+  },
+  {
+    "number": 72,
+    "name": "الجِن",
+    "name_en": "Al-Jinn",
+    "verse_count": 28
+  },
+  {
+    "number": 73,
+    "name": "المُزمل",
+    "name_en": "Al-Muzzammil",
+    "verse_count": 20
+  },
+  {
+    "number": 74,
+    "name": "المُدثر",
+    "name_en": "Al-Muddaththir",
+    "verse_count": 56
+  },
+  {
+    "number": 75,
+    "name": "القِيَامة",
+    "name_en": "Al-Qiyāmah",
+    "verse_count": 40
+  },
+  {
+    "number": 76,
+    "name": "الإنسَان",
+    "name_en": "Al-Insān",
+    "verse_count": 31
+  },
+  {
+    "number": 77,
+    "name": "المُرسَلات",
+    "name_en": "Al-Mursalāt",
+    "verse_count": 50
+  },
+  {
+    "number": 78,
+    "name": "النَّبَإ",
+    "name_en": "An-Naba’",
+    "verse_count": 40
+  },
+  {
+    "number": 79,
+    "name": "النَّازعَات",
+    "name_en": "An-Nāzi‘āt",
+    "verse_count": 46
+  },
+  {
+    "number": 80,
+    "name": "عَبَسَ",
+    "name_en": "‘Abasa",
+    "verse_count": 42
+  },
+  {
+    "number": 81,
+    "name": "التَّكوير",
+    "name_en": "At-Takwīr",
+    "verse_count": 29
+  },
+  {
+    "number": 82,
+    "name": "الانفِطَار",
+    "name_en": "Al-Infiṭār",
+    "verse_count": 19
+  },
+  {
+    "number": 83,
+    "name": "المُطَففين",
+    "name_en": "Al-Muṭaffifīn",
+    "verse_count": 36
+  },
+  {
+    "number": 84,
+    "name": "الانشِقَاق",
+    "name_en": "Al-Inshiqāq",
+    "verse_count": 25
+  },
+  {
+    "number": 85,
+    "name": "البُرُوج",
+    "name_en": "Al-Burūj",
+    "verse_count": 22
+  },
+  {
+    "number": 86,
+    "name": "الطَّارق",
+    "name_en": "Aṭ-Ṭāriq",
+    "verse_count": 17
+  },
+  {
+    "number": 87,
+    "name": "الأعلى",
+    "name_en": "Al-A‘lā",
+    "verse_count": 19
+  },
+  {
+    "number": 88,
+    "name": "الغَاشِية",
+    "name_en": "Al-Ghāshiyah",
+    "verse_count": 26
+  },
+  {
+    "number": 89,
+    "name": "الفَجر",
+    "name_en": "Al-Fajr",
+    "verse_count": 30
+  },
+  {
+    "number": 90,
+    "name": "البَلَد",
+    "name_en": "Al-Balad",
+    "verse_count": 20
+  },
+  {
+    "number": 91,
+    "name": "الشَّمس",
+    "name_en": "Ash-Shams",
+    "verse_count": 15
+  },
+  {
+    "number": 92,
+    "name": "اللَّيل",
+    "name_en": "Al-Lail",
+    "verse_count": 21
+  },
+  {
+    "number": 93,
+    "name": "الضُّحى",
+    "name_en": "Aḍ-Ḍuḥā",
+    "verse_count": 11
+  },
+  {
+    "number": 94,
+    "name": "الشَّرح",
+    "name_en": "Ash-Sharḥ",
+    "verse_count": 8
+  },
+  {
+    "number": 95,
+    "name": "التِّين",
+    "name_en": "At-Tīn",
+    "verse_count": 8
+  },
+  {
+    "number": 96,
+    "name": "العَلَق",
+    "name_en": "Al-‘Alaq",
+    "verse_count": 19
+  },
+  {
+    "number": 97,
+    "name": "القَدر",
+    "name_en": "Al-Qadr",
+    "verse_count": 5
+  },
+  {
+    "number": 98,
+    "name": "البَينَة",
+    "name_en": "Al-Bayyinah",
+    "verse_count": 8
+  },
+  {
+    "number": 99,
+    "name": "الزَّلزَلة",
+    "name_en": "Az-Zalzalah",
+    "verse_count": 8
+  },
+  {
+    "number": 100,
+    "name": "العَاديَات",
+    "name_en": "Al-‘Ādiyāt",
+    "verse_count": 11
+  },
+  {
+    "number": 101,
+    "name": "القَارعَة",
+    "name_en": "Al-Qāri‘ah",
+    "verse_count": 11
+  },
+  {
+    "number": 102,
+    "name": "التَّكاثُر",
+    "name_en": "At-Takāthur",
+    "verse_count": 8
+  },
+  {
+    "number": 103,
+    "name": "العَصر",
+    "name_en": "Al-‘Aṣr",
+    "verse_count": 3
+  },
+  {
+    "number": 104,
+    "name": "الهُمَزة",
+    "name_en": "Al-Humazah",
+    "verse_count": 9
+  },
+  {
+    "number": 105,
+    "name": "الفِيل",
+    "name_en": "Al-Fīl",
+    "verse_count": 5
+  },
+  {
+    "number": 106,
+    "name": "قُرَيش",
+    "name_en": "Quraish",
+    "verse_count": 4
+  },
+  {
+    "number": 107,
+    "name": "المَاعُون",
+    "name_en": "Al-Mā‘ūn",
+    "verse_count": 7
+  },
+  {
+    "number": 108,
+    "name": "الكَوثر",
+    "name_en": "Al-Kauthar",
+    "verse_count": 3
+  },
+  {
+    "number": 109,
+    "name": "الكافِرون",
+    "name_en": "Al-Kāfirūn",
+    "verse_count": 6
+  },
+  {
+    "number": 110,
+    "name": "النَّصر",
+    "name_en": "An-Naṣr",
+    "verse_count": 3
+  },
+  {
+    "number": 111,
+    "name": "المَسَد",
+    "name_en": "Al-Masad",
+    "verse_count": 5
+  },
+  {
+    "number": 112,
+    "name": "الإخلَاص",
+    "name_en": "Al-Ikhlāṣ",
+    "verse_count": 4
+  },
+  {
+    "number": 113,
+    "name": "الفَلَق",
+    "name_en": "Al-Falaq",
+    "verse_count": 5
+  },
+  {
+    "number": 114,
+    "name": "النَّاس",
+    "name_en": "An-Nās",
+    "verse_count": 6
+  }
+]

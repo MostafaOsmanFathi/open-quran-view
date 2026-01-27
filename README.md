@@ -1,44 +1,44 @@
-# 📖 open-quran-view
+# open-quran-view
 
-> **High-Performance Universal Quran Rendering Library** using React Native Skia.
+High-performance universal Quran rendering library using React Native Skia.
 
-`open-quran-view` is a modern, high-performance library designed to render the Holy Quran with pixel-perfect accuracy across all platforms. Built on top of **React Native Skia**, it provides a universal rendering engine that works seamlessly on **Web, iOS, and Android**.
-
----
-
-## ✨ Features
-
-- 🎨 **Skia-Powered Rendering** - Utilizing hardware acceleration for smooth, crisp Quranic glyphs.
-- 📜 **Universal Support** - Single codebase for Web, Mobile, and Desktop via React Native Skia.
-- ⚡ **Dynamic Data Loading** - Efficient CSV-based layout processing with on-demand font loading.
-- 🧭 **Authentic Mushaf Layout** - Faithful replication of the 15-line Mushaf Madina layout.
-- 🛠️ **Developer Friendly** - Clean TypeScript API with modular architecture.
+`open-quran-view` is designed with a strictly decoupled architecture. While it provides a high-fidelity rendering component for React and React Native (via Skia), the **Core logic** is platform-agnostic and can be used with any framework or even vanilla JavaScript.
 
 ---
 
-## 🏗️ Project Structure
+## Features
 
-The project has been refactored into a modern library structure:
+- **Skia-Powered Rendering** - Hardware-accelerated rendering for crisp Quranic text.
+- **Universal & Modular** - Decoupled Core logic allows for React-specific views or vanilla web variants.
+- **Efficient Data Loading** - Optimized CSV-based layout processing and font loading.
+- **Standard Mushaf Layout** - Follows the 15-line Mushaf Madina layout.
+- **TypeScript First** - Built with TypeScript for a robust development experience.
 
-```
+---
+
+## Project Structure
+
+The project is organized as follows:
+
+```text
 open-quran-view/
 ├── src/
-│   ├── core/               # Platform-agnostic business logic & data loading
-│   │   ├── index.ts        # Main Core entry
+│   ├── core/               # Platform-agnostic logic and data processing
+│   │   ├── index.ts        # Core library entry point
 │   │   ├── types.ts        # Shared TypeScript interfaces
-│   │   ├── fetcher.ts      # Universal asset fetching logic
+│   │   ├── fetcher.ts      # Asset fetching logic
 │   │   └── data-loader.ts  # CSV/JSON processing engine
 │   └── view/
-│       └── react/          # React / React Native Skia components
-│           └── index.tsx   # <QuranView /> component
+│       ├── react/          # Shared Skia component (Web, iOS, Android)
+│       └── web/            # Vanilla JS / HTML5 Canvas placeholder
 ├── assets/                 # Reusable assets (Fonts, etc.)
-├── data/                   # Mushaf layout and metadata (JSON/CSV)
-└── docs/                   # Comprehensive technical documentation
+├── data/                   # Mushaf layout and metadata
+└── docs/                   # Documentation
 ```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Installation
 
@@ -46,7 +46,7 @@ open-quran-view/
 npm install open-quran-view
 ```
 
-### Basic Usage (React/React Native)
+### Basic Usage
 
 ```tsx
 import { QuranView } from 'open-quran-view';
@@ -68,9 +68,9 @@ function App() {
 
 ---
 
-## 📖 Documentation
+## Documentation
 
-For detailed guides and API references, please see the [docs/](docs/) directory:
+For detailed information, please refer to the `docs/` directory:
 
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [Data Structures](docs/DATA_STRUCTURES.md)
@@ -78,16 +78,10 @@ For detailed guides and API references, please see the [docs/](docs/) directory:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-Contributions are welcome! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to help build the future of digital Quran rendering.
+Contributions are welcome. Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ---
 
-<div align="center">
-
-**Made with ❤️ for the Muslim Ummah**
-
-*Jazakum Allahu Khairan - May Allah reward you with goodness*
-
-</div>
+Jazakum Allahu Khairan

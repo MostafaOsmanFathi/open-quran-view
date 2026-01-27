@@ -1,23 +1,23 @@
-export interface MushafMetadata {
-  juz_pages: number[];
-  mushaf_pgs: number[];
-  centered_lines: Record<string, number[]>;
-  custom_header_surah_glyph_offset_fix: Record<string, number>;
+export interface RiwayaMetadata {
+  id: number;
+  jozz: number;
+  sora: number;
+  sora_name_en: string;
+  sora_name_ar: string;
+  page: number;
+  line_start: number;
+  line_end: number;
+  aya_no: number;
+  aya_text: string;
+  aya_text_emlaey: string;
 }
 
-export type PageMapping = Record<string, [number, number, number, number]>;
-
-export interface LayoutRow {
-  ayah: number;
-  surah: number;
-  page: number;
-  line: number;
-  word: number;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  glyph: string | number;
+export interface SurahMetadata {
+  number: number;
+  name: string;
+  name_en: string;
+  verse_count: number;
+  revelation_place: 'Meccan' | 'Medinan';
 }
 
 export interface AssetFetcher {
@@ -26,4 +26,4 @@ export interface AssetFetcher {
   getAssetUrl(path: string): string;
 }
 
-export type Recitation = 'Hafs' | 'Warsh' | 'Qaloon' | 'Doori' | 'Shuba' | 'Soussi' | 'Bazzi' | 'Qunbul' | 'Khalaf';
+export type Recitation = 'hafs' | 'warsh' | 'qaloon' | 'doori' | 'shuba' | 'soussi' | 'bazzi' | 'qunbul' | 'khalaf';
