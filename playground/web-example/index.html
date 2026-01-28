@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Quran View - Web Example</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .controls label {
+            font-weight: 500;
+        }
+
+        .controls select,
+        .controls button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .controls button {
+            background: #667eea;
+            color: white;
+            border: none;
+        }
+
+        .controls button:hover {
+            background: #5a6fd6;
+        }
+
+        #word-info {
+            padding: 12px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-width: 300px;
+            text-align: center;
+        }
+
+        #word-info:empty {
+            display: none;
+        }
+
+        quran-view {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Open Quran View - Web Component Demo</h1>
+
+        <div class="controls">
+            <label>
+                Page:
+                <input type="number" id="page-input" min="1" max="604" value="1" style="width: 60px; padding: 6px;">
+            </label>
+            <label>
+                Theme:
+                <select id="theme-select">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </label>
+            <button id="go-btn">Go</button>
+            <button id="prev-btn">Previous</button>
+            <button id="next-btn">Next</button>
+        </div>
+
+        <div id="word-info">Click on a word to see details</div>
+
+        <quran-view id="quran-viewer" page="1" riwaya="hafs" width="600" height="850" theme="light">
+        </quran-view>
+    </div>
+
+    <script type="module">
+        import { registerQuranView } from '/dist/view/web/index.js';
+
+        registerQuranView();
+
+        const viewer = document.getElementById('quran-viewer');
+        const pageInput = document.getElementById('page-input');
+        const themeSelect = document.getElementById('theme-select');
+        const goBtn = document.getElementById('go-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const wordInfo = document.getElementById('word-info');
+
+        goBtn.addEventListener('click', () => {
+            viewer.setAttribute('page', pageInput.value);
+        });
+
+        pageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                viewer.setAttribute('page', pageInput.value);
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            const currentPage = parseInt(viewer.getAttribute('page') || '1');
+            viewer.setAttribute('page', String(currentPage - 1));
+            pageInput.value = viewer.getAttribute('page');
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const currentPage = parseInt(viewer.getAttribute('page') || '1');
+            viewer.setAttribute('page', String(currentPage + 1));
+            pageInput.value = viewer.getAttribute('page');
+        });
+
+        themeSelect.addEventListener('change', () => {
+            viewer.setAttribute('theme', themeSelect.value);
+        });
+
+        viewer.addEventListener('wordclick', (e) => {
+            const { id, surahNumber, ayahNumber } = e.detail;
+            wordInfo.innerHTML = `
+        <strong>Word Clicked:</strong><br>
+        ID: ${id} | Surah: ${surahNumber} | Ayah: ${ayahNumber}
+      `;
+        });
+
+        viewer.addEventListener('pagechange', (e) => {
+            pageInput.value = String(e.detail.page);
+        });
+
+        console.log('Open Quran View web example loaded successfully');
+    </script>
+</body>
+
+</html>
