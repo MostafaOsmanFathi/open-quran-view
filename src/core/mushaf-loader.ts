@@ -38,21 +38,18 @@ export class MushafLoader {
       return this.qulLayout;
     }
 
-    const assetUrl = this.getAssetUrl("layout.json");
-    const response = await fetch(assetUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to load layout.json: ${response.statusText}`);
+    try {
+      const layoutModule =
+        await import("../assets/riwaya/hafs-digitalkhatt/layout.json");
+      const layoutData = layoutModule.default || layoutModule;
+      this.qulLayout = layoutData as unknown as QulLayout;
+      return this.qulLayout;
+    } catch (error) {
+      console.error("Failed to load layout.json:", error);
+      throw new Error(
+        "Could not load layout data. Ensure assets/riwaya/hafs-digitalkhatt/layout.json exists.",
+      );
     }
-    this.qulLayout = (await response.json()) as QulLayout;
-    return this.qulLayout;
-  }
-
-  private getAssetUrl(file: string): string {
-    const baseUrl = new URL(
-      "../../assets/riwaya/hafs-digitalkhatt",
-      import.meta.url,
-    );
-    return new URL(file, baseUrl).href;
   }
 
   async loadPage(pageNumber: number): Promise<QuranPage> {
@@ -86,8 +83,8 @@ export class MushafLoader {
   }
 
   getFontUrl(): string {
-    const qulAssetBaseUrl = new URL("../../new-assets", import.meta.url).href;
-    return `${qulAssetBaseUrl}/riwaya/hafs-digitalkhatt/DigitalKhattV2.ttf`;
+    const qulAssetBaseUrl = new URL("../../assets", import.meta.url).href;
+    return `${qulAssetBaseUrl}/riwaya/hafs-digitalkhatt/font.ttf`;
   }
 
   private getWordsForLine(

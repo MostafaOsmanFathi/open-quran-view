@@ -53,7 +53,7 @@ export type FontMetrics = {
   width: Map<string, number>;
 };
 
-export interface LayoutConfig {
+export type LayoutConfig = {
   pageWidth: number;
   pageHeight: number;
   linesPerPage: number;
@@ -66,7 +66,7 @@ export interface LayoutConfig {
     left: number;
     right: number;
   };
-}
+};
 
 const DEFAULT_CONFIG: LayoutConfig = {
   pageWidth: 600,

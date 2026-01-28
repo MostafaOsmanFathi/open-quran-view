@@ -22,31 +22,28 @@ export class WordDataLoader {
       return this.words;
     }
 
-    const assetUrl = this.getAssetUrl("word-data.json");
-    const response = await fetch(assetUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to load word-data.json: ${response.statusText}`);
+    try {
+      const wordModule =
+        await import("../assets/riwaya/hafs-digitalkhatt/word-data.json");
+      const rawData: RawWordData = (wordModule.default ||
+        wordModule) as unknown as RawWordData;
+
+      this.words = {};
+      this.wordsById = new Map();
+
+      for (const key of Object.keys(rawData)) {
+        const word = this.transformWord(rawData[key]);
+        this.words[key] = word;
+        this.wordsById.set(word.id, word);
+      }
+
+      return this.words;
+    } catch (error) {
+      console.error("Failed to load word-data.json:", error);
+      throw new Error(
+        "Could not load word data. Ensure assets/riwaya/hafs-digitalkhatt/word-data.json exists.",
+      );
     }
-    const rawData: RawWordData = await response.json();
-
-    this.words = {};
-    this.wordsById = new Map();
-
-    for (const key of Object.keys(rawData)) {
-      const word = this.transformWord(rawData[key]);
-      this.words[key] = word;
-      this.wordsById.set(word.id, word);
-    }
-
-    return this.words;
-  }
-
-  private getAssetUrl(file: string): string {
-    const baseUrl = new URL(
-      "../../assets/riwaya/hafs-digitalkhatt",
-      import.meta.url,
-    );
-    return new URL(file, baseUrl).href;
   }
 
   getWordById(id: number): QuranWord | undefined {
