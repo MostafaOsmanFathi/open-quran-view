@@ -5,9 +5,16 @@
   "type": "module",
   "main": "./dist/core/index.js",
   "exports": {
-    "./core": "./dist/core/index.js",
-    "./react": "./dist/view/react/index.js",
-    "./web": "./dist/view/web/index.js"
+    ".": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    },
+    "./view": {
+      "react": "./dist/view/react/index.js",
+      "react-native": "./dist/view/native/index.js",
+      "web": "./dist/view/web/index.js",
+      "default": "./dist/view/react/index.js"
+    }
   },
   "files": [
     "dist",
@@ -20,7 +27,7 @@
     "lint": "eslint src/**",
     "test": "vitest",
     "playground:setup": "pnpm build",
-    "playground:vite": "cd playground/vite-ts-playground && pnpm dev",
+    "playground:vite": "cd playground/vite-ts && pnpm dev",
     "playground:web": "npx serve -p 3000"
   },
   "peerDependencies": {

@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { OpenMushafView } from "open-quran-view/react";
+import { OpenMushafView } from "open-quran-view/view/react";
 import "./App.css";
 
 function App() {
