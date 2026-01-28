@@ -1,9 +1,4 @@
-import type {
-  QuranPage,
-  QuranWord,
-  LineType,
-  Riwaya,
-} from "./types";
+import type { QuranPage, QuranWord, LineType } from "./types";
 
 export type PositionedWord = {
   id: number;
@@ -127,9 +122,15 @@ export class LayoutCalculator {
     };
   }
 
-  private calculateLines(page: QuranPage, metrics: PageMetrics): PositionedLine[] {
+  private calculateLines(
+    page: QuranPage,
+    metrics: PageMetrics,
+  ): PositionedLine[] {
     const lines: PositionedLine[] = [];
-    const contentWidth = this.config.pageWidth - metrics.pagePadding.left - metrics.pagePadding.right;
+    const contentWidth =
+      this.config.pageWidth -
+      metrics.pagePadding.left -
+      metrics.pagePadding.right;
 
     for (const pageLine of page.lines) {
       const lineY = this.calculateLineY(pageLine.line_number, metrics);
@@ -137,7 +138,7 @@ export class LayoutCalculator {
         pageLine,
         lineY,
         contentWidth,
-        metrics
+        metrics,
       );
       lines.push(positionedLine);
     }
@@ -147,17 +148,22 @@ export class LayoutCalculator {
 
   private calculateLineY(lineNumber: number, metrics: PageMetrics): number {
     const lineHeight = metrics.lineHeight;
-    const contentHeight = this.config.pageHeight - metrics.pagePadding.top - metrics.pagePadding.bottom;
     const startY = metrics.pagePadding.top + lineHeight;
 
     return startY + (lineNumber - 1) * lineHeight;
   }
 
   private calculateLinePosition(
-    pageLine: { line_number: number; line_type: LineType; surah_number?: number; is_centered: boolean; words: QuranWord[] },
+    pageLine: {
+      line_number: number;
+      line_type: LineType;
+      surah_number?: number;
+      is_centered: boolean;
+      words: QuranWord[];
+    },
     lineY: number,
     contentWidth: number,
-    metrics: PageMetrics
+    metrics: PageMetrics,
   ): PositionedLine {
     const positionedWords: PositionedWord[] = [];
     let currentX = metrics.pagePadding.left;
@@ -187,7 +193,9 @@ export class LayoutCalculator {
     }
 
     const lastWord = positionedWords[positionedWords.length - 1];
-    const endX = lastWord ? lastWord.x + lastWord.width : metrics.pagePadding.left;
+    const endX = lastWord
+      ? lastWord.x + lastWord.width
+      : metrics.pagePadding.left;
 
     let startX = metrics.pagePadding.left;
     if (pageLine.is_centered && positionedWords.length > 0) {
@@ -219,7 +227,8 @@ export class LayoutCalculator {
     if (this.fontMetrics) {
       let totalWidth = 0;
       for (const char of text) {
-        totalWidth += this.fontMetrics.width.get(char) || this.config.fontSize * 0.6;
+        totalWidth +=
+          this.fontMetrics.width.get(char) || this.config.fontSize * 0.6;
       }
       return totalWidth;
     }
@@ -236,6 +245,8 @@ export class LayoutCalculator {
   }
 }
 
-export function createLayoutCalculator(config?: Partial<LayoutConfig>): LayoutCalculator {
+export function createLayoutCalculator(
+  config?: Partial<LayoutConfig>,
+): LayoutCalculator {
   return new LayoutCalculator(config);
 }

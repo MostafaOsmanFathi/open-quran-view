@@ -4,25 +4,21 @@ import type {
   MushafInfo,
   LineType,
   Riwaya,
+  QulLayout,
+  QulLayoutPageLine,
 } from "./types";
 import type { WordDataLoader } from "./word-data-loader";
-
-type PageRow = {
-  page_number: number;
-  line_number: number;
-  line_type: string;
-  is_centered: number;
-  first_word_id: string;
-  last_word_id: string;
-  surah_number: string;
-};
 
 export class MushafLoader {
   private riwaya: Riwaya;
   private wordLoader: WordDataLoader;
   private mushafInfo: MushafInfo | null = null;
+  private qulLayout: QulLayout | null = null;
 
-  constructor(riwaya: Riwaya = "hafs", wordLoader: WordDataLoader) {
+  constructor(
+    riwaya: Riwaya = "hafs-digitalkhatt",
+    wordLoader: WordDataLoader,
+  ) {
     this.riwaya = riwaya;
     this.wordLoader = wordLoader;
   }
@@ -32,16 +28,31 @@ export class MushafLoader {
       return this.mushafInfo;
     }
 
-    try {
-      const infoModule = await import(
-        `../assets/riwaya/${this.riwaya}/pages/info.json`
-      );
-      this.mushafInfo = (infoModule.default || infoModule) as MushafInfo;
-      return this.mushafInfo;
-    } catch (error) {
-      console.error("Failed to load mushaf info:", error);
-      throw new Error("Could not load mushaf info.");
+    const layout = await this.loadQulLayout();
+    this.mushafInfo = layout.info;
+    return this.mushafInfo;
+  }
+
+  private async loadQulLayout(): Promise<QulLayout> {
+    if (this.qulLayout) {
+      return this.qulLayout;
     }
+
+    const assetUrl = this.getAssetUrl("layout.json");
+    const response = await fetch(assetUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to load layout.json: ${response.statusText}`);
+    }
+    this.qulLayout = (await response.json()) as QulLayout;
+    return this.qulLayout;
+  }
+
+  private getAssetUrl(file: string): string {
+    const baseUrl = new URL(
+      "../../assets/riwaya/hafs-digitalkhatt",
+      import.meta.url,
+    );
+    return new URL(file, baseUrl).href;
   }
 
   async loadPage(pageNumber: number): Promise<QuranPage> {
@@ -53,56 +64,43 @@ export class MushafLoader {
       );
     }
 
-    try {
-      const pageModule = await import(
-        `../assets/riwaya/${this.riwaya}/pages/pages-${pageNumber}.json`
-      );
-      const pageRows: PageRow[] = (pageModule.default ||
-        pageModule) as PageRow[];
+    const layout = await this.loadQulLayout();
+    const pageLines: QulLayoutPageLine[] =
+      layout.pages[String(pageNumber)] || [];
 
-      await this.wordLoader.loadWords();
+    await this.wordLoader.loadWords();
 
-      const lines: PageLine[] = pageRows.map((row) => ({
-        line_number: row.line_number,
-        line_type: row.line_type as LineType,
-        surah_number: row.surah_number
-          ? parseInt(row.surah_number, 10)
-          : undefined,
-        is_centered: row.is_centered === 1,
-        words: this.getWordsForLine(row),
-      }));
+    const lines: PageLine[] = pageLines.map((row) => ({
+      line_number: row.line_number,
+      line_type: row.line_type as LineType,
+      surah_number: row.surah_number ?? undefined,
+      is_centered: row.is_centered,
+      words: this.getWordsForLine(row),
+    }));
 
-      return {
-        page_number: pageNumber,
-        font_url: this.getFontUrl(pageNumber),
-        lines,
-      };
-    } catch (error) {
-      console.error(`Failed to load page ${pageNumber}:`, error);
-      throw new Error(`Could not load page ${pageNumber}.`);
-    }
+    return {
+      page_number: pageNumber,
+      font_url: this.getFontUrl(),
+      lines,
+    };
   }
 
-  getFontUrl(pageNumber: number): string {
-    const assetBaseUrl = new URL("../assets/riwaya", import.meta.url).href;
-    const extension = "ttf";
-    return `${assetBaseUrl}${this.riwaya}/fonts/${extension}/p${pageNumber}.${extension}`;
+  getFontUrl(): string {
+    const qulAssetBaseUrl = new URL("../../new-assets", import.meta.url).href;
+    return `${qulAssetBaseUrl}/riwaya/hafs-digitalkhatt/DigitalKhattV2.ttf`;
   }
 
   private getWordsForLine(
-    row: PageRow,
+    row: QulLayoutPageLine,
   ): ReturnType<WordDataLoader["getWordsInRange"]> {
     if (row.line_type === "surah_name" || row.line_type === "basmallah") {
       return [];
     }
 
-    const startId = parseInt(row.first_word_id, 10);
-    const endId = parseInt(row.last_word_id, 10);
-
-    if (isNaN(startId) || isNaN(endId)) {
+    if (row.first_word_id === null || row.last_word_id === null) {
       return [];
     }
 
-    return this.wordLoader.getWordsInRange(startId, endId);
+    return this.wordLoader.getWordsInRange(row.first_word_id, row.last_word_id);
   }
 }

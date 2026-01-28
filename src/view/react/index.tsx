@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { createOpenQuranView } from "../../index";
-import { LayoutCalculator, PageLayout, Riwaya } from "../../core";
+import { LayoutCalculator, PageLayout } from "../../core";
 
 export interface OpenMushafViewProps {
   page?: number;
-  riwaya?: Riwaya;
   width?: number;
   height?: number;
   theme?: "light" | "dark";
@@ -20,7 +19,6 @@ export interface OpenMushafViewProps {
 
 export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
   page = 1,
-  riwaya = "hafs",
   width = 600,
   height = 850,
   theme = "light",
@@ -58,7 +56,7 @@ export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
   );
 
   useEffect(() => {
-    viewerRef.current = createOpenQuranView(riwaya);
+    viewerRef.current = createOpenQuranView();
     calculatorRef.current = new LayoutCalculator({
       pageWidth: width,
       pageHeight: height,
@@ -70,7 +68,7 @@ export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
       viewerRef.current = null;
       calculatorRef.current = null;
     };
-  }, [riwaya, width, height, page, loadPage]);
+  }, [width, height, page, loadPage]);
 
   const handleNextPage = useCallback(async () => {
     await loadPage(currentPage + 1);
@@ -159,6 +157,8 @@ export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
                 line.words.map((word) => (
                   <span
                     key={word.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() =>
                       onWordClick?.({
                         id: word.id,
@@ -166,6 +166,16 @@ export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
                         ayahNumber: word.ayahNumber,
                       })
                     }
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onWordClick?.({
+                          id: word.id,
+                          surahNumber: word.surahNumber,
+                          ayahNumber: word.ayahNumber,
+                        });
+                      }
+                    }}
                     style={{
                       fontSize: 24,
                       color: theme === "dark" ? "#fff" : "#34495e",

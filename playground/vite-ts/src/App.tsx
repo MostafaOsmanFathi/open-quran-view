@@ -75,7 +75,6 @@ function App() {
       >
         <OpenMushafView
           page={page}
-          riwaya="hafs"
           width={500}
           height={700}
           theme={theme}

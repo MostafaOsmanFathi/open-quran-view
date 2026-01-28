@@ -1,16 +1,14 @@
-import type { Riwaya, QuranPage, MushafInfo, QuranWord } from "./core/types";
+import type { QuranPage, MushafInfo, QuranWord } from "./core/types";
 import { WordDataLoader } from "./core/word-data-loader";
 import { MushafLoader } from "./core/mushaf-loader";
 
 export class OpenQuranView {
-  private riwaya: Riwaya;
   private wordLoader: WordDataLoader;
   private mushafLoader: MushafLoader;
 
-  constructor(riwaya: Riwaya = "hafs") {
-    this.riwaya = riwaya;
-    this.wordLoader = new WordDataLoader(riwaya);
-    this.mushafLoader = new MushafLoader(riwaya, this.wordLoader);
+  constructor() {
+    this.wordLoader = new WordDataLoader();
+    this.mushafLoader = new MushafLoader("hafs-digitalkhatt", this.wordLoader);
   }
 
   async getMushafInfo(): Promise<MushafInfo> {
@@ -25,8 +23,8 @@ export class OpenQuranView {
     return this.wordLoader.getWordById(id);
   }
 
-  getFontUrl(pageNumber: number): string {
-    return this.mushafLoader.getFontUrl(pageNumber);
+  getFontUrl(): string {
+    return this.mushafLoader.getFontUrl();
   }
 
   getWordsInRange(startId: number, endId: number): QuranWord[] {
@@ -34,6 +32,6 @@ export class OpenQuranView {
   }
 }
 
-export function createOpenQuranView(riwaya: Riwaya = "hafs"): OpenQuranView {
-  return new OpenQuranView(riwaya);
+export function createOpenQuranView(): OpenQuranView {
+  return new OpenQuranView();
 }

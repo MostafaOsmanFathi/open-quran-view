@@ -16,38 +16,37 @@ type RawWordData = {
 export class WordDataLoader {
   private words: Record<string, QuranWord> | null = null;
   private wordsById: Map<number, QuranWord> | null = null;
-  private basePath: string;
-
-  constructor(basePath?: string) {
-    this.basePath = basePath ?? "hafs";
-  }
 
   async loadWords(): Promise<Record<string, QuranWord>> {
     if (this.words) {
       return this.words;
     }
 
-    try {
-      const wordsModule = await import(
-        `../assets/riwaya/${this.basePath}/word-data.json`
-      );
-      const rawData: RawWordData = (wordsModule.default ||
-        wordsModule) as RawWordData;
-
-      this.words = {};
-      this.wordsById = new Map();
-
-      for (const key of Object.keys(rawData)) {
-        const word = this.transformWord(rawData[key]);
-        this.words[key] = word;
-        this.wordsById.set(word.id, word);
-      }
-
-      return this.words;
-    } catch (error) {
-      console.error("Failed to load Quran words:", error);
-      throw new Error("Could not load Quran words data.");
+    const assetUrl = this.getAssetUrl("word-data.json");
+    const response = await fetch(assetUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to load word-data.json: ${response.statusText}`);
     }
+    const rawData: RawWordData = await response.json();
+
+    this.words = {};
+    this.wordsById = new Map();
+
+    for (const key of Object.keys(rawData)) {
+      const word = this.transformWord(rawData[key]);
+      this.words[key] = word;
+      this.wordsById.set(word.id, word);
+    }
+
+    return this.words;
+  }
+
+  private getAssetUrl(file: string): string {
+    const baseUrl = new URL(
+      "../../assets/riwaya/hafs-digitalkhatt",
+      import.meta.url,
+    );
+    return new URL(file, baseUrl).href;
   }
 
   getWordById(id: number): QuranWord | undefined {

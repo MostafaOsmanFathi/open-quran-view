@@ -38,7 +38,7 @@ export class ReactViewAdapter implements DynamicDataLoader {
     font_name: string;
   } | null = null;
 
-  constructor(riwaya: Riwaya = "hafs") {
+  constructor(riwaya: Riwaya = "hafs-digitalkhatt") {
     this.riwaya = riwaya;
   }
 

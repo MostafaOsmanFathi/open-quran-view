@@ -1,4 +1,4 @@
-export type Riwaya = "hafs";
+export type Riwaya = "hafs-digitalkhatt";
 
 export type LineType = "surah_name" | "ayah" | "basmallah";
 
@@ -32,6 +32,20 @@ export type MushafInfo = {
   font_name: string;
 };
 
+export type QulLayoutPageLine = {
+  line_number: number;
+  line_type: LineType;
+  is_centered: boolean;
+  first_word_id: number | null;
+  last_word_id: number | null;
+  surah_number: number | null;
+};
+
+export type QulLayout = {
+  info: MushafInfo;
+  pages: Record<string, QulLayoutPageLine[]>;
+};
+
 export type SurahMetadata = {
   id: number;
   name: string;
@@ -41,17 +55,4 @@ export type SurahMetadata = {
   revelation_place: "makkah" | "madinah";
   verses_count: number;
   bismillah_pre: boolean;
-};
-
-export type DataLoader = {
-  loadWords(): Promise<Record<string, QuranWord>>;
-  loadPages(pageNumber: number): Promise<QuranPage>;
-  loadMushafInfo(): Promise<MushafInfo>;
-  getFontUrl(pageNumber: number): string;
-};
-
-export type AssetFetcher = {
-  fetchJSON<T>(path: string): Promise<T>;
-  fetchText(path: string): Promise<string>;
-  getAssetUrl(path: string): string;
 };

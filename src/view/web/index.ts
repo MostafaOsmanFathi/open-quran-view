@@ -1,17 +1,6 @@
-import { createOpenQuranView, OpenQuranView } from "../../index";
-import type {
-  QuranPage,
-  QuranWord,
-  MushafInfo,
-  Riwaya,
-} from "../../core/types";
-import type {
-  PageLayout,
-  PageMetrics,
-  PositionedLine,
-  PositionedWord,
-} from "../../core/layout-calculator";
+import { createOpenQuranView } from "../../index";
 import { LayoutCalculator } from "../../core";
+import type { PageLayout } from "../../core/layout-calculator";
 
 const STYLES = `
   :host {
@@ -204,12 +193,11 @@ export class QuranViewElement extends HTMLElement {
   }
 
   private async initialize(): Promise<void> {
-    const riwaya = (this.getAttribute("riwaya") || "hafs") as Riwaya;
     const width = parseInt(this.getAttribute("width") || "600", 10);
     const height = parseInt(this.getAttribute("height") || "850", 10);
     const theme = (this.getAttribute("theme") || "light") as "light" | "dark";
 
-    this.viewer = createOpenQuranView(riwaya);
+    this.viewer = createOpenQuranView();
     this.calculator = new LayoutCalculator({
       pageWidth: width,
       pageHeight: height,
@@ -370,6 +358,6 @@ export function registerQuranView(): void {
   }
 }
 
-export { createOpenQuranView, OpenQuranView };
+export { createOpenQuranView };
 
 export default QuranViewElement;
