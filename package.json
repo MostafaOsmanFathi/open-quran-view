@@ -19,8 +19,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "lint": "eslint src/**",
-    "test": "vitest",
-    "generate:pages": "node scripts/generate-pages.cjs"
+    "test": "vitest"
   },
   "peerDependencies": {
     "@shopify/react-native-skia": ">=0.1",

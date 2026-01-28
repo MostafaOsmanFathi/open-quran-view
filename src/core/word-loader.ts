@@ -1,13 +1,13 @@
-import type { QuranWord, DataLoader } from './types';
+import type { QuranWord } from "./types";
 
-interface WordData {
+type WordData = {
   id: number;
   surah: string;
   ayah: string;
   word: string;
   location: string;
   text: string;
-}
+};
 
 interface RawWordData {
   [key: string]: WordData;
@@ -18,7 +18,7 @@ export class WordDataLoader {
   private wordsById: Map<number, QuranWord> | null = null;
   private basePath: string;
 
-  constructor(basePath: string = 'data/riwaya/hafs') {
+  constructor(basePath: string = "data/riwaya/hafs") {
     this.basePath = basePath;
   }
 
@@ -33,7 +33,7 @@ export class WordDataLoader {
     }
 
     const rawData: RawWordData = await response.json();
-    
+
     this.words = {};
     this.wordsById = new Map();
 
@@ -52,7 +52,7 @@ export class WordDataLoader {
 
   getWordsInRange(startId: number, endId: number): QuranWord[] {
     if (!this.wordsById) {
-      throw new Error('Words not loaded. Call loadWords() first.');
+      throw new Error("Words not loaded. Call loadWords() first.");
     }
 
     const words: QuranWord[] = [];

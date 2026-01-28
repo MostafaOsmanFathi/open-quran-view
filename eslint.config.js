@@ -13,6 +13,7 @@ export default [
             sourceType: 'module',
             parser: parser,
             globals: {
+                ...js.environments.browser.globals,
                 fetch: 'readonly',
                 console: 'readonly',
                 vi: 'readonly',

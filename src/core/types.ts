@@ -49,3 +49,9 @@ export type DataLoader = {
   loadMushafInfo(): Promise<MushafInfo>;
   getFontUrl(pageNumber: number): string;
 };
+
+export type AssetFetcher = {
+  fetchJSON<T>(path: string): Promise<T>;
+  fetchText(path: string): Promise<string>;
+  getAssetUrl(path: string): string;
+};

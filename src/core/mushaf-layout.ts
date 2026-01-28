@@ -7,7 +7,7 @@ import type {
 } from "./types";
 import type { WordDataLoader } from "./word-loader";
 
-interface PageRow {
+type PageRow = {
   page_number: number;
   line_number: number;
   line_type: string;
@@ -15,14 +15,7 @@ interface PageRow {
   first_word_id: string;
   last_word_id: string;
   surah_number: string;
-}
-
-interface InfoRow {
-  name: string;
-  number_of_pages: number;
-  lines_per_page: number;
-  font_name: string;
-}
+};
 
 export class MushafLayoutLoader {
   private riwaya: Riwaya;

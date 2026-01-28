@@ -103,13 +103,13 @@ TEMPLATE.innerHTML = `
   </div>
 `;
 
-export interface QuranViewAttributes {
+export type QuranViewAttributes = {
   page?: string;
   riwaya?: string;
   width?: string;
   height?: string;
   theme?: "light" | "dark";
-}
+};
 
 export class QuranViewElement extends HTMLElement {
   private viewer: ReturnType<typeof createOpenQuranView> | null = null;
