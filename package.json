@@ -9,11 +9,21 @@
       "types": "./dist/core/index.d.ts",
       "import": "./dist/core/index.js"
     },
-    "./view": {
-      "react": "./dist/view/react/index.js",
-      "react-native": "./dist/view/native/index.js",
-      "web": "./dist/view/web/index.js",
-      "default": "./dist/view/react/index.js"
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    },
+    "./view/react": {
+      "types": "./dist/view/react/index.d.ts",
+      "import": "./dist/view/react/index.js"
+    },
+    "./view/react-native": {
+      "types": "./dist/view/native/index.d.ts",
+      "import": "./dist/view/native/index.js"
+    },
+    "./view/web": {
+      "types": "./dist/view/web/index.d.ts",
+      "import": "./dist/view/web/index.js"
     }
   },
   "files": [
