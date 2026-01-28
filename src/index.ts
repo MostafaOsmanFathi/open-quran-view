@@ -1,16 +1,16 @@
 import type { Riwaya, QuranPage, MushafInfo, QuranWord } from "./core/types";
-import { WordDataLoader } from "./core/word-loader";
-import { MushafLayoutLoader } from "./core/mushaf-layout";
+import { WordDataLoader } from "./core/word-data-loader";
+import { MushafLoader } from "./core/mushaf-loader";
 
 export class OpenQuranView {
   private riwaya: Riwaya;
   private wordLoader: WordDataLoader;
-  private mushafLoader: MushafLayoutLoader;
+  private mushafLoader: MushafLoader;
 
   constructor(riwaya: Riwaya = "hafs") {
     this.riwaya = riwaya;
-    this.wordLoader = new WordDataLoader(`data/riwaya/${riwaya}`);
-    this.mushafLoader = new MushafLayoutLoader(riwaya, this.wordLoader);
+    this.wordLoader = new WordDataLoader(riwaya);
+    this.mushafLoader = new MushafLoader(riwaya, this.wordLoader);
   }
 
   async getMushafInfo(): Promise<MushafInfo> {

@@ -9,14 +9,9 @@ type WordData = {
   text: string;
 };
 
-interface RawWordData {
+type RawWordData = {
   [key: string]: WordData;
-}
-
-function getAssetUrl(relativePath: string): string {
-  const assetBaseUrl = new URL("../../assets/", import.meta.url).href;
-  return `${assetBaseUrl}${relativePath}`;
-}
+};
 
 export class WordDataLoader {
   private words: Record<string, QuranWord> | null = null;
@@ -24,7 +19,7 @@ export class WordDataLoader {
   private basePath: string;
 
   constructor(basePath?: string) {
-    this.basePath = basePath ?? getAssetUrl("riwaya/hafs");
+    this.basePath = basePath ?? "hafs";
   }
 
   async loadWords(): Promise<Record<string, QuranWord>> {
@@ -32,23 +27,27 @@ export class WordDataLoader {
       return this.words;
     }
 
-    const response = await fetch(`${this.basePath}/qpc-v2.json`);
-    if (!response.ok) {
-      throw new Error(`Failed to load Quran words: ${response.statusText}`);
+    try {
+      const wordsModule = await import(
+        `../assets/riwaya/${this.basePath}/word-data.json`
+      );
+      const rawData: RawWordData = (wordsModule.default ||
+        wordsModule) as RawWordData;
+
+      this.words = {};
+      this.wordsById = new Map();
+
+      for (const key of Object.keys(rawData)) {
+        const word = this.transformWord(rawData[key]);
+        this.words[key] = word;
+        this.wordsById.set(word.id, word);
+      }
+
+      return this.words;
+    } catch (error) {
+      console.error("Failed to load Quran words:", error);
+      throw new Error("Could not load Quran words data.");
     }
-
-    const rawData: RawWordData = await response.json();
-
-    this.words = {};
-    this.wordsById = new Map();
-
-    for (const key of Object.keys(rawData)) {
-      const word = this.transformWord(key, rawData[key]);
-      this.words[key] = word;
-      this.wordsById.set(word.id, word);
-    }
-
-    return this.words;
   }
 
   getWordById(id: number): QuranWord | undefined {
@@ -70,7 +69,7 @@ export class WordDataLoader {
     return words;
   }
 
-  private transformWord(key: string, data: WordData): QuranWord {
+  private transformWord(data: WordData): QuranWord {
     return {
       id: data.id,
       surah: parseInt(data.surah, 10),
