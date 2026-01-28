@@ -83,8 +83,11 @@ export class MushafLoader {
   }
 
   getFontUrl(): string {
-    const qulAssetBaseUrl = new URL("../../assets", import.meta.url).href;
-    return `${qulAssetBaseUrl}/riwaya/hafs-digitalkhatt/font.ttf`;
+    const fontPath = new URL(
+      "../assets/riwaya/hafs-digitalkhatt/font.ttf",
+      import.meta.url,
+    ).href;
+    return fontPath;
   }
 
   private getWordsForLine(
