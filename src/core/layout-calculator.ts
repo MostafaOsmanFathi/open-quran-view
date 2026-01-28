@@ -184,7 +184,7 @@ export class LayoutCalculator {
         height: metrics.lineHeight,
         lineNumber: pageLine.line_number,
         wordIndex: i,
-        surahNumber: pageLine.surah_number,
+        surahNumber: word.surah,
         ayahNumber: word.ayah,
       });
 

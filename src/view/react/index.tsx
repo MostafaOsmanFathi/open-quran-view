@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { createOpenQuranView } from "../../index";
 import { LayoutCalculator, PageLayout } from "../../core";
 
-export interface OpenMushafViewProps {
+export type OpenMushafViewProps = {
   page?: number;
   width?: number;
   height?: number;
@@ -15,7 +15,7 @@ export interface OpenMushafViewProps {
     ayahNumber?: number;
   }) => void;
   className?: string;
-}
+};
 
 export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
   page = 1,
@@ -33,6 +33,7 @@ export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(page);
   const [layout, setLayout] = useState<PageLayout | null>(null);
+  const [fontUrl, setFontUrl] = useState<string>("");
 
   const loadPage = useCallback(
     async (pageNum: number) => {
@@ -62,6 +63,8 @@ export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
       pageHeight: height,
     });
 
+    setFontUrl(viewerRef.current.getFontUrl());
+
     loadPage(page);
 
     return () => {
@@ -69,6 +72,22 @@ export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
       calculatorRef.current = null;
     };
   }, [width, height, page, loadPage]);
+
+  useEffect(() => {
+    if (!fontUrl) return;
+
+    const loadFont = async () => {
+      try {
+        const fontFace = new FontFace("QuranFont", `url(${fontUrl})`);
+        await fontFace.load();
+        (document as unknown as { fonts: FontFaceSet }).fonts.add(fontFace);
+      } catch (error) {
+        console.error("Failed to load font:", error);
+      }
+    };
+
+    loadFont();
+  }, [fontUrl]);
 
   const handleNextPage = useCallback(async () => {
     await loadPage(currentPage + 1);
@@ -177,6 +196,8 @@ export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
                       }
                     }}
                     style={{
+                      fontFamily:
+                        '"QuranFont", system-ui, -apple-system, sans-serif',
                       fontSize: 24,
                       color: theme === "dark" ? "#fff" : "#34495e",
                       margin: "0 4px",

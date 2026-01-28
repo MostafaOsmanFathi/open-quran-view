@@ -124,6 +124,8 @@ export class QuranViewElement extends HTMLElement {
   private pageInput: HTMLInputElement;
   private prevBtn: HTMLButtonElement;
   private nextBtn: HTMLButtonElement;
+  private fontLoaded: boolean = false;
+  private fontFaceSheet: HTMLStyleElement | null = null;
 
   static get observedAttributes(): string[] {
     return ["page", "riwaya", "width", "height", "theme"];
@@ -207,6 +209,8 @@ export class QuranViewElement extends HTMLElement {
     this.container.style.height = `${height}px`;
     this.updateTheme(theme);
 
+    await this.loadFont();
+
     try {
       const info = await this.viewer.getMushafInfo();
       this.totalPages = info.number_of_pages;
@@ -217,6 +221,30 @@ export class QuranViewElement extends HTMLElement {
     } catch (error) {
       this.loading.textContent = "فشل في تحميل البيانات";
       console.error("Failed to initialize:", error);
+    }
+  }
+
+  private async loadFont(): Promise<void> {
+    if (!this.viewer || this.fontLoaded) return;
+
+    const fontUrl = this.viewer.getFontUrl();
+    const fontName = "QuranFont";
+
+    try {
+      const fontFace = new FontFace(fontName, `url(${fontUrl})`);
+      await fontFace.load();
+      (document as any).fonts.add(fontFace);
+
+      this.fontFaceSheet = document.createElement("style");
+      this.fontFaceSheet.textContent = `
+        .quran-word, .quran-surah-name {
+          font-family: "${fontName}", system-ui, -apple-system, sans-serif !important;
+        }
+      `;
+      this.shadowRoot?.appendChild(this.fontFaceSheet);
+      this.fontLoaded = true;
+    } catch (error) {
+      console.error("Failed to load font:", error);
     }
   }
 

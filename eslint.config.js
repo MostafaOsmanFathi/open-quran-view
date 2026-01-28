@@ -3,6 +3,7 @@ import hooksPlugin from 'eslint-plugin-react-hooks';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import parser from '@typescript-eslint/parser';
 import plugin from '@typescript-eslint/eslint-plugin';
+import globals from "globals";
 
 export default [
     js.configs.recommended,
@@ -13,6 +14,7 @@ export default [
             sourceType: 'module',
             parser: parser,
             globals: {
+                ...globals.browser,
                 window: 'readonly',
                 document: 'readonly',
                 URL: 'readonly',
