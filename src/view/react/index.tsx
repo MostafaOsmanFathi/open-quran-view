@@ -1,80 +1,316 @@
-import React, { useEffect, useState } from 'react';
-import { Canvas, Text, Group } from '@shopify/react-native-skia';
-import { DynamicDataLoader, LayoutRow, Recitation } from '../../core/index';
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import { createOpenQuranView } from "../../index";
+import { LayoutCalculator, PageLayout, Riwaya } from "../../core";
 
-export interface QuranViewProps {
-  page: number;
-  recitation?: Recitation;
-  loader: DynamicDataLoader;
-  width: number;
-  height: number;
+export interface OpenMushafViewProps {
+  page?: number;
+  riwaya?: Riwaya;
+  width?: number;
+  height?: number;
+  theme?: "light" | "dark";
+  onPageChange?: (page: number) => void;
+  onLoad?: (layout: PageLayout) => void;
+  onWordClick?: (word: {
+    id: number;
+    surahNumber?: number;
+    ayahNumber?: number;
+  }) => void;
+  className?: string;
 }
 
-export const QuranView: React.FC<QuranViewProps> = ({
-  page,
-  recitation = 'Hafs',
-  loader,
-  width,
-  height
-}: QuranViewProps) => {
-  const [layout, setLayout] = useState<LayoutRow[]>([]);
-  const [fonts, setFonts] = useState<Record<number, any>>({});
+export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
+  page = 1,
+  riwaya = "hafs",
+  width = 600,
+  height = 850,
+  theme = "light",
+  onPageChange,
+  onLoad,
+  onWordClick,
+  className,
+}: OpenMushafViewProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const viewerRef = useRef<ReturnType<typeof createOpenQuranView> | null>(null);
+  const calculatorRef = useRef<LayoutCalculator | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(page);
+  const [layout, setLayout] = useState<PageLayout | null>(null);
+
+  const loadPage = useCallback(
+    async (pageNum: number) => {
+      if (!viewerRef.current || !calculatorRef.current || !containerRef.current)
+        return;
+
+      setLoading(true);
+      try {
+        const quranPage = await viewerRef.current.getPage(pageNum);
+        const pageLayout = calculatorRef.current.calculatePageLayout(quranPage);
+        setLayout(pageLayout);
+        setCurrentPage(pageNum);
+        onLoad?.(pageLayout);
+      } catch (error) {
+        console.error("Failed to load page:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [onLoad],
+  );
 
   useEffect(() => {
-    let isMounted = true;
-    const load = async () => {
-      setLoading(true);
-      const layoutData = await loader.getLayoutForPage(page);
-      if (!isMounted) return;
-      setLayout(layoutData);
-      
-      // Font loading logic would go here
-      // For now, we assume fonts derived from loader.getFontUrl are provided/cached
-      
-      setLoading(false);
-    };
-    load();
-    return () => { isMounted = false; };
-  }, [page, recitation, loader]);
+    viewerRef.current = createOpenQuranView(riwaya);
+    calculatorRef.current = new LayoutCalculator({
+      pageWidth: width,
+      pageHeight: height,
+    });
 
-  if (loading) return null;
+    loadPage(page);
+
+    return () => {
+      viewerRef.current = null;
+      calculatorRef.current = null;
+    };
+  }, [riwaya, width, height, page, loadPage]);
+
+  const handleNextPage = useCallback(async () => {
+    await loadPage(currentPage + 1);
+    onPageChange?.(currentPage + 1);
+  }, [currentPage, loadPage, onPageChange]);
+
+  const handlePrevPage = useCallback(async () => {
+    await loadPage(currentPage - 1);
+    onPageChange?.(currentPage - 1);
+  }, [currentPage, loadPage, onPageChange]);
+
+  const handleGoToPage = useCallback(
+    async (pageNum: number) => {
+      await loadPage(pageNum);
+      onPageChange?.(pageNum);
+    },
+    [loadPage, onPageChange],
+  );
 
   return (
-    <Canvas style={{ width, height }}>
-      {(() => {
-        const lines: Record<number, LayoutRow[]> = {};
-        layout.forEach((row: LayoutRow) => {
-          if (!lines[row.line]) lines[row.line] = [];
-          lines[row.line].push(row);
-        });
+    <div
+      ref={containerRef}
+      className={className}
+      style={{
+        width,
+        height,
+        background: theme === "dark" ? "#1a1a2e" : "#fafafa",
+        position: "relative",
+        overflow: "hidden",
+        fontFamily: "system-ui, -apple-system, sans-serif",
+      }}
+    >
+      {loading && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            color: theme === "dark" ? "#fff" : "#333",
+          }}
+        >
+          جاري التحميل...
+        </div>
+      )}
 
-        const rowHeight = height / 15;
-        
-        return Object.entries(lines).map(([lineNo, rowGlyphs]: [string, LayoutRow[]]) => {
-          const ln = parseInt(lineNo);
-          return (
-            <Group key={ln}>
-              {rowGlyphs.map((glyph: LayoutRow, i: number) => {
-                const font = fonts[glyph.word] || null;
-                const xPos = width - (i * 20) - 40; // Rough RTL layout centering placeholder
-                const yPos = ln * rowHeight;
-                
-                return (
-                  <Text
-                    key={`${ln}-${i}`}
-                    text={String.fromCharCode(61696 + (glyph.glyph as number))}
-                    x={xPos}
-                    y={yPos}
-                    font={font}
-                    color="black"
-                  />
-                );
-              })}
-            </Group>
-          );
-        });
-      })()}
-    </Canvas>
+      {!loading && layout && (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            position: "relative",
+          }}
+        >
+          {layout.lines.map((line) => (
+            <div
+              key={line.lineNumber}
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                height: layout.metrics.lineHeight,
+                top:
+                  line.y -
+                  layout.metrics.lineHeight +
+                  layout.metrics.baselineOffset,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: line.isCentered ? "center" : "flex-start",
+                paddingLeft: line.isCentered
+                  ? 0
+                  : layout.metrics.pagePadding.left,
+              }}
+            >
+              {line.lineType === "surah_name" ? (
+                <div
+                  style={{
+                    fontSize: 28,
+                    fontWeight: "bold",
+                    color: theme === "dark" ? "#fff" : "#2c3e50",
+                  }}
+                >
+                  سورة {line.surahNumber}
+                </div>
+              ) : (
+                line.words.map((word) => (
+                  <span
+                    key={word.id}
+                    onClick={() =>
+                      onWordClick?.({
+                        id: word.id,
+                        surahNumber: word.surahNumber,
+                        ayahNumber: word.ayahNumber,
+                      })
+                    }
+                    style={{
+                      fontSize: 24,
+                      color: theme === "dark" ? "#fff" : "#34495e",
+                      margin: "0 4px",
+                      cursor: "pointer",
+                      padding: "2px 6px",
+                      borderRadius: 4,
+                      transition: "background 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background =
+                        theme === "dark" ? "#333" : "#e0e0e0";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
+                    }}
+                  >
+                    {word.text || `[${word.id}]`}
+                  </span>
+                ))
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <NavigationControls
+        currentPage={currentPage}
+        totalPages={604}
+        onNext={handleNextPage}
+        onPrev={handlePrevPage}
+        onGoTo={handleGoToPage}
+        theme={theme}
+      />
+    </div>
   );
 };
+
+interface NavigationControlsProps {
+  currentPage: number;
+  totalPages: number;
+  onNext: () => void;
+  onPrev: () => void;
+  onGoTo: (page: number) => void;
+  theme: "light" | "dark";
+}
+
+const NavigationControls: React.FC<NavigationControlsProps> = ({
+  currentPage,
+  totalPages,
+  onNext,
+  onPrev,
+  onGoTo,
+  theme,
+}: NavigationControlsProps) => {
+  const [inputValue, setInputValue] = useState(String(currentPage));
+
+  useEffect(() => {
+    setInputValue(String(currentPage));
+  }, [currentPage]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const pageNum = parseInt(inputValue, 10);
+    if (pageNum >= 1 && pageNum <= totalPages) {
+      onGoTo(pageNum);
+    } else {
+      setInputValue(String(currentPage));
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        position: "absolute",
+        bottom: 10,
+        left: "50%",
+        transform: "translateX(-50%)",
+        display: "flex",
+        gap: 10,
+        alignItems: "center",
+        padding: "8px 16px",
+        background:
+          theme === "dark" ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.9)",
+        borderRadius: 8,
+        backdropFilter: "blur(10px)",
+      }}
+    >
+      <button
+        type="button"
+        onClick={onPrev}
+        disabled={currentPage <= 1}
+        style={{
+          padding: "6px 12px",
+          border: "none",
+          borderRadius: 4,
+          background: theme === "dark" ? "#333" : "#667eea",
+          color: "#fff",
+          cursor: currentPage <= 1 ? "not-allowed" : "pointer",
+          opacity: currentPage <= 1 ? 0.5 : 1,
+        }}
+      >
+        السابق
+      </button>
+
+      <input
+        type="number"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        min={1}
+        max={totalPages}
+        style={{
+          width: 60,
+          padding: 6,
+          textAlign: "center",
+          border: `1px solid ${theme === "dark" ? "#444" : "#ddd"}`,
+          borderRadius: 4,
+          background: theme === "dark" ? "#222" : "#fff",
+          color: theme === "dark" ? "#fff" : "#333",
+        }}
+      />
+
+      <span style={{ color: theme === "dark" ? "#888" : "#666" }}>
+        من {totalPages}
+      </span>
+
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={currentPage >= totalPages}
+        style={{
+          padding: "6px 12px",
+          border: "none",
+          borderRadius: 4,
+          background: theme === "dark" ? "#333" : "#667eea",
+          color: "#fff",
+          cursor: currentPage >= totalPages ? "not-allowed" : "pointer",
+          opacity: currentPage >= totalPages ? 0.5 : 1,
+        }}
+      >
+        التالي
+      </button>
+    </form>
+  );
+};
+
+export default OpenMushafView;

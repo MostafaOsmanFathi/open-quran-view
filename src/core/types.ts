@@ -1,29 +1,51 @@
-export interface RiwayaMetadata {
+export type Riwaya = "hafs";
+
+export type LineType = "surah_name" | "ayah" | "basmallah";
+
+export type QuranWord = {
   id: number;
-  jozz: number;
-  sora: number;
-  sora_name_en: string;
-  sora_name_ar: string;
-  page: number;
-  line_start: number;
-  line_end: number;
-  aya_no: number;
-  aya_text: string;
-  aya_text_emlaey: string;
-}
+  surah: number;
+  ayah: number;
+  word: number;
+  location: string;
+  text: string;
+};
 
-export interface SurahMetadata {
-  number: number;
+export type PageLine = {
+  line_number: number;
+  line_type: LineType;
+  surah_number?: number;
+  is_centered: boolean;
+  words: QuranWord[];
+};
+
+export type QuranPage = {
+  page_number: number;
+  font_url: string;
+  lines: PageLine[];
+};
+
+export type MushafInfo = {
   name: string;
-  name_en: string;
-  verse_count: number;
-  revelation_place: 'Meccan' | 'Medinan';
-}
+  number_of_pages: number;
+  lines_per_page: number;
+  font_name: string;
+};
 
-export interface AssetFetcher {
-  fetchJSON<T>(path: string): Promise<T>;
-  fetchText(path: string): Promise<string>;
-  getAssetUrl(path: string): string;
-}
+export type SurahMetadata = {
+  id: number;
+  name: string;
+  name_simple: string;
+  name_arabic: string;
+  revelation_order: number;
+  revelation_place: "makkah" | "madinah";
+  verses_count: number;
+  bismillah_pre: boolean;
+};
 
-export type Recitation = 'hafs' | 'warsh' | 'qaloon' | 'doori' | 'shuba' | 'soussi' | 'bazzi' | 'qunbul' | 'khalaf';
+export type DataLoader = {
+  loadWords(): Promise<Record<string, QuranWord>>;
+  loadPages(pageNumber: number): Promise<QuranPage>;
+  loadMushafInfo(): Promise<MushafInfo>;
+  getFontUrl(pageNumber: number): string;
+};
