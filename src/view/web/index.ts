@@ -1,5 +1,17 @@
-import { createOpenQuranView } from "../../index";
-import { LayoutCalculator, PageLayout, Riwaya } from "../../core";
+import { createOpenQuranView, OpenQuranView } from "../../index";
+import type {
+  QuranPage,
+  QuranWord,
+  MushafInfo,
+  Riwaya,
+} from "../../core/types";
+import type {
+  PageLayout,
+  PageMetrics,
+  PositionedLine,
+  PositionedWord,
+} from "../../core/layout-calculator";
+import { LayoutCalculator } from "../../core";
 
 const STYLES = `
   :host {
@@ -357,5 +369,7 @@ export function registerQuranView(): void {
     customElements.define("quran-view", QuranViewElement);
   }
 }
+
+export { createOpenQuranView, OpenQuranView };
 
 export default QuranViewElement;

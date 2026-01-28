@@ -17,18 +17,19 @@ type PageRow = {
   surah_number: string;
 };
 
+function getAssetUrl(relativePath: string): string {
+  const assetBaseUrl = new URL("../../assets/", import.meta.url).href;
+  return `${assetBaseUrl}${relativePath}`;
+}
+
 export class MushafLayoutLoader {
   private riwaya: Riwaya;
   private wordLoader: WordDataLoader;
   private mushafInfo: MushafInfo | null = null;
-  private pagesDir: string;
-  private fontDir: string;
 
   constructor(riwaya: Riwaya = "hafs", wordLoader: WordDataLoader) {
     this.riwaya = riwaya;
     this.wordLoader = wordLoader;
-    this.pagesDir = `data/riwaya/${riwaya}/pages`;
-    this.fontDir = `data/riwaya/${riwaya}/fonts`;
   }
 
   async loadMushafInfo(): Promise<MushafInfo> {
@@ -36,7 +37,8 @@ export class MushafLayoutLoader {
       return this.mushafInfo;
     }
 
-    const response = await fetch(`${this.pagesDir}/info.json`);
+    const infoPath = `riwaya/${this.riwaya}/pages/info.json`;
+    const response = await fetch(getAssetUrl(infoPath));
     if (!response.ok) {
       throw new Error(`Failed to load mushaf info: ${response.statusText}`);
     }
@@ -54,7 +56,8 @@ export class MushafLayoutLoader {
       );
     }
 
-    const response = await fetch(`${this.pagesDir}/pages-${pageNumber}.json`);
+    const pagePath = `riwaya/${this.riwaya}/pages/pages-${pageNumber}.json`;
+    const response = await fetch(getAssetUrl(pagePath));
     if (!response.ok) {
       throw new Error(
         `Failed to load page ${pageNumber}: ${response.statusText}`,
@@ -84,7 +87,8 @@ export class MushafLayoutLoader {
 
   getFontUrl(pageNumber: number): string {
     const extension = "woff2";
-    return `${this.fontDir}/woff2/p${pageNumber}.${extension}`;
+    const fontPath = `riwaya/${this.riwaya}/fonts/woff2/p${pageNumber}.${extension}`;
+    return getAssetUrl(fontPath);
   }
 
   private getWordsForLine(

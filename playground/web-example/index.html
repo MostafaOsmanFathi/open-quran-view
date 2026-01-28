@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Open Quran View - Web Example</title>
+    <script type="importmap">
+        {
+            "imports": {
+                "open-quran-view/web": "/dist/view/web/index.js"
+            }
+        }
+    </script>
     <style>
         * {
             box-sizing: border-box;
@@ -112,7 +119,7 @@
     </div>
 
     <script type="module">
-        import { registerQuranView } from '/dist/view/web/index.js';
+        import { registerQuranView } from 'open-quran-view/web';
 
         registerQuranView();
 

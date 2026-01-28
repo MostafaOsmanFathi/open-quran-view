@@ -7,7 +7,6 @@
   "exports": {
     "./core": "./dist/core/index.js",
     "./react": "./dist/view/react/index.js",
-    "./native": "./dist/view/native/index.js",
     "./web": "./dist/view/web/index.js"
   },
   "files": [
@@ -19,7 +18,10 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "lint": "eslint src/**",
-    "test": "vitest"
+    "test": "vitest",
+    "playground:setup": "pnpm build",
+    "playground:vite": "cd playground/vite-ts-playground && pnpm dev",
+    "playground:web": "npx serve -p 3000"
   },
   "peerDependencies": {
     "@shopify/react-native-skia": ">=0.1",

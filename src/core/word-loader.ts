@@ -13,13 +13,18 @@ interface RawWordData {
   [key: string]: WordData;
 }
 
+function getAssetUrl(relativePath: string): string {
+  const assetBaseUrl = new URL("../../assets/", import.meta.url).href;
+  return `${assetBaseUrl}${relativePath}`;
+}
+
 export class WordDataLoader {
   private words: Record<string, QuranWord> | null = null;
   private wordsById: Map<number, QuranWord> | null = null;
   private basePath: string;
 
-  constructor(basePath: string = "data/riwaya/hafs") {
-    this.basePath = basePath;
+  constructor(basePath?: string) {
+    this.basePath = basePath ?? getAssetUrl("riwaya/hafs");
   }
 
   async loadWords(): Promise<Record<string, QuranWord>> {

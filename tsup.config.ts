@@ -1,11 +1,15 @@
-import { defineConfig } from 'tsup';
+import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/core/index.ts', 'src/view/web/index.ts', 'src/view/react/index.tsx'],
-  format: ['esm', 'cjs'],
+  entry: {
+    index: "src/index.ts",
+    "core/index": "src/core/index.ts",
+    "view/react/index": "src/view/react/index.tsx",
+    "view/web/index": "src/view/web/index.ts",
+  },
+  format: ["esm"],
   dts: true,
-  splitting: false,
-  sourcemap: true,
   clean: true,
-  external: ['react', 'react-native', '@shopify/react-native-skia'],
+  splitting: false,
+  external: ["react"],
 });
