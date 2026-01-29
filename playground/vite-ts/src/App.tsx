@@ -1,10 +1,18 @@
 import { useState, useCallback } from "react";
 import { OpenQuranView } from "open-quran-view/view";
+import type { MushafLayout } from "open-quran-view/core";
 import "./App.css";
+
+const MUSHAF_OPTIONS: { value: MushafLayout; label: string }[] = [
+  { value: "hafs-v2", label: "Hafs (QCF V2)" },
+  { value: "hafs-v4", label: "Hafs with Tajweed (QCF V4)" },
+  { value: "hafs-unicode", label: "Hafs Unicode" },
+];
 
 function App() {
   const [page, setPage] = useState(1);
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [riwaya, setRiwaya] = useState<MushafLayout>("hafs-v2");
 
   const handlePageChange = useCallback((newPage: number) => {
     setPage(newPage);
@@ -47,22 +55,43 @@ function App() {
         >
           Open Quran View
         </h1>
-        <button
-          onClick={() =>
-            setTheme((prev) => (prev === "light" ? "dark" : "light"))
-          }
-          style={{
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: "8px",
-            background: theme === "dark" ? "#667eea" : "#333",
-            color: "#fff",
-            cursor: "pointer",
-            fontSize: "14px",
-          }}
-        >
-          {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
-        </button>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <select
+            value={riwaya}
+            onChange={(e) => setRiwaya(e.target.value as MushafLayout)}
+            style={{
+              padding: "10px 15px",
+              borderRadius: "8px",
+              border: "1px solid #ddd",
+              background: theme === "dark" ? "#333" : "#fff",
+              color: theme === "dark" ? "#fff" : "#333",
+              fontSize: "14px",
+              cursor: "pointer",
+            }}
+          >
+            {MUSHAF_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() =>
+              setTheme((prev) => (prev === "light" ? "dark" : "light"))
+            }
+            style={{
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "8px",
+              background: theme === "dark" ? "#667eea" : "#333",
+              color: "#fff",
+              cursor: "pointer",
+              fontSize: "14px",
+            }}
+          >
+            {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
+          </button>
+        </div>
       </div>
 
       <div
@@ -78,6 +107,7 @@ function App() {
           width={500}
           height={700}
           theme={theme}
+          riwaya={riwaya}
           onPageChange={handlePageChange}
           onWordClick={handleWordClick}
           onLoad={handleLoad}
@@ -111,7 +141,8 @@ function App() {
               <strong>Current Page:</strong> {page}
             </p>
             <p style={{ color: theme === "dark" ? "#aaa" : "#888" }}>
-              <strong>Riwaya:</strong> Hafs
+              <strong>Riwaya:</strong>{" "}
+              {MUSHAF_OPTIONS.find((o) => o.value === riwaya)?.label || riwaya}
             </p>
             <p style={{ color: theme === "dark" ? "#aaa" : "#888" }}>
               <strong>Total Pages:</strong> 604

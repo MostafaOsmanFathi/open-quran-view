@@ -20,6 +20,7 @@ export type OpenQuranViewProps = {
   width?: number;
   height?: number;
   theme?: "light" | "dark";
+  riwaya?: MushafLayout;
   onPageChange?: (page: number) => void;
   onLoad?: (layout: PageLayout) => void;
   onWordClick?: (word: {
@@ -35,13 +36,14 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
   width = 600,
   height = 850,
   theme = "light",
+  riwaya = "hafs-v2",
   onPageChange,
   onLoad,
   onWordClick,
   className,
 }: OpenQuranViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const layoutRef = useRef<MushafLayout>("hafs-v2");
+  const layoutRef = useRef<MushafLayout>(riwaya);
   const calculatorRef = useRef<ReturnType<
     typeof createLayoutCalculator
   > | null>(null);
@@ -85,6 +87,11 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
       calculatorRef.current = null;
     };
   }, [width, height, page, handleLoadPage]);
+
+  useEffect(() => {
+    layoutRef.current = riwaya;
+    handleLoadPage(page);
+  }, [riwaya, page, handleLoadPage]);
 
   const handleNextPage = useCallback(async () => {
     await handleLoadPage(currentPage + 1);
@@ -213,7 +220,9 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                     }}
                     style={{
                       fontFamily:
-                        '"QuranFont", system-ui, -apple-system, sans-serif',
+                        riwaya === "hafs-unicode"
+                          ? '"Scheherazade New", "Amiri", "Traditional Arabic", system-ui, -apple-system, sans-serif'
+                          : '"QuranFont", system-ui, -apple-system, sans-serif',
                       fontSize: 24,
                       color: theme === "dark" ? "#fff" : "#34495e",
                       margin: "0 4px",

@@ -16,10 +16,8 @@ export function surahNumberToFontCode(surahNumber: number): string {
 }
 
 export async function getSurahNameFontBuffer(): Promise<ArrayBuffer> {
-  const fontUrl = new URL(
-    "../data/shared/surah-name-v4.woff2",
-    import.meta.url,
-  ).href;
+  const fontUrl = new URL("../data/shared/surah-name-v4.woff2", import.meta.url)
+    .href;
 
   const response = await fetch(fontUrl);
   if (!response.ok) {
@@ -56,8 +54,6 @@ export async function loadSurahNameFont(): Promise<void> {
 
   surahNameFontLoaded = true;
 }
-
-
 
 export async function getFontBuffer(
   layout: MushafLayout,
@@ -97,14 +93,18 @@ export async function loadFont(
   layout: MushafLayout,
   page: number,
 ): Promise<void> {
+  if (layout === "hafs-unicode") {
+    return;
+  }
+
   const fontUrl = await getFontUrl(layout, page);
   const fontFace = new FontFace("QuranFont", `url(${fontUrl})`);
   await fontFace.load();
-  
+
   if (typeof document !== "undefined" && document.fonts) {
     document.fonts.add(fontFace);
   } else if ((globalThis as any).fonts) {
-     // Fallback for workers or other environments if they support the FontLoading API directly
+    // Fallback for workers or other environments if they support the FontLoading API directly
     (globalThis as any).fonts.add(fontFace);
   }
 }
