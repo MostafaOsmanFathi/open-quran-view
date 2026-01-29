@@ -30,11 +30,11 @@ open-quran-view/
 │       └── setup.ts
 ├── artifacts/                    # Documentation
 │   ├── core-module-reference.md  # Core module documentation
-│   ├── core-module-guide.md      # Core module guide
-│   ├── migration-guide.md        # Migration guide
+│   ├── views-module-guide.md     # Views documentation
+│   ├── data-structure.md         # This file
+│   ├── data-generation-guide.md
 │   ├── Mushaf versions comparison.md
-│   ├── Quran api page layout guide.md
-│   └── data-generation-guide.md
+│   └── Quran api page layout guide.md
 ├── playground/                   # Development playground
 ├── dist/                         # Build output (generated)
 ├── package.json
@@ -174,6 +174,7 @@ type SurahsJSON = Surah[];
 ```
 
 **Example (Al-Fatihah):**
+
 ```json
 {
   "id": 1,
@@ -201,6 +202,7 @@ type JuzJSON = Juz[];
 ```
 
 **Example (Juz 1 - first entry):**
+
 ```json
 {
   "id": 1,
@@ -218,6 +220,7 @@ type JuzJSON = Juz[];
 ```
 
 **Note:** Each juz appears twice in the array:
+
 - First 30 entries: `id` = 1-30 (first half of Quran)
 - Last 30 entries: `id` = 61-90 (second half of Quran)
 
