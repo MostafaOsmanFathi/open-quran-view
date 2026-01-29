@@ -1,4 +1,4 @@
-import type { Line, LineType, Page, Word } from "./types";
+import type { Line, LineType, Page, Word, CharType } from "./types";
 
 export type LineLayout = {
   lineNumber: number;
@@ -16,6 +16,7 @@ export type WordLayout = {
   width: number;
   height: number;
   text: string;
+  charType: CharType;
   surahNumber?: number;
   ayahNumber?: number;
 };
@@ -88,6 +89,7 @@ export function createLayoutCalculator(options: LayoutCalculatorOptions): {
         width: textWidth,
         height: fontSize,
         text: word.text,
+        charType: word.charType,
         surahNumber: word.surah,
         ayahNumber: word.verse,
       };

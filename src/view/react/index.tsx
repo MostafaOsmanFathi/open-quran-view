@@ -230,6 +230,7 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                       padding: "2px 6px",
                       borderRadius: 4,
                       transition: "background 0.2s",
+                      lineHeight: 1,
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background =
@@ -239,7 +240,23 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                       e.currentTarget.style.background = "transparent";
                     }}
                   >
-                    {word.text || `[${word.id}]`}
+                    {word.charType === "end" && riwaya === "hafs-unicode" ? (
+                      <>
+                        <span
+                          style={{
+                            position: "absolute",
+                            top: -2,
+                            fontSize: 10,
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {word.ayahNumber}
+                        </span>
+                        ۝
+                      </>
+                    ) : (
+                      word.text || `[${word.id}]`
+                    )}
                   </span>
                 ))
               )}
