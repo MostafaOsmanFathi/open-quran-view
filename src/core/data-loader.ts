@@ -22,8 +22,17 @@ export async function loadPages(
   pageNumber?: number,
 ): Promise<Page | Page[] | null> {
   if (pagesCache[layout] === null) {
-    const module = await import(`../data/pages/${layout}/pages.json`);
-    pagesCache[layout] = module.default as Page[];
+    const pagesUrl = new URL(
+      `../data/pages/${layout}/pages.json`,
+      import.meta.url,
+    ).href;
+    const response = await fetch(pagesUrl);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to load pages from ${pagesUrl}: ${response.status} ${response.statusText}`,
+      );
+    }
+    pagesCache[layout] = await response.json();
   }
 
   const pages = pagesCache[layout]!;
@@ -52,16 +61,29 @@ export async function loadAllPages(layout: MushafLayout): Promise<Page[]> {
 
 export async function loadSurahs(): Promise<Surah[]> {
   if (metadataCache.surahs === null) {
-    const module = await import("../data/metadata/surahs.json");
-    metadataCache.surahs = module.default as Surah[];
+    const surahsUrl = new URL("../data/metadata/surahs.json", import.meta.url)
+      .href;
+    const response = await fetch(surahsUrl);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to load surahs from ${surahsUrl}: ${response.status} ${response.statusText}`,
+      );
+    }
+    metadataCache.surahs = await response.json();
   }
   return metadataCache.surahs!;
 }
 
 export async function loadJuzs(): Promise<Juz[]> {
   if (metadataCache.juzs === null) {
-    const module = await import("../data/metadata/juz.json");
-    metadataCache.juzs = module.default as unknown as Juz[];
+    const juzsUrl = new URL("../data/metadata/juz.json", import.meta.url).href;
+    const response = await fetch(juzsUrl);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to load juzs from ${juzsUrl}: ${response.status} ${response.statusText}`,
+      );
+    }
+    metadataCache.juzs = await response.json();
   }
   return metadataCache.juzs!;
 }
