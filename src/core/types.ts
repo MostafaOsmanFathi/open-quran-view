@@ -1,4 +1,29 @@
-export type Riwaya = "hafs-digitalkhatt";
+export type Riwaya = "hafs-v2" | "hafs-v4" | "hafs-unicode";
+
+export type FontInfo = {
+  family: string;
+  version: string;
+  url: string;
+  fallbackUrl?: string;
+};
+
+export const RIWAYA_FONTS: Record<Riwaya, FontInfo> = {
+  "hafs-v2": {
+    family: "HafsV2",
+    version: "QCFv2",
+    url: "https://verses.quran.foundation/Hafs/v2/arial.ttf",
+  },
+  "hafs-v4": {
+    family: "HafsV4",
+    version: "QCFv4",
+    url: "https://verses.quran.foundation/Hafs/v4/arial.ttf",
+  },
+  "hafs-unicode": {
+    family: "HafsUnicode",
+    version: "HafsUnicode",
+    url: "https://verses.quran.foundation/Hafs/Unicode/arial.ttf",
+  },
+};
 
 export type LineType = "surah_name" | "ayah" | "basmallah";
 
