@@ -4,6 +4,8 @@ import { join } from "path";
 
 const FONTS_SRC = "src/data/fonts";
 const FONTS_DIST = "dist/data/fonts";
+const SHARED_SRC = "src/data/shared";
+const SHARED_DIST = "dist/data/shared";
 const PAGES_SRC = "src/data/pages";
 const PAGES_DIST = "dist/data/pages";
 const METADATA_SRC = "src/data/metadata";
@@ -13,6 +15,13 @@ function copyFonts() {
   if (existsSync(FONTS_SRC)) {
     mkdirSync(FONTS_DIST, { recursive: true });
     copyDir(FONTS_SRC, FONTS_DIST);
+  }
+}
+
+function copySharedData() {
+  if (existsSync(SHARED_SRC)) {
+    mkdirSync(SHARED_DIST, { recursive: true });
+    copyDir(SHARED_SRC, SHARED_DIST);
   }
 }
 
@@ -57,6 +66,7 @@ export default defineConfig({
   external: ["react"],
   onSuccess: async () => {
     copyFonts();
+    copySharedData();
     copyData();
     console.log("✓ Data and fonts copied to dist successfully");
   },

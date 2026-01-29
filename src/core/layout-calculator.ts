@@ -60,7 +60,7 @@ export function createLayoutCalculator(options: LayoutCalculatorOptions): {
 
   const metrics: PageMetrics = {
     lineHeight,
-    baselineOffset: lineHeight * 0.2,
+    baselineOffset: lineHeight / 2,
     pagePadding: {
       top: Math.round(paddingTop),
       bottom: Math.round(paddingBottom),

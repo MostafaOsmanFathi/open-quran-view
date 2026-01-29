@@ -8,6 +8,55 @@ let fontCache: FontCache = {
   "hafs-unicode": new Map(),
 };
 
+let surahNameFontUrl: string | null = null;
+let surahNameFontLoaded: boolean = false;
+
+export function surahNumberToFontCode(surahNumber: number): string {
+  return `surah${String(surahNumber).padStart(3, "0")}`;
+}
+
+export async function getSurahNameFontBuffer(): Promise<ArrayBuffer> {
+  const fontUrl = new URL(
+    "../data/shared/surah-name-v4.woff2",
+    import.meta.url,
+  ).href;
+
+  const response = await fetch(fontUrl);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to load surah-name font from ${fontUrl}: ${response.status} ${response.statusText}`,
+    );
+  }
+  return response.arrayBuffer();
+}
+
+export async function getSurahNameFontUrl(): Promise<string> {
+  if (surahNameFontUrl) {
+    return surahNameFontUrl;
+  }
+
+  const buffer = await getSurahNameFontBuffer();
+  const blob = new Blob([buffer], { type: "font/woff2" });
+  surahNameFontUrl = URL.createObjectURL(blob);
+  return surahNameFontUrl;
+}
+
+export async function loadSurahNameFont(): Promise<void> {
+  if (surahNameFontLoaded) return;
+
+  const fontUrl = await getSurahNameFontUrl();
+  const fontFace = new FontFace("SurahNameFont", `url(${fontUrl})`);
+  await fontFace.load();
+
+  if (typeof document !== "undefined" && document.fonts) {
+    document.fonts.add(fontFace);
+  } else if ((globalThis as any).fonts) {
+    (globalThis as any).fonts.add(fontFace);
+  }
+
+  surahNameFontLoaded = true;
+}
+
 
 
 export async function getFontBuffer(

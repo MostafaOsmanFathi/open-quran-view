@@ -2,10 +2,18 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   loadPage,
   loadFont,
+  loadSurahNameFont,
+  surahNumberToFontCode,
   createLayoutCalculator,
   type MushafLayout,
   type PageLayout,
 } from "../../core";
+
+export const CENTERED_PAGES_VERTICAL = [1, 2] as const;
+export const CENTERED_PAGES_HORIZONTAL = [1, 2, 602, 603, 604] as const;
+const CENTERED_PAGES_HORIZONTAL_SET = new Set<number>(
+  CENTERED_PAGES_HORIZONTAL,
+);
 
 export type OpenQuranViewProps = {
   page?: number;
@@ -70,6 +78,8 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
     });
 
     handleLoadPage(page);
+
+    loadSurahNameFont();
 
     return () => {
       calculatorRef.current = null;
@@ -144,21 +154,39 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                   layout.metrics.baselineOffset,
                 display: "flex",
                 alignItems: "center",
-                justifyContent: line.isCentered ? "center" : "flex-start",
-                paddingInlineStart: line.isCentered
-                  ? 0
-                  : layout.metrics.pagePadding.left,
+                justifyContent:
+                  line.isCentered ||
+                  CENTERED_PAGES_HORIZONTAL_SET.has(currentPage)
+                    ? "center"
+                    : "flex-start",
+                paddingInlineStart:
+                  line.isCentered ||
+                  CENTERED_PAGES_HORIZONTAL_SET.has(currentPage)
+                    ? 0
+                    : layout.metrics.pagePadding.left,
               }}
             >
               {line.lineType === "header" ? (
                 <div
                   style={{
-                    fontSize: 28,
+                    fontSize: 42,
                     fontWeight: "bold",
                     color: theme === "dark" ? "#fff" : "#2c3e50",
+                    fontFamily:
+                      '"SurahNameFont", system-ui, -apple-system, sans-serif',
+                    width: "100%",
+                    boxSizing: "border-box",
+                    marginTop: 12,
+                    marginBottom: 56,
+                    paddingInline: 12,
+                    paddingBlock: 4,
+                    border: `2px solid ${theme === "dark" ? "#fff" : "#2c3e50"}`,
+                    borderRadius: 8,
                   }}
                 >
-                  سورة {line.surahNumber}
+                  {line.surahNumber
+                    ? surahNumberToFontCode(line.surahNumber)
+                    : "surah000"}
                 </div>
               ) : (
                 line.words.map((word) => (

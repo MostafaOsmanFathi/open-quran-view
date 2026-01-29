@@ -1,6 +1,8 @@
 import {
   loadPage,
   loadFont,
+  loadSurahNameFont,
+  surahNumberToFontCode,
   createLayoutCalculator,
   type MushafLayout,
   type PageLayout,
@@ -12,6 +14,7 @@ const STYLES = `
     position: relative;
     overflow: hidden;
     font-family: system-ui, -apple-system, sans-serif;
+    direction: rtl;
   }
 
   .quran-viewer {
@@ -41,10 +44,19 @@ const STYLES = `
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    padding-inline-start: 40px;
   }
 
   .quran-surah-name {
     font-weight: bold;
+    font-family: "SurahNameFont", system-ui, -apple-system, sans-serif !important;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 16px 0 48px 0;
+    padding: 6px 16px;
+    border: 2px solid currentColor;
+    border-radius: 8px;
   }
 
   .quran-word {
@@ -230,6 +242,7 @@ export class QuranViewElement extends HTMLElement {
     if (this.fontLoaded) return;
 
     await loadFont(this.layout, this.currentPage);
+    await loadSurahNameFont();
 
     this.fontFaceSheet = document.createElement("style");
     this.fontFaceSheet.textContent = `
@@ -280,7 +293,7 @@ export class QuranViewElement extends HTMLElement {
         throw new Error("Page not found");
       }
       const layout = this.calculator.calculatePageLayout(quranPage);
-      this.renderLayout(layout);
+      await this.renderLayout(layout);
       this.showLoading(false);
     } catch (error) {
       this.loading.textContent = "فشل في تحميل الصفحة";
@@ -288,7 +301,7 @@ export class QuranViewElement extends HTMLElement {
     }
   }
 
-  private renderLayout(layout: PageLayout): void {
+  private async renderLayout(layout: PageLayout): Promise<void> {
     this.content.innerHTML = "";
 
     for (const line of layout.lines) {
@@ -298,7 +311,7 @@ export class QuranViewElement extends HTMLElement {
         height: ${layout.metrics.lineHeight}px;
         top: ${line.y - layout.metrics.lineHeight + layout.metrics.baselineOffset}px;
         justify-content: ${line.isCentered ? "center" : "flex-start"};
-        padding-left: ${line.isCentered ? 0 : layout.metrics.pagePadding.left}px;
+        padding-inline-start: ${line.isCentered ? 0 : layout.metrics.pagePadding.left}px;
       `;
 
       const theme = (this.getAttribute("theme") || "light") as "light" | "dark";
@@ -309,8 +322,14 @@ export class QuranViewElement extends HTMLElement {
       if (line.lineType === "header") {
         const surahEl = document.createElement("div");
         surahEl.className = "quran-surah-name";
-        surahEl.style.cssText = `font-size: 28px; color: ${surahColor};`;
-        surahEl.textContent = `سورة ${line.surahNumber}`;
+        surahEl.style.cssText = `font-size: 42px; color: ${surahColor}; margin: 16px 0; padding: 8px 24px; border: 2px solid ${surahColor}; border-radius: 8px;`;
+
+        if (line.surahNumber) {
+          surahEl.textContent = surahNumberToFontCode(line.surahNumber);
+        } else {
+          surahEl.textContent = `surah000`;
+        }
+
         lineEl.appendChild(surahEl);
       } else {
         for (const word of line.words) {
