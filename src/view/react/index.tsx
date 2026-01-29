@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   loadPage,
-  getFontUrl,
+  loadFont,
   createLayoutCalculator,
   type MushafLayout,
   type PageLayout,
@@ -40,7 +40,6 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(page);
   const [layout, setLayout] = useState<PageLayout | null>(null);
-  const [fontUrl, setFontUrl] = useState<string>("");
 
   const handleLoadPage = useCallback(
     async (pageNum: number) => {
@@ -48,6 +47,7 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
 
       setLoading(true);
       try {
+        await loadFont(layoutRef.current, pageNum);
         const quranPage = await loadPage(layoutRef.current, pageNum);
         if (!quranPage) return;
         const pageLayout = calculatorRef.current.calculatePageLayout(quranPage);
@@ -69,35 +69,12 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
       pageHeight: height,
     });
 
-    const loadFontUrl = async () => {
-      const url = await getFontUrl(layoutRef.current, page);
-      setFontUrl(url);
-    };
-
-    loadFontUrl();
-
     handleLoadPage(page);
 
     return () => {
       calculatorRef.current = null;
     };
   }, [width, height, page, handleLoadPage]);
-
-  useEffect(() => {
-    if (!fontUrl) return;
-
-    const loadFont = async () => {
-      try {
-        const fontFace = new FontFace("QuranFont", `url(${fontUrl})`);
-        await fontFace.load();
-        (document as unknown as { fonts: FontFaceSet }).fonts.add(fontFace);
-      } catch (error) {
-        console.error("Failed to load font:", error);
-      }
-    };
-
-    loadFont();
-  }, [fontUrl]);
 
   const handleNextPage = useCallback(async () => {
     await handleLoadPage(currentPage + 1);

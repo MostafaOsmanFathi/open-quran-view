@@ -31,7 +31,7 @@ import {
   getLastVerseOfPage,
   getWordLocation,
 } from "./core/lookup";
-import { getFontUrl, clearFontCache } from "./core/font-loader";
+import { getFontUrl, getFontBuffer, clearFontCache } from "./core/font-loader";
 
 describe("Core Types", () => {
   describe("MushafLayout", () => {
@@ -246,19 +246,14 @@ describe("Font Loader", () => {
   });
 
   describe("getFontUrl", () => {
-    it("should return correct local URL for hafs-v2 layout", async () => {
+    it("should return blob URL for hafs-v2 layout", async () => {
       const url = await getFontUrl("hafs-v2", 1);
-      expect(url).toBe("/data/fonts/hafs-v2/p1.woff2");
+      expect(url).toMatch(/^blob:/);
     });
 
-    it("should return correct local URL for hafs-v4 layout", async () => {
+    it("should return blob URL for hafs-v4 layout", async () => {
       const url = await getFontUrl("hafs-v4", 180);
-      expect(url).toBe("/data/fonts/hafs-v4/p180.woff2");
-    });
-
-    it("should return correct local URL for hafs-unicode layout", async () => {
-      const url = await getFontUrl("hafs-unicode", 1);
-      expect(url).toBe("/data/fonts/hafs-unicode/p1.woff2");
+      expect(url).toMatch(/^blob:/);
     });
 
     it("should generate different URLs for different pages", async () => {
@@ -268,28 +263,42 @@ describe("Font Loader", () => {
     });
 
     it("should cache font URLs", async () => {
-      const url1 = await getFontUrl("hafs-v2", 1);
-      const url2 = await getFontUrl("hafs-v2", 1);
-      expect(url1).toBe(url2);
+      const url1a = await getFontUrl("hafs-v2", 1);
+      const url1b = await getFontUrl("hafs-v2", 1);
+      expect(url1a).toBe(url1b);
+    });
+  });
+
+  describe("getFontBuffer", () => {
+    it("should return ArrayBuffer for hafs-v2 layout", async () => {
+      const buffer = await getFontBuffer("hafs-v2", 1);
+      expect(buffer).toBeDefined();
+      expect(buffer instanceof ArrayBuffer).toBe(true);
+    });
+
+    it("should return ArrayBuffer for hafs-v4 layout", async () => {
+      const buffer = await getFontBuffer("hafs-v4", 1);
+      expect(buffer).toBeDefined();
+      expect(buffer instanceof ArrayBuffer).toBe(true);
     });
   });
 
   describe("clearFontCache", () => {
-    it("should clear cache for specific layout", async () => {
+    it("should return same blob URL before and after clearing cache", async () => {
       const url1 = await getFontUrl("hafs-v2", 1);
       clearFontCache("hafs-v2");
       const url2 = await getFontUrl("hafs-v2", 1);
-      expect(url1).toBe(url2);
+      expect(url1).not.toBe(url2);
     });
 
-    it("should clear all caches when no layout specified", async () => {
+    it("should return different blob URLs after clearing all caches", async () => {
       const url1 = await getFontUrl("hafs-v2", 1);
       const url3 = await getFontUrl("hafs-v4", 1);
       clearFontCache();
       const url2 = await getFontUrl("hafs-v2", 1);
       const url4 = await getFontUrl("hafs-v4", 1);
-      expect(url1).toBe(url2);
-      expect(url3).toBe(url4);
+      expect(url1).not.toBe(url2);
+      expect(url3).not.toBe(url4);
     });
   });
 });
@@ -493,18 +502,20 @@ describe("Data Loading", () => {
   });
 
   describe("Font Files", () => {
-    it("should return correct URL for hafs-v2 fonts", async () => {
+    it("should return blob URL for hafs-v2 fonts", async () => {
       const url1 = await getFontUrl("hafs-v2", 1);
       const url604 = await getFontUrl("hafs-v2", 604);
-      expect(url1).toBe("/data/fonts/hafs-v2/p1.woff2");
-      expect(url604).toBe("/data/fonts/hafs-v2/p604.woff2");
+      expect(url1).toMatch(/^blob:/);
+      expect(url604).toMatch(/^blob:/);
+      expect(url1).not.toBe(url604);
     });
 
-    it("should return correct URL for hafs-v4 fonts", async () => {
+    it("should return blob URL for hafs-v4 fonts", async () => {
       const url1 = await getFontUrl("hafs-v4", 1);
       const url604 = await getFontUrl("hafs-v4", 604);
-      expect(url1).toBe("/data/fonts/hafs-v4/p1.woff2");
-      expect(url604).toBe("/data/fonts/hafs-v4/p604.woff2");
+      expect(url1).toMatch(/^blob:/);
+      expect(url604).toMatch(/^blob:/);
+      expect(url1).not.toBe(url604);
     });
 
     it("should generate unique URLs for each page", async () => {

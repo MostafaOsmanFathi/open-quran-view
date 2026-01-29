@@ -8,6 +8,28 @@ let fontCache: FontCache = {
   "hafs-unicode": new Map(),
 };
 
+async function loadFontUrl(
+  layout: MushafLayout,
+  page: number,
+): Promise<string> {
+  const fontPath = `../data/fonts/${layout}/p${page}.woff2?url`;
+  return new URL(fontPath, import.meta.url).href;
+}
+
+export async function getFontBuffer(
+  layout: MushafLayout,
+  page: number,
+): Promise<ArrayBuffer> {
+  const fontPath = `../data/fonts/${layout}/p${page}.woff2?raw`;
+  const module = await import(/* @vite-ignore */ fontPath);
+  const fontData = module.default as string;
+  const uint8Array = new Uint8Array(fontData.length);
+  for (let i = 0; i < fontData.length; i++) {
+    uint8Array[i] = fontData.charCodeAt(i);
+  }
+  return uint8Array.buffer;
+}
+
 export async function getFontUrl(
   layout: MushafLayout,
   page: number,
@@ -17,21 +39,26 @@ export async function getFontUrl(
     return cached;
   }
 
-  const fontUrl = `/data/fonts/${layout}/p${page}.woff2`;
-  fontCache[layout].set(page, fontUrl);
-  return fontUrl;
+  const buffer = await getFontBuffer(layout, page);
+  const blob = new Blob([buffer], { type: "font/woff2" });
+  const url = URL.createObjectURL(blob);
+  fontCache[layout].set(page, url);
+  return url;
 }
 
-export async function preloadFont(
+export async function loadFont(
   layout: MushafLayout,
   page: number,
 ): Promise<void> {
-  await getFontUrl(layout, page);
+  const fontUrl = await getFontUrl(layout, page);
+  const fontFace = new FontFace("QuranFont", `url(${fontUrl})`);
+  await fontFace.load();
+  (globalThis as unknown as { fonts: FontFaceSet }).fonts.add(fontFace);
 }
 
 export async function preloadAllFonts(layout: MushafLayout): Promise<void> {
   for (let page = 1; page <= 604; page++) {
-    await preloadFont(layout, page);
+    await loadFont(layout, page);
   }
 }
 

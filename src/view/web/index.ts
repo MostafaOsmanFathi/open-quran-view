@@ -1,6 +1,6 @@
 import {
   loadPage,
-  getFontUrl,
+  loadFont,
   createLayoutCalculator,
   type MushafLayout,
   type PageLayout,
@@ -229,25 +229,16 @@ export class QuranViewElement extends HTMLElement {
   private async loadFont(): Promise<void> {
     if (this.fontLoaded) return;
 
-    const fontUrl = await getFontUrl(this.layout, this.currentPage);
-    const fontName = "QuranFont";
+    await loadFont(this.layout, this.currentPage);
 
-    try {
-      const fontFace = new FontFace(fontName, `url(${fontUrl})`);
-      await fontFace.load();
-      (document as any).fonts.add(fontFace);
-
-      this.fontFaceSheet = document.createElement("style");
-      this.fontFaceSheet.textContent = `
-        .quran-word, .quran-surah-name {
-          font-family: "${fontName}", system-ui, -apple-system, sans-serif !important;
-        }
-      `;
-      this.shadowRoot?.appendChild(this.fontFaceSheet);
-      this.fontLoaded = true;
-    } catch (error) {
-      console.error("Failed to load font:", error);
-    }
+    this.fontFaceSheet = document.createElement("style");
+    this.fontFaceSheet.textContent = `
+      .quran-word, .quran-surah-name {
+        font-family: "QuranFont", system-ui, -apple-system, sans-serif !important;
+      }
+    `;
+    this.shadowRoot?.appendChild(this.fontFaceSheet);
+    this.fontLoaded = true;
   }
 
   private updateTheme(theme: "light" | "dark"): void {
