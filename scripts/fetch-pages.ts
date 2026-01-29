@@ -163,10 +163,6 @@ async function generatePagesForMushaf(
 
   for (let pageNum = 1; pageNum <= 604; pageNum++) {
     try {
-      if (pageNum % 50 === 1 || pageNum === 1) {
-        console.log(`  Fetching page ${pageNum}/604...`);
-      }
-
       const apiData = await fetchPageData(
         pageNum,
         config.id,
@@ -181,12 +177,16 @@ async function generatePagesForMushaf(
         lines: v3Data,
       });
 
+      process.stdout.write(`\r  ${config.name}: ${pageNum}/604`);
+
       await sleep(RATE_LIMIT_DELAY);
     } catch (error) {
       console.error(`  ❌ Error on page ${pageNum}:`, error);
       throw error;
     }
   }
+
+  process.stdout.write(`\r  ${config.name}: Done!                    \n`);
 
   mkdirSync(config.outputDir, { recursive: true });
 
