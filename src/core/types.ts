@@ -61,41 +61,22 @@ export type Juz = {
   verseMapping: Record<string, string>;
 };
 
-export type FontConfig = {
-  family: string;
-  baseUrl: string;
-  extension: string;
-};
-
-export const MUSHAF_FONTS: Record<MushafLayout, FontConfig> = {
-  "hafs-v2": {
-    family: "QCF V2",
-    baseUrl: "https://verses.quran.foundation/fonts/quran/hafs/v2/woff2",
-    extension: "woff2",
-  },
-  "hafs-v4": {
-    family: "QCF V4",
-    baseUrl: "https://verses.quran.foundation/fonts/quran/hafs/v4/colrv1/woff2",
-    extension: "woff2",
-  },
-  "hafs-unicode": {
-    family: "QPC Hafs",
-    baseUrl: "https://verses.quran.foundation/fonts/quran/hafs/unicode/woff2",
-    extension: "woff2",
-  },
-};
-
-export function getFontUrl(layout: MushafLayout, page: number): string {
-  const font = MUSHAF_FONTS[layout];
-  return `${font.baseUrl}/p${page}.${font.extension}`;
-}
-
 export function parseVerseKey(verseKey: string): {
   surah: number;
   verse: number;
 } {
-  const [surah, verse] = verseKey.split(":").map(Number);
-  return { surah, verse };
+  const parts = verseKey.split(":");
+  if (parts.length !== 2) {
+    return { surah: NaN, verse: NaN };
+  }
+  const surah = Number(parts[0]);
+  const verse = Number(parts[1]);
+  const surahValid = parts[0] !== "" && !isNaN(surah);
+  const verseValid = parts[1] !== "" && !isNaN(verse);
+  return {
+    surah: surahValid ? surah : NaN,
+    verse: verseValid ? verse : NaN,
+  };
 }
 
 export function createVerseKey(surah: number, verse: number): string {

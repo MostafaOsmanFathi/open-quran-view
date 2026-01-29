@@ -6,6 +6,43 @@ This guide provides a complete architectural blueprint for building a modern, hi
 
 ---
 
+## 📋 Changelog
+
+### v2.1.0 (January 2025) - Core Module Refactoring
+
+**Breaking Changes:**
+
+- Removed legacy `OpenQuranView` class and `createOpenQuranView()` factory function
+- Deleted `src/index.ts` - use `src/core/index.ts` instead
+- Updated data loader to use per-layout JSON files directly (`src/data/pages/{layout}/pages.json`)
+- Renamed `Riwaya` type to `MushafLayout` for consistency
+
+**Before (v2.0.x):**
+```typescript
+import { createOpenQuranView } from "@open-quran-view";
+
+const quran = createOpenQuranView("hafs-v2");
+const page = await quran.getPage(1);
+const fontUrl = quran.getFontUrl();
+```
+
+**After (v2.1.0):**
+```typescript
+import { loadPage, getFontUrl } from "@open-quran-view/core";
+
+const page = await loadPage("hafs-v2", 1);
+const fontUrl = getFontUrl("hafs-v2", 1);
+```
+
+**Migration Steps:**
+
+1. Replace `createOpenQuranView()` calls with direct core imports
+2. Use `loadPage(layout, pageNumber)` instead of `quran.getPage(pageNumber)`
+3. Use `getFontUrl(layout, pageNumber)` instead of `quran.getFontUrl()`
+4. Import from `@open-quran-view/core` instead of `@open-quran-view`
+
+---
+
 ## 📊 New Architecture
 
 ```

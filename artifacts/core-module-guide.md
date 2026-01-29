@@ -8,8 +8,28 @@
 core/
 ├── types.ts       # TypeScript types for pages, words, surahs, fonts
 ├── data-loader.ts # Dynamic data loading with caching
+├── font-loader.ts # Font URL generation and caching
 ├── lookup.ts      # Navigation and verse lookup helpers
 └── index.ts       # Main exports
+```
+
+## Exports
+
+```typescript
+// Types
+export type { MushafLayout, Word, Line, Page, Surah, Juz, WordLocation, VerseLocation, NavigationInfo };
+
+// Data Loading
+export { loadPage, loadAllPages, loadSurahs, loadJuzs, getSurah, getJuz, getSurahByPage, clearCache };
+
+// Font Loading
+export { getFontUrl, loadFont, clearFontCache };
+
+// Lookup Helpers
+export { getPageForVerse, getVerseLocation, getNavigation, getWordLocation, getPageRangeForSurah, getFirstVerseOfPage, getLastVerseOfPage };
+
+// Utilities
+export { parseVerseKey, createVerseKey };
 ```
 
 ## Data Loading (Dynamic Imports)
@@ -79,18 +99,30 @@ type Page = {
 ```typescript
 type Surah = {
   id: number;
-  nameSimple: string;      // "Al-Fatihah"
-  nameComplex: string;     // "Al-Fātiĥah"
-  nameArabic: string;      // "الفاتحة"
+  nameSimple: string;
+  nameComplex: string;
+  nameArabic: string;
   versesCount: number;
   revelationPlace: "makkah" | "madinah";
   revelationOrder: number;
   bismillahPre: boolean;
-  pages: [number, number]; // Start and end page
+  pages: [number, number];
   translatedName: {
     languageName: string;
     name: string;
   };
+};
+```
+
+### Juz Metadata
+```typescript
+type Juz = {
+  id: number;
+  juzNumber: number;
+  firstVerseId: number;
+  lastVerseId: number;
+  versesCount: number;
+  verseMapping: Record<string, string>;
 };
 ```
 
@@ -135,13 +167,14 @@ const location = await getVerseLocation(1, 1, "hafs-v2");
 ## Font Configuration
 
 ```typescript
-import { getFontUrl, MUSHAF_FONTS } from "@open-quran-view/core";
+import { getFontUrl, loadFont } from "@open-quran-view/core";
 
 const fontUrl = getFontUrl("hafs-v2", 1);
-// "https://verses.quran.foundation/fonts/quran/hafs/v2/woff2/p1.woff2"
+// Returns: "/data/fonts/hafs-v2/p1.woff2"
 
-const fontInfo = MUSHAF_FONTS["hafs-v2"];
-// { family: "QCF V2", baseUrl: "...", extension: "woff2" }
+// Load font for a page
+await loadFont("hafs-v2", 1);
+// Loads FontFace and adds to document.fonts
 ```
 
 ## Verse Key Helpers

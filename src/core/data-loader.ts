@@ -22,8 +22,8 @@ export async function loadPages(
   pageNumber?: number,
 ): Promise<Page | Page[] | null> {
   if (pagesCache[layout] === null) {
-    const module = await import("../data/pages");
-    pagesCache[layout] = module.default[layout] as Page[];
+    const module = await import(`../data/pages/${layout}/pages.json`);
+    pagesCache[layout] = module.default as Page[];
   }
 
   const pages = pagesCache[layout]!;
@@ -46,9 +46,7 @@ export async function loadPage(
   return (await loadPages(layout, pageNumber)) as Page | null;
 }
 
-export async function loadAllPages(
-  layout: MushafLayout,
-): Promise<Page[]> {
+export async function loadAllPages(layout: MushafLayout): Promise<Page[]> {
   return (await loadPages(layout)) as Page[];
 }
 
@@ -63,7 +61,7 @@ export async function loadSurahs(): Promise<Surah[]> {
 export async function loadJuzs(): Promise<Juz[]> {
   if (metadataCache.juzs === null) {
     const module = await import("../data/metadata/juz.json");
-    metadataCache.juzs = module.default as Juz[];
+    metadataCache.juzs = module.default as unknown as Juz[];
   }
   return metadataCache.juzs!;
 }
@@ -82,7 +80,10 @@ export async function getSurahByPage(
   pageNumber: number,
 ): Promise<Surah | null> {
   const surahs = await loadSurahs();
-  return surahs.find((s) => pageNumber >= s.pages[0] && pageNumber <= s.pages[1]) || null;
+  return (
+    surahs.find((s) => pageNumber >= s.pages[0] && pageNumber <= s.pages[1]) ||
+    null
+  );
 }
 
 export function clearCache(layout?: MushafLayout): void {

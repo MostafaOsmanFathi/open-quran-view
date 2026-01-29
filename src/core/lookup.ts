@@ -17,6 +17,14 @@ export type NavigationInfo = {
   surahEndPage: number;
 };
 
+function parseVerseKeyFromLine(line: { metadata: { verseKey: string } }): {
+  surah: number;
+  verse: number;
+} {
+  const [surah, verse] = line.metadata.verseKey.split(":").map(Number);
+  return { surah, verse };
+}
+
 export async function getPageForVerse(
   verseKey: string,
   layout: MushafLayout = "hafs-v2",
@@ -31,18 +39,18 @@ export async function getPageForVerse(
 
   for (const page of pages) {
     for (const line of page.lines) {
-      for (const word of line.words) {
-        if (word.surah === chapter && word.verse === verse) {
-          const verseLocation: VerseLocation = {
-            surah: chapter,
-            verse,
-            pageNumber: page.pageNumber,
-            lineNumber: line.lineNumber,
-            wordPosition: word.position,
-          };
+      const { surah, verse: lineVerse } = parseVerseKeyFromLine(line);
+      if (surah === chapter && lineVerse === verse) {
+        const firstWord = line.words[0];
+        const verseLocation: VerseLocation = {
+          surah: chapter,
+          verse,
+          pageNumber: page.pageNumber,
+          lineNumber: line.lineNumber,
+          wordPosition: firstWord?.position ?? 0,
+        };
 
-          return { page, verseLocation };
-        }
+        return { page, verseLocation };
       }
     }
   }
@@ -114,9 +122,11 @@ export async function getFirstVerseOfPage(
     return null;
   }
 
+  const { surah, verse } = parseVerseKeyFromLine(firstLine);
+
   return {
-    surah: firstWord.surah,
-    verse: firstWord.verse,
+    surah,
+    verse,
     pageNumber,
     lineNumber: firstLine.lineNumber,
     wordPosition: firstWord.position,
@@ -141,19 +151,35 @@ export async function getLastVerseOfPage(
     return null;
   }
 
+  const { surah, verse } = parseVerseKeyFromLine(lastLine);
+
   return {
-    surah: word.surah,
-    verse: word.verse,
+    surah,
+    verse,
     pageNumber,
     lineNumber: lastLine.lineNumber,
     wordPosition: word.position,
   };
 }
 
-export function getWordLocation(word: Word): VerseLocation {
+export function getWordLocation(
+  word: Word,
+  verseKey?: string,
+): VerseLocation {
+  if (verseKey) {
+    const [surah, verse] = verseKey.split(":").map(Number);
+    return {
+      surah,
+      verse,
+      pageNumber: word.pageNumber,
+      lineNumber: 0,
+      wordPosition: word.position,
+    };
+  }
+
   return {
-    surah: word.surah,
-    verse: word.verse,
+    surah: 0,
+    verse: 0,
     pageNumber: word.pageNumber,
     lineNumber: 0,
     wordPosition: word.position,
