@@ -10,6 +10,7 @@ let fontCache: FontCache = {
 
 let surahNameFontUrl: string | null = null;
 let surahNameFontLoaded: boolean = false;
+let digitalKhattFontLoaded: boolean = false;
 
 export function surahNumberToFontCode(surahNumber: number): string {
   return `surah${String(surahNumber).padStart(3, "0")}`;
@@ -55,6 +56,34 @@ export async function loadSurahNameFont(): Promise<void> {
   surahNameFontLoaded = true;
 }
 
+export async function loadDigitalKhattFont(): Promise<void> {
+  if (digitalKhattFontLoaded) return;
+
+  const fontUrl = new URL(
+    "../data/fonts/hafs-unicode/digitalkhatt.otf",
+    import.meta.url,
+  ).href;
+
+  const response = await fetch(fontUrl);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to load DigitalKhatt font from ${fontUrl}: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const buffer = await response.arrayBuffer();
+  const fontFace = new FontFace("DigitalKhatt", buffer);
+  await fontFace.load();
+
+  if (typeof document !== "undefined" && document.fonts) {
+    document.fonts.add(fontFace);
+  } else if ((globalThis as any).fonts) {
+    (globalThis as any).fonts.add(fontFace);
+  }
+
+  digitalKhattFontLoaded = true;
+}
+
 export async function getFontBuffer(
   layout: MushafLayout,
   page: number,
@@ -94,6 +123,7 @@ export async function loadFont(
   page: number,
 ): Promise<void> {
   if (layout === "hafs-unicode") {
+    await loadDigitalKhattFont();
     return;
   }
 

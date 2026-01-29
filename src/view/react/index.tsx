@@ -221,7 +221,7 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                     style={{
                       fontFamily:
                         riwaya === "hafs-unicode"
-                          ? '"Scheherazade New", "Amiri", "Traditional Arabic", system-ui, -apple-system, sans-serif'
+                          ? '"DigitalKhatt", "Scheherazade New", "Amiri", system-ui, -apple-system, sans-serif'
                           : '"QuranFont", system-ui, -apple-system, sans-serif',
                       fontSize: 24,
                       color: theme === "dark" ? "#fff" : "#34495e",
