@@ -37,8 +37,8 @@
     "generate:metadata": "tsx scripts/fetch-metadata.ts",
     "generate:fonts": "tsx scripts/download-fonts.ts",
     "playground:setup": "pnpm build",
-    "playground:vite": "cd playground/vite-ts && pnpm dev",
-    "playground:web": "npx serve -p 3000"
+    "playground:vite": "pnpm --filter vite-ts-playground dev",
+    "playground:web": "npx serve -p 3000 playground/web-example"
   },
   "peerDependencies": {
     "@shopify/react-native-skia": ">=0.1",

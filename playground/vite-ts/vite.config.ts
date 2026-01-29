@@ -3,7 +3,7 @@ import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-const openQuranViewRoot = path.resolve(__dirname, "../../src");
+const openQuranViewRoot = path.resolve(__dirname, "../../dist");
 
 export default defineConfig({
   plugins: [react()],
