@@ -1,83 +1,103 @@
-export type Riwaya = "hafs-v2" | "hafs-v4" | "hafs-unicode";
+export type MushafLayout = "hafs-v2" | "hafs-v4" | "hafs-unicode";
 
-export type FontInfo = {
-  family: string;
-  version: string;
-  url: string;
-  fallbackUrl?: string;
+export type CharType = "word" | "end" | "pause" | "rub" | "sajdah";
+
+export type WordLocation = {
+  surah: number;
+  verse: number;
+  position: number;
 };
 
-export const RIWAYA_FONTS: Record<Riwaya, FontInfo> = {
+export type Word = {
+  id: number;
+  position: number;
+  text: string;
+  code_v2?: string;
+  pageNumber: number;
+  charType: CharType;
+} & WordLocation;
+
+export type LineMetadata = {
+  verseId: number;
+  verseKey: string;
+  chapterId: number;
+};
+
+export type Line = {
+  lineNumber: number;
+  words: Word[];
+  metadata: LineMetadata;
+};
+
+export type Page = {
+  pageNumber: number;
+  lines: Line[];
+};
+
+export type TranslatedName = {
+  languageName: string;
+  name: string;
+};
+
+export type Surah = {
+  id: number;
+  nameSimple: string;
+  nameComplex: string;
+  nameArabic: string;
+  versesCount: number;
+  revelationPlace: "makkah" | "madinah";
+  revelationOrder: number;
+  bismillahPre: boolean;
+  pages: [number, number];
+  translatedName: TranslatedName;
+};
+
+export type Juz = {
+  id: number;
+  juzNumber: number;
+  firstVerseId: number;
+  lastVerseId: number;
+  versesCount: number;
+  verseMapping: Record<string, string>;
+};
+
+export type FontConfig = {
+  family: string;
+  baseUrl: string;
+  extension: string;
+};
+
+export const MUSHAF_FONTS: Record<MushafLayout, FontConfig> = {
   "hafs-v2": {
-    family: "HafsV2",
-    version: "QCFv2",
-    url: "https://verses.quran.foundation/Hafs/v2/arial.ttf",
+    family: "QCF V2",
+    baseUrl: "https://verses.quran.foundation/fonts/quran/hafs/v2/woff2",
+    extension: "woff2",
   },
   "hafs-v4": {
-    family: "HafsV4",
-    version: "QCFv4",
-    url: "https://verses.quran.foundation/Hafs/v4/arial.ttf",
+    family: "QCF V4",
+    baseUrl: "https://verses.quran.foundation/fonts/quran/hafs/v4/colrv1/woff2",
+    extension: "woff2",
   },
   "hafs-unicode": {
-    family: "HafsUnicode",
-    version: "HafsUnicode",
-    url: "https://verses.quran.foundation/Hafs/Unicode/arial.ttf",
+    family: "QPC Hafs",
+    baseUrl: "https://verses.quran.foundation/fonts/quran/hafs/unicode/woff2",
+    extension: "woff2",
   },
 };
 
-export type LineType = "surah_name" | "ayah" | "basmallah";
+export function getFontUrl(layout: MushafLayout, page: number): string {
+  const font = MUSHAF_FONTS[layout];
+  return `${font.baseUrl}/p${page}.${font.extension}`;
+}
 
-export type QuranWord = {
-  id: number;
+export function parseVerseKey(verseKey: string): {
   surah: number;
-  ayah: number;
-  word: number;
-  location: string;
-  text: string;
-};
+  verse: number;
+} {
+  const [surah, verse] = verseKey.split(":").map(Number);
+  return { surah, verse };
+}
 
-export type PageLine = {
-  line_number: number;
-  line_type: LineType;
-  surah_number?: number;
-  is_centered: boolean;
-  words: QuranWord[];
-};
-
-export type QuranPage = {
-  page_number: number;
-  font_url: string;
-  lines: PageLine[];
-};
-
-export type MushafInfo = {
-  name: string;
-  number_of_pages: number;
-  lines_per_page: number;
-  font_name: string;
-};
-
-export type QulLayoutPageLine = {
-  line_number: number;
-  line_type: LineType;
-  is_centered: boolean;
-  first_word_id: number | null;
-  last_word_id: number | null;
-  surah_number: number | null;
-};
-
-export type QulLayout = {
-  info: MushafInfo;
-  pages: Record<string, QulLayoutPageLine[]>;
-};
-
-export type SurahMetadata = {
-  id: number;
-  name: string;
-  name_simple: string;
-  name_arabic: string;
-  revelation_order: number;
-  revelation_place: "makkah" | "madinah";
-  verses_count: number;
-  bismillah_pre: boolean;
-};
+export function createVerseKey(surah: number, verse: number): string {
+  return `${surah}:${verse}`;
+}
