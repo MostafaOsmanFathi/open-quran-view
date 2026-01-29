@@ -306,7 +306,7 @@ export class QuranViewElement extends HTMLElement {
       const wordColor = theme === "dark" ? "#fff" : "#34495e";
       const hoverBg = theme === "dark" ? "#333" : "#e0e0e0";
 
-      if (line.lineType === "surah_name") {
+      if (line.lineType === "header") {
         const surahEl = document.createElement("div");
         surahEl.className = "quran-surah-name";
         surahEl.style.cssText = `font-size: 28px; color: ${surahColor};`;

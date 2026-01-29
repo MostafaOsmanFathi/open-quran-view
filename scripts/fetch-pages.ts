@@ -117,21 +117,49 @@ async function fetchPageData(
   return await response.json();
 }
 
-function transformToV3Format(apiResponse: any) {
+function transformToV3Format(apiResponse: any, pageNumber: number) {
   const linesMap: Record<number, any> = {};
+  const surahStarts: { chapterId: number; startLine: number }[] = [];
+  const processedVerses = new Set<string>();
+  let chapterId = 0;
 
   apiResponse.verses.forEach((verse: any) => {
+    const verseKey = verse.verse_key;
+    const [surahNum, verseNum] = verseKey.split(":").map(Number);
+    chapterId = surahNum;
+
+    if (!processedVerses.has(verseKey)) {
+      processedVerses.add(verseKey);
+      let minLine = 999;
+      const wordsOnPage = verse.words.filter(
+        (w: any) => w.page_number === pageNumber,
+      );
+      if (wordsOnPage.length > 0) {
+        wordsOnPage.forEach((w: any) => {
+          if (w.line_number < minLine) minLine = w.line_number;
+        });
+        if (minLine !== 999) {
+          surahStarts.push({ chapterId, startLine: minLine });
+        }
+      }
+    }
+    processedVerses.add(verse.verse_key);
+
     verse.words.forEach((word: any) => {
+      if (word.page_number !== pageNumber) return;
+
       const lineNum = word.line_number;
 
       if (!linesMap[lineNum]) {
         linesMap[lineNum] = {
           lineNumber: lineNum,
           words: [],
+          isCentered: false,
+          lineType: "text",
           metadata: {
             verseId: verse.id,
             verseKey: verse.verse_key,
-            chapterId: verse.chapter_id || Math.floor(verse.id / 1000),
+            chapterId: verse.chapter_id || chapterId,
           },
         };
       }
@@ -143,8 +171,49 @@ function transformToV3Format(apiResponse: any) {
         code_v2: word.code_v2,
         pageNumber: word.page_number,
         charType: word.char_type_name,
+        surah: chapterId,
+        verse: verseNum,
       });
     });
+  });
+
+  surahStarts.forEach(({ chapterId: cid, startLine }) => {
+    if (cid === 1 || cid === 9) {
+      const headerLine = startLine - 1;
+      if (headerLine > 0 && !linesMap[headerLine]) {
+        linesMap[headerLine] = {
+          lineNumber: headerLine,
+          words: [],
+          isCentered: true,
+          lineType: "header",
+          metadata: { chapterId: cid },
+          surahNumber: cid,
+        };
+      }
+    } else {
+      const bismillahLine = startLine - 1;
+      const headerLine = startLine - 2;
+
+      if (bismillahLine > 0 && !linesMap[bismillahLine]) {
+        linesMap[bismillahLine] = {
+          lineNumber: bismillahLine,
+          words: [],
+          isCentered: true,
+          lineType: "bismillah",
+          metadata: { chapterId: cid },
+        };
+      }
+      if (headerLine > 0 && !linesMap[headerLine]) {
+        linesMap[headerLine] = {
+          lineNumber: headerLine,
+          words: [],
+          isCentered: true,
+          lineType: "header",
+          metadata: { chapterId: cid },
+          surahNumber: cid,
+        };
+      }
+    }
   });
 
   return Object.values(linesMap).sort(
@@ -171,11 +240,18 @@ async function generatePagesForMushaf(
         clientId,
       );
 
-      const v3Data = transformToV3Format(apiData);
-      allPages.push({
+      const v3Data = transformToV3Format(apiData, pageNum);
+
+      const pageObj: any = {
         pageNumber: pageNum,
         lines: v3Data,
-      });
+      };
+
+      if (pageNum === 1 || pageNum === 2) {
+        pageObj.isVerticallyCentered = true;
+      }
+
+      allPages.push(pageObj);
 
       process.stdout.write(`\r  ${config.name}: ${pageNum}/604`);
 

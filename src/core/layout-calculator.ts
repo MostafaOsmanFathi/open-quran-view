@@ -1,11 +1,11 @@
-import type { Page, Word } from "./types";
+import type { Line, LineType, Page, Word } from "./types";
 
 export type LineLayout = {
   lineNumber: number;
   y: number;
   words: WordLayout[];
   isCentered: boolean;
-  lineType: "text" | "surah_name";
+  lineType: LineType;
   surahNumber?: number;
 };
 
@@ -69,63 +69,69 @@ export function createLayoutCalculator(options: LayoutCalculatorOptions): {
     },
   };
 
-  function shouldCenterLine(words: Word[], chapterId: number): boolean {
-    if (words.length === 0) return false;
-    const firstWord = words[0];
-    return firstWord.position === 1 && firstWord.verse === 1 && chapterId !== 1;
-  }
-
-  function estimateTextWidth(text: string): number {
-    const avgCharWidth = fontSize * 0.5;
-    return text.length * avgCharWidth;
-  }
-
   function calculateLineLayout(
-    line: {
-      lineNumber: number;
-      words: Word[];
-      metadata: { verseKey: string; chapterId: number };
-    },
+    line: Line,
     startY: number,
     lineIndex: number,
+    verticalOffset: number = 0,
   ): LineLayout {
     const words: WordLayout[] = [];
-    const y = startY + lineIndex * metrics.lineHeight;
+    const y = startY + lineIndex * metrics.lineHeight + verticalOffset;
     let currentX = metrics.pagePadding.left;
 
     for (const word of line.words) {
+      const textWidth = word.text.length * (fontSize * 0.5);
       const wordLayout: WordLayout = {
         id: word.id,
         x: currentX,
         y,
-        width: estimateTextWidth(word.text),
+        width: textWidth,
         height: fontSize,
         text: word.text,
         surahNumber: word.surah,
         ayahNumber: word.verse,
       };
       words.push(wordLayout);
-      currentX += wordLayout.width + 8;
+      currentX += textWidth + 8;
     }
 
-    const isCentered = shouldCenterLine(line.words, line.metadata.chapterId);
+    const isCentered = line.isCentered ?? false;
 
     return {
       lineNumber: line.lineNumber,
       y,
       words,
       isCentered,
-      lineType: "text",
+      lineType: line.lineType || "text",
+      surahNumber:
+        line.lineType === "header" ? line.metadata?.chapterId : undefined,
     };
   }
 
   function calculatePageLayout(page: Page): PageLayout {
     const lines: LineLayout[] = [];
+
+    let verticalOffset = 0;
+    if (page.isVerticallyCentered && page.lines.length > 0) {
+      const contentHeight = page.lines.length * metrics.lineHeight;
+      const availableHeight =
+        pageHeight - metrics.pagePadding.top - metrics.pagePadding.bottom;
+      if (availableHeight > contentHeight) {
+        verticalOffset = (availableHeight - contentHeight) / 2;
+      }
+    }
+
     const startY = metrics.pagePadding.top + metrics.lineHeight / 2;
 
     for (let i = 0; i < page.lines.length; i++) {
       const line = page.lines[i];
-      const lineLayout = calculateLineLayout(line, startY, i);
+      const lineIndex = line.lineNumber - 1;
+      const lineLayout = calculateLineLayout(
+        line,
+        startY,
+        lineIndex,
+        verticalOffset,
+      );
       lines.push(lineLayout);
     }
 

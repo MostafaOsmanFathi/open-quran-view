@@ -150,7 +150,7 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                   : layout.metrics.pagePadding.left,
               }}
             >
-              {line.lineType === "surah_name" ? (
+              {line.lineType === "header" ? (
                 <div
                   style={{
                     fontSize: 28,

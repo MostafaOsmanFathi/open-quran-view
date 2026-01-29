@@ -95,8 +95,8 @@ export class ReactViewAdapter implements DynamicDataLoader {
       if (
         row.first_word_id &&
         row.last_word_id &&
-        row.line_type !== "surah_name" &&
-        row.line_type !== "basmallah"
+        row.line_type !== "header" &&
+        row.line_type !== "bismillah"
       ) {
         const startId = parseInt(row.first_word_id, 10);
         const endId = parseInt(row.last_word_id, 10);
@@ -104,11 +104,12 @@ export class ReactViewAdapter implements DynamicDataLoader {
         for (let id = startId; id <= endId; id++) {
           line.words.push({
             id,
-            surah: 0,
-            ayah: 0,
-            word: 0,
-            location: "",
+            position: id - startId + 1,
             text: "",
+            pageNumber: row.page_number,
+            charType: "word" as const,
+            surah: 0,
+            verse: 0,
           });
         }
       }

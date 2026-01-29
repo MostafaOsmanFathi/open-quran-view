@@ -1,6 +1,10 @@
 export type MushafLayout = "hafs-v2" | "hafs-v4" | "hafs-unicode";
 
+export type Riwaya = "hafs-digitalkhatt";
+
 export type CharType = "word" | "end" | "pause" | "rub" | "sajdah";
+
+export type LineType = "text" | "header" | "bismillah" | "empty";
 
 export type WordLocation = {
   surah: number;
@@ -27,11 +31,28 @@ export type Line = {
   lineNumber: number;
   words: Word[];
   metadata: LineMetadata;
+  isCentered?: boolean;
+  lineType?: LineType;
+};
+
+export type PageLine = {
+  line_number: number;
+  line_type: LineType;
+  is_centered: boolean;
+  words: Word[];
+  surah_number?: number;
 };
 
 export type Page = {
   pageNumber: number;
   lines: Line[];
+  isVerticallyCentered?: boolean;
+};
+
+export type QuranPage = {
+  page_number: number;
+  font_url: string;
+  lines: PageLine[];
 };
 
 export type TranslatedName = {
