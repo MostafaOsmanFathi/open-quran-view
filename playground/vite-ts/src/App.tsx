@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { OpenMushafView } from "open-quran-view/view/react";
+import { OpenQuranView } from "open-quran-view/view";
 import "./App.css";
 
 function App() {
@@ -73,7 +73,7 @@ function App() {
           gap: "20px",
         }}
       >
-        <OpenMushafView
+        <OpenQuranView
           page={page}
           width={500}
           height={700}

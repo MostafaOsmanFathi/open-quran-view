@@ -25,15 +25,18 @@ open-quran-view/
 │   ├── core/               # Platform-agnostic logic
 │   │   ├── index.ts        # Core library entry point
 │   │   ├── types.ts        # Shared TypeScript interfaces
-│   │   ├── mushaf-loader.ts # QUL layout loading
-│   │   └── word-data-loader.ts # Word data loading
+│   │   ├── data-loader.ts  # Data loading with caching
+│   │   ├── font-loader.ts  # Font URL generation
+│   │   ├── lookup.ts       # Navigation and verse lookup
+│   │   └── layout-calculator.ts # Page layout calculation
 │   ├── view/
 │   │   ├── react/          # React component
 │   │   └── web/            # Web Component
-│   └── test/               # Test setup
-├── assets/              # QUL data assets
-│   └── riwaya/
-│       └── hafs-digitalkhatt/
+│   └── data/               # QUL data assets
+│       └── pages/
+│           ├── hafs-v2/
+│           ├── hafs-v4/
+│           └── hafs-unicode/
 └── dist/                   # Build output
 ```
 
@@ -47,27 +50,29 @@ open-quran-view/
 npm install open-quran-view
 ```
 
-### Basic Usage
+### Core Module (Framework Agnostic)
 
-```tsx
-import { createOpenQuranView } from 'open-quran-view';
+```typescript
+import { loadPage, getFontUrl, createLayoutCalculator } from '@open-quran-view/core';
 
-const quran = createOpenQuranView();
+const calculator = createLayoutCalculator({ pageWidth: 600, pageHeight: 850 });
 
 async function renderPage() {
-  const page = await quran.getPage(1);
-  console.log(page);
+  const page = await loadPage('hafs-v2', 1);
+  const fontUrl = getFontUrl('hafs-v2', 1);
+  const layout = calculator.calculatePageLayout(page);
+  console.log(layout);
 }
 ```
 
 ### React Component
 
 ```tsx
-import { OpenMushafView } from 'open-quran-view/view/react';
+import { OpenQuranView } from 'open-quran-view/view';
 
 function App() {
   return (
-    <OpenMushafView
+    <OpenQuranView
       page={1}
       width={600}
       height={850}
@@ -75,6 +80,12 @@ function App() {
     />
   );
 }
+```
+
+You can also import explicitly:
+
+```tsx
+import { OpenQuranView } from 'open-quran-view/view/react';
 ```
 
 ### Web Component
@@ -86,40 +97,124 @@ function App() {
   registerQuranView();
 </script>
 
-<quran-view page="1" width="600" height="850"></quran-view>
+<quran-view page="1" width="600" height="850" riwaya="hafs-v2"></quran-view>
 ```
 
 ---
 
 ## API Reference
 
-### createOpenQuranView()
+### Core Module (`@open-quran-view/core`)
 
-Creates a new Quran viewer instance with QUL data.
+#### Data Loading
 
 ```typescript
-import { createOpenQuranView } from 'open-quran-view';
+import { loadPage, loadAllPages, loadSurahs, loadJuzs } from '@open-quran-view/core';
 
-const quran = createOpenQuranView();
+// Load a single page
+const page = await loadPage('hafs-v2', 1);
+
+// Load all pages
+const allPages = await loadAllPages('hafs-v2');
+
+// Load metadata
+const surahs = await loadSurahs();
+const juzs = await loadJuzs();
 ```
 
-### Methods
+#### Font Loading
 
-- `getPage(pageNumber: number)` - Returns page data with lines and words
-- `getFontUrl()` - Returns the font URL for the riwaya
-- `getWordsInRange(startId: number, endId: number)` - Returns words in ID range
-- `getWordById(id: number)` - Returns a specific word by ID
-- `getMushafInfo()` - Returns mushaf metadata
+```typescript
+import { getFontUrl } from '@open-quran-view/core';
+
+const fontUrl = await getFontUrl('hafs-v2', 1);
+```
+
+#### Layout Calculator
+
+```typescript
+import { createLayoutCalculator } from '@open-quran-view/core';
+
+const calculator = createLayoutCalculator({
+  pageWidth: 600,
+  pageHeight: 850,
+  fontSize: 24,
+});
+
+const layout = calculator.calculatePageLayout(page);
+const metrics = calculator.getMetrics();
+```
+
+#### Lookup Functions
+
+```typescript
+import {
+  getPageForVerse,
+  getVerseLocation,
+  getNavigation,
+  getSurahByPage,
+} from '@open-quran-view/core';
+
+const result = await getPageForVerse('1:1');
+const location = await getVerseLocation(1, 1);
+const navigation = await getNavigation(1);
+const surah = await getSurahByPage(1);
+```
+
+### React Component (`@open-quran-view/view`)
+
+```tsx
+import { OpenQuranView } from 'open-quran-view/view';
+
+<OpenQuranView
+  page={1}
+  width={600}
+  height={850}
+  theme="light"
+  onPageChange={(page) => console.log(page)}
+  onLoad={(layout) => console.log(layout)}
+  onWordClick={(word) => console.log(word)}
+/>
+```
+
+### Web Component (`@open-quran-view/view/web`)
+
+```typescript
+import { registerQuranView } from 'open-quran-view/view/web';
+
+registerQuranView();
+```
+
+**Attributes:**
+- `page` - Page number (1-604)
+- `riwaya` - Mushaf layout (`hafs-v2`, `hafs-v4`, `hafs-unicode`)
+- `width` - Component width
+- `height` - Component height
+- `theme` - `light` or `dark`
+
+**Events:**
+- `wordclick` - Fired when a word is clicked
 
 ---
 
 ## Building
 
 ```bash
-yarn build    # Build the library
-yarn lint     # Run ESLint
-yarn test     # Run tests
+pnpm install
+pnpm build    # Build the library
+pnpm lint     # Run ESLint
+pnpm test     # Run tests
 ```
+
+---
+
+## Mushaf Layouts
+
+| Layout | Description |
+|--------|-------------|
+| `hafs-v2` | Hafs from Asim via the way of Warsh |
+| `hafs-v4` | Hafs from Asim via the way of Shu'bah |
+| `hafs-unicode` | Standard Unicode Quran |
 
 ---
 

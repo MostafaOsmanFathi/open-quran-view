@@ -5,13 +5,13 @@
   "type": "module",
   "main": "./dist/core/index.js",
   "exports": {
-    ".": {
-      "types": "./dist/core/index.d.ts",
-      "import": "./dist/core/index.js"
-    },
     "./core": {
       "types": "./dist/core/index.d.ts",
       "import": "./dist/core/index.js"
+    },
+    "./view": {
+      "types": "./dist/view/react/index.d.ts",
+      "import": "./dist/view/react/index.js"
     },
     "./view/react": {
       "types": "./dist/view/react/index.d.ts",

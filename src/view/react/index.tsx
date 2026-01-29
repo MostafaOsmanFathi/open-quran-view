@@ -1,8 +1,13 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { createOpenQuranView } from "../../index";
-import { LayoutCalculator, PageLayout } from "../../core";
+import {
+  loadPage,
+  getFontUrl,
+  createLayoutCalculator,
+  type MushafLayout,
+  type PageLayout,
+} from "../../core";
 
-export type OpenMushafViewProps = {
+export type OpenQuranViewProps = {
   page?: number;
   width?: number;
   height?: number;
@@ -17,7 +22,7 @@ export type OpenMushafViewProps = {
   className?: string;
 };
 
-export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
+export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
   page = 1,
   width = 600,
   height = 850,
@@ -26,23 +31,25 @@ export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
   onLoad,
   onWordClick,
   className,
-}: OpenMushafViewProps) => {
+}: OpenQuranViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const viewerRef = useRef<ReturnType<typeof createOpenQuranView> | null>(null);
-  const calculatorRef = useRef<LayoutCalculator | null>(null);
+  const layoutRef = useRef<MushafLayout>("hafs-v2");
+  const calculatorRef = useRef<ReturnType<
+    typeof createLayoutCalculator
+  > | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(page);
   const [layout, setLayout] = useState<PageLayout | null>(null);
   const [fontUrl, setFontUrl] = useState<string>("");
 
-  const loadPage = useCallback(
+  const handleLoadPage = useCallback(
     async (pageNum: number) => {
-      if (!viewerRef.current || !calculatorRef.current || !containerRef.current)
-        return;
+      if (!calculatorRef.current || !containerRef.current) return;
 
       setLoading(true);
       try {
-        const quranPage = await viewerRef.current.getPage(pageNum);
+        const quranPage = await loadPage(layoutRef.current, pageNum);
+        if (!quranPage) return;
         const pageLayout = calculatorRef.current.calculatePageLayout(quranPage);
         setLayout(pageLayout);
         setCurrentPage(pageNum);
@@ -57,21 +64,24 @@ export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
   );
 
   useEffect(() => {
-    viewerRef.current = createOpenQuranView();
-    calculatorRef.current = new LayoutCalculator({
+    calculatorRef.current = createLayoutCalculator({
       pageWidth: width,
       pageHeight: height,
     });
 
-    setFontUrl(viewerRef.current.getFontUrl());
+    const loadFontUrl = async () => {
+      const url = await getFontUrl(layoutRef.current, page);
+      setFontUrl(url);
+    };
 
-    loadPage(page);
+    loadFontUrl();
+
+    handleLoadPage(page);
 
     return () => {
-      viewerRef.current = null;
       calculatorRef.current = null;
     };
-  }, [width, height, page, loadPage]);
+  }, [width, height, page, handleLoadPage]);
 
   useEffect(() => {
     if (!fontUrl) return;
@@ -90,21 +100,21 @@ export const OpenMushafView: React.FC<OpenMushafViewProps> = ({
   }, [fontUrl]);
 
   const handleNextPage = useCallback(async () => {
-    await loadPage(currentPage + 1);
+    await handleLoadPage(currentPage + 1);
     onPageChange?.(currentPage + 1);
-  }, [currentPage, loadPage, onPageChange]);
+  }, [currentPage, handleLoadPage, onPageChange]);
 
   const handlePrevPage = useCallback(async () => {
-    await loadPage(currentPage - 1);
+    await handleLoadPage(currentPage - 1);
     onPageChange?.(currentPage - 1);
-  }, [currentPage, loadPage, onPageChange]);
+  }, [currentPage, handleLoadPage, onPageChange]);
 
   const handleGoToPage = useCallback(
     async (pageNum: number) => {
-      await loadPage(pageNum);
+      await handleLoadPage(pageNum);
       onPageChange?.(pageNum);
     },
-    [loadPage, onPageChange],
+    [handleLoadPage, onPageChange],
   );
 
   return (
@@ -344,4 +354,4 @@ const NavigationControls: React.FC<NavigationControlsProps> = ({
   );
 };
 
-export default OpenMushafView;
+export default OpenQuranView;

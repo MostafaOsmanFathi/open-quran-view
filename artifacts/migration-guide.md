@@ -16,22 +16,43 @@ This guide provides a complete architectural blueprint for building a modern, hi
 - Deleted `src/index.ts` - use `src/core/index.ts` instead
 - Updated data loader to use per-layout JSON files directly (`src/data/pages/{layout}/pages.json`)
 - Renamed `Riwaya` type to `MushafLayout` for consistency
+- Replaced `LayoutCalculator` class with `createLayoutCalculator()` function
+- Removed root package entry - use subpath exports (`@open-quran-view/core`, `@open-quran-view/view/react`, etc.)
 
 **Before (v2.0.x):**
+
 ```typescript
 import { createOpenQuranView } from "@open-quran-view";
+import { LayoutCalculator } from "@open-quran-view/core";
 
 const quran = createOpenQuranView("hafs-v2");
+const calculator = new LayoutCalculator({ pageWidth: 600, pageHeight: 850 });
 const page = await quran.getPage(1);
 const fontUrl = quran.getFontUrl();
 ```
 
 **After (v2.1.0):**
-```typescript
-import { loadPage, getFontUrl } from "@open-quran-view/core";
 
+```typescript
+import { loadPage, getFontUrl, createLayoutCalculator } from "@open-quran-view/core";
+import { OpenQuranView } from "@open-quran-view/view";  // React (default)
+
+const calculator = createLayoutCalculator({ pageWidth: 600, pageHeight: 850 });
 const page = await loadPage("hafs-v2", 1);
 const fontUrl = getFontUrl("hafs-v2", 1);
+
+const layout = calculator.calculatePageLayout(page);
+```
+
+**View Imports:**
+
+```typescript
+// React (recommended)
+import { OpenQuranView } from "@open-quran-view/view";
+import { OpenQuranView } from "@open-quran-view/view/react"; // explicit
+
+// Web Component
+import { registerQuranView, QuranViewElement } from "@open-quran-view/view/web";
 ```
 
 **Migration Steps:**
@@ -39,7 +60,9 @@ const fontUrl = getFontUrl("hafs-v2", 1);
 1. Replace `createOpenQuranView()` calls with direct core imports
 2. Use `loadPage(layout, pageNumber)` instead of `quran.getPage(pageNumber)`
 3. Use `getFontUrl(layout, pageNumber)` instead of `quran.getFontUrl()`
-4. Import from `@open-quran-view/core` instead of `@open-quran-view`
+4. Replace `new LayoutCalculator()` with `createLayoutCalculator()`
+5. Import from `@open-quran-view/core` instead of `@open-quran-view`
+6. Update imports to use subpath exports
 
 ---
 
@@ -95,6 +118,61 @@ quran-view-package/
 ├── tsconfig.json
 └── pnpm-workspace.yaml           # Monorepo config
 ```
+
+---
+
+## 🎨 View Module Exports
+
+The package provides multiple export paths for different use cases:
+
+| Import Path | Target | Usage |
+|-------------|--------|-------|
+| `@open-quran-view/core` | Core module (data, fonts, lookup, layout) | Framework-agnostic |
+| `@open-quran-view/view` | React component (default) | `import { OpenQuranView }` |
+| `@open-quran-view/view/react` | React component (explicit) | Same as above |
+| `@open-quran-view/view/web` | Web Component | `import { registerQuranView }` |
+
+### React View
+
+```tsx
+import { OpenQuranView } from '@open-quran-view/view';
+
+<OpenQuranView
+  page={1}
+  width={600}
+  height={850}
+  theme="light"
+  onPageChange={(page) => console.log(page)}
+  onLoad={(layout) => console.log(layout)}
+  onWordClick={(word) => console.log(word)}
+/>
+```
+
+### Web Component
+
+```typescript
+import { registerQuranView, QuranViewElement } from '@open-quran-view/view/web';
+
+registerQuranView();
+```
+
+```html
+<quran-view page="1" riwaya="hafs-v2"></quran-view>
+```
+
+**Web Component API:**
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `page` | number | Page number (1-604) |
+| `riwaya` | string | Mushaf layout (`hafs-v2`, `hafs-v4`, `hafs-unicode`) |
+| `width` | number | Component width in pixels |
+| `height` | number | Component height in pixels |
+| `theme` | string | `light` or `dark` |
+
+| Event | Description |
+|-------|-------------|
+| `wordclick` | Fired when a word is clicked |
 
 ---
 

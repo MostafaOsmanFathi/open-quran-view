@@ -30,8 +30,8 @@ function copyDir(src: string, dest: string) {
 
 export default defineConfig({
   entry: {
-    index: "src/index.ts",
     "core/index": "src/core/index.ts",
+    "view/index": "src/view/react/index.tsx",
     "view/react/index": "src/view/react/index.tsx",
     "view/web/index": "src/view/web/index.ts",
   },

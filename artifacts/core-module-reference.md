@@ -21,11 +21,12 @@
 
 ```
 src/core/
-├── index.ts       # Main exports
-├── types.ts       # TypeScript type definitions
-├── data-loader.ts # Data loading with caching
-├── font-loader.ts # Font URL generation
-└── lookup.ts      # Navigation and verse lookup
+├── index.ts             # Main exports
+├── types.ts             # TypeScript type definitions
+├── data-loader.ts       # Data loading with caching
+├── font-loader.ts       # Font URL generation
+├── lookup.ts            # Navigation and verse lookup
+└── layout-calculator.ts # Page layout calculation
 ```
 
 ---
@@ -36,6 +37,7 @@ src/core/
 // Types
 export type { MushafLayout, CharType, WordLocation, Word, Line, Page, Surah, Juz };
 export type { VerseLocation, NavigationInfo };
+export type { LineLayout, WordLayout, PageMetrics, PageLayout, LayoutCalculatorOptions };
 
 // Helper Functions
 export { parseVerseKey, createVerseKey };
@@ -51,6 +53,9 @@ export { getFontUrl, loadFont, clearFontCache };
 export { getPageForVerse, getVerseLocation, getNavigation };
 export { getWordLocation, getPageRangeForSurah };
 export { getFirstVerseOfPage, getLastVerseOfPage };
+
+// Layout Calculator
+export { createLayoutCalculator };
 ```
 
 ---
@@ -58,6 +63,7 @@ export { getFirstVerseOfPage, getLastVerseOfPage };
 ## Type Definitions
 
 ### MushafLayout
+
 ```typescript
 type MushafLayout = "hafs-v2" | "hafs-v4" | "hafs-unicode";
 ```
@@ -71,6 +77,7 @@ type MushafLayout = "hafs-v2" | "hafs-v4" | "hafs-unicode";
 ---
 
 ### CharType
+
 ```typescript
 type CharType = "word" | "end" | "pause" | "rub" | "sajdah";
 ```
@@ -86,6 +93,7 @@ type CharType = "word" | "end" | "pause" | "rub" | "sajdah";
 ---
 
 ### WordLocation
+
 ```typescript
 type WordLocation = {
   surah: number;     // Chapter number (1-114)
@@ -97,6 +105,7 @@ type WordLocation = {
 ---
 
 ### Word
+
 ```typescript
 type Word = {
   id: number;           // Unique word identifier
@@ -109,6 +118,7 @@ type Word = {
 ```
 
 **Example:**
+
 ```typescript
 {
   id: 1,
@@ -125,6 +135,7 @@ type Word = {
 ---
 
 ### LineMetadata
+
 ```typescript
 type LineMetadata = {
   verseId: number;      // Verse identifier
@@ -136,6 +147,7 @@ type LineMetadata = {
 ---
 
 ### Line
+
 ```typescript
 type Line = {
   lineNumber: number;   // Line number on page (1-15)
@@ -145,6 +157,7 @@ type Line = {
 ```
 
 **Example:**
+
 ```typescript
 {
   lineNumber: 2,
@@ -162,6 +175,7 @@ type Line = {
 ---
 
 ### Page
+
 ```typescript
 type Page = {
   pageNumber: number;   // Page number (1-604)
@@ -170,6 +184,7 @@ type Page = {
 ```
 
 **Structure:**
+
 ```typescript
 {
   pageNumber: 1,
@@ -184,6 +199,7 @@ type Page = {
 ---
 
 ### Surah
+
 ```typescript
 type Surah = {
   id: number;              // Surah number (1-114)
@@ -203,6 +219,7 @@ type Surah = {
 ```
 
 **Example (Al-Fatihah):**
+
 ```typescript
 {
   id: 1,
@@ -221,6 +238,7 @@ type Surah = {
 ---
 
 ### Juz
+
 ```typescript
 type Juz = {
   id: number;                    // Juz ID (1-90, duplicated)
@@ -233,6 +251,7 @@ type Juz = {
 ```
 
 **Example (Juz 1 - Amma):**
+
 ```typescript
 {
   id: 1,
@@ -247,6 +266,7 @@ type Juz = {
 ---
 
 ### VerseLocation
+
 ```typescript
 type VerseLocation = {
   surah: number;       // Chapter number
@@ -260,6 +280,7 @@ type VerseLocation = {
 ---
 
 ### NavigationInfo
+
 ```typescript
 type NavigationInfo = {
   prevPage: number | null;    // Previous page number or null
@@ -275,6 +296,7 @@ type NavigationInfo = {
 ## Helper Functions
 
 ### parseVerseKey
+
 ```typescript
 function parseVerseKey(verseKey: string): { surah: number; verse: number };
 ```
@@ -291,6 +313,7 @@ Parses a verse key string into its components.
 ---
 
 ### createVerseKey
+
 ```typescript
 function createVerseKey(surah: number, verse: number): string;
 ```
@@ -307,6 +330,7 @@ Creates a verse key string from components.
 ## Data Loading Functions
 
 ### loadPages
+
 ```typescript
 async function loadPages(
   layout: MushafLayout,
@@ -330,6 +354,7 @@ Loads page data with optional specific page filter.
 ---
 
 ### loadPage
+
 ```typescript
 async function loadPage(
   layout: MushafLayout,
@@ -352,6 +377,7 @@ Loads a single page by number. Convenience wrapper around `loadPages`.
 ---
 
 ### loadAllPages
+
 ```typescript
 async function loadAllPages(layout: MushafLayout): Promise<Page[]>;
 ```
@@ -365,6 +391,7 @@ Loads all pages for a layout. Wrapper around `loadPages`.
 ---
 
 ### loadSurahs
+
 ```typescript
 async function loadSurahs(): Promise<Surah[]>;
 ```
@@ -380,6 +407,7 @@ Loads all 114 surah metadata.
 ---
 
 ### loadJuzs
+
 ```typescript
 async function loadJuzs(): Promise<Juz[]>;
 ```
@@ -395,6 +423,7 @@ Loads all juz metadata.
 ---
 
 ### getSurah
+
 ```typescript
 async function getSurah(id: number): Promise<Surah | null>;
 ```
@@ -415,6 +444,7 @@ Gets surah by ID.
 ---
 
 ### getJuz
+
 ```typescript
 async function getJuz(id: number): Promise<Juz | null>;
 ```
@@ -435,6 +465,7 @@ Gets juz by ID.
 ---
 
 ### getSurahByPage
+
 ```typescript
 async function getSurahByPage(pageNumber: number): Promise<Surah | null>;
 ```
@@ -455,6 +486,7 @@ Gets surah that contains the given page number.
 ---
 
 ### clearCache
+
 ```typescript
 function clearCache(layout?: MushafLayout): void;
 ```
@@ -475,6 +507,7 @@ Clears the data loader cache.
 ## Font Loading Functions
 
 ### getFontUrl
+
 ```typescript
 async function getFontUrl(
   layout: MushafLayout,
@@ -500,6 +533,7 @@ Generates the font URL for a specific layout and page.
 ---
 
 ### loadFont
+
 ```typescript
 async function loadFont(
   layout: MushafLayout,
@@ -515,6 +549,7 @@ Loads a font and adds it to `document.fonts`.
 | `page` | Page number |
 
 **Behavior:**
+
 1. Gets font URL via `getFontUrl()`
 2. Creates `FontFace` object
 3. Loads and adds to document fonts
@@ -522,6 +557,7 @@ Loads a font and adds it to `document.fonts`.
 ---
 
 ### clearFontCache
+
 ```typescript
 function clearFontCache(layout?: MushafLayout): void;
 ```
@@ -542,6 +578,7 @@ Clears the font URL cache.
 ## Lookup Functions
 
 ### getPageForVerse
+
 ```typescript
 async function getPageForVerse(
   verseKey: string,
@@ -566,6 +603,7 @@ Finds the page and location for a specific verse.
 ---
 
 ### getVerseLocation
+
 ```typescript
 async function getVerseLocation(
   chapter: number,
@@ -590,6 +628,7 @@ Gets the location of a specific verse.
 ---
 
 ### getNavigation
+
 ```typescript
 async function getNavigation(
   pageNumber: number,
@@ -612,6 +651,7 @@ Gets navigation information for a page.
 ---
 
 ### getWordLocation
+
 ```typescript
 function getWordLocation(
   word: Word,
@@ -634,6 +674,7 @@ Gets the location of a word.
 ---
 
 ### getPageRangeForSurah
+
 ```typescript
 async function getPageRangeForSurah(
   surahId: number
@@ -655,6 +696,7 @@ Gets the start and end page for a surah.
 ---
 
 ### getFirstVerseOfPage
+
 ```typescript
 async function getFirstVerseOfPage(
   pageNumber: number,
@@ -677,6 +719,7 @@ Gets the first verse location on a page.
 ---
 
 ### getLastVerseOfPage
+
 ```typescript
 async function getLastVerseOfPage(
   pageNumber: number,
@@ -695,6 +738,112 @@ Gets the last verse location on a page.
 |-------|-----------------|
 | 1 | VerseLocation for last verse of page 1 |
 | 999 | `null` (invalid) |
+
+---
+
+## Layout Calculator Functions
+
+### createLayoutCalculator
+
+```typescript
+function createLayoutCalculator(
+  options: LayoutCalculatorOptions
+): {
+  calculatePageLayout: (page: Page) => PageLayout;
+  getMetrics: () => PageMetrics;
+};
+```
+
+Creates a layout calculator instance for computing page layouts.
+
+| Parameters | Description |
+|------------|-------------|
+| `options.pageWidth` | Page width in pixels |
+| `options.pageHeight` | Page height in pixels |
+| `options.fontSize?` | Font size (default: 24) |
+| `options.lineHeight?` | Line height (default: fontSize * 1.5) |
+
+**Returns:** Calculator instance with methods:
+
+| Method | Description |
+|--------|-------------|
+| `calculatePageLayout(page)` | Computes layout for a page |
+| `getMetrics()` | Returns page metrics |
+
+**Example:**
+
+```typescript
+const calculator = createLayoutCalculator({
+  pageWidth: 600,
+  pageHeight: 850,
+  fontSize: 24,
+});
+
+const page = await loadPage("hafs-v2", 1);
+const layout = calculator.calculatePageLayout(page);
+console.log(layout.lines.length); // 15
+```
+
+---
+
+### LineLayout
+
+```typescript
+type LineLayout = {
+  lineNumber: number;      // Line number (1-15)
+  y: number;               // Y position
+  words: WordLayout[];     // Words on this line
+  isCentered: boolean;     // Whether line is centered
+  lineType: "text" | "surah_name";
+  surahNumber?: number;    // Surah number if surah name
+};
+```
+
+---
+
+### WordLayout
+
+```typescript
+type WordLayout = {
+  id: number;           // Word ID
+  x: number;            // X position
+  y: number;            // Y position
+  width: number;        // Width in pixels
+  height: number;       // Height in pixels
+  text: string;         // Arabic text
+  surahNumber?: number; // Surah number
+  ayahNumber?: number;  // Verse number
+};
+```
+
+---
+
+### PageMetrics
+
+```typescript
+type PageMetrics = {
+  lineHeight: number;            // Line height in pixels
+  baselineOffset: number;        // Baseline offset
+  pagePadding: {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  };
+};
+```
+
+---
+
+### PageLayout
+
+```typescript
+type PageLayout = {
+  pageNumber: number;     // Page number (1-604)
+  lines: LineLayout[];    // Layout lines
+  metrics: PageMetrics;   // Page metrics
+};
+```
 
 ---
 

@@ -1,6 +1,10 @@
-import { createOpenQuranView } from "../../index";
-import { LayoutCalculator } from "../../core";
-import type { PageLayout } from "../../core/layout-calculator";
+import {
+  loadPage,
+  getFontUrl,
+  createLayoutCalculator,
+  type MushafLayout,
+  type PageLayout,
+} from "../../core";
 
 const STYLES = `
   :host {
@@ -113,8 +117,8 @@ export type QuranViewAttributes = {
 };
 
 export class QuranViewElement extends HTMLElement {
-  private viewer: ReturnType<typeof createOpenQuranView> | null = null;
-  private calculator: LayoutCalculator | null = null;
+  private layout: MushafLayout = "hafs-v2";
+  private calculator: ReturnType<typeof createLayoutCalculator> | null = null;
   private currentPage: number = 1;
   private totalPages: number = 604;
   private container: HTMLElement;
@@ -152,7 +156,6 @@ export class QuranViewElement extends HTMLElement {
   }
 
   disconnectedCallback(): void {
-    this.viewer = null;
     this.calculator = null;
   }
 
@@ -198,9 +201,10 @@ export class QuranViewElement extends HTMLElement {
     const width = parseInt(this.getAttribute("width") || "600", 10);
     const height = parseInt(this.getAttribute("height") || "850", 10);
     const theme = (this.getAttribute("theme") || "light") as "light" | "dark";
+    const riwaya = this.getAttribute("riwaya") as MushafLayout | null;
+    this.layout = riwaya || "hafs-v2";
 
-    this.viewer = createOpenQuranView();
-    this.calculator = new LayoutCalculator({
+    this.calculator = createLayoutCalculator({
       pageWidth: width,
       pageHeight: height,
     });
@@ -212,8 +216,6 @@ export class QuranViewElement extends HTMLElement {
     await this.loadFont();
 
     try {
-      const info = await this.viewer.getMushafInfo();
-      this.totalPages = info.number_of_pages;
       this.nav.querySelector(".quran-page-total")!.textContent =
         `من ${this.totalPages}`;
       this.nav.style.display = "flex";
@@ -225,9 +227,9 @@ export class QuranViewElement extends HTMLElement {
   }
 
   private async loadFont(): Promise<void> {
-    if (!this.viewer || this.fontLoaded) return;
+    if (this.fontLoaded) return;
 
-    const fontUrl = this.viewer.getFontUrl();
+    const fontUrl = await getFontUrl(this.layout, this.currentPage);
     const fontName = "QuranFont";
 
     try {
@@ -274,7 +276,7 @@ export class QuranViewElement extends HTMLElement {
   }
 
   private async renderPage(): Promise<void> {
-    if (!this.viewer || !this.calculator) return;
+    if (!this.calculator) return;
 
     this.showLoading(true);
     this.pageInput.value = String(this.currentPage);
@@ -282,7 +284,10 @@ export class QuranViewElement extends HTMLElement {
     this.nextBtn.disabled = this.currentPage >= this.totalPages;
 
     try {
-      const quranPage = await this.viewer.getPage(this.currentPage);
+      const quranPage = await loadPage(this.layout, this.currentPage);
+      if (!quranPage) {
+        throw new Error("Page not found");
+      }
       const layout = this.calculator.calculatePageLayout(quranPage);
       this.renderLayout(layout);
       this.showLoading(false);
@@ -385,7 +390,5 @@ export function registerQuranView(): void {
     customElements.define("quran-view", QuranViewElement);
   }
 }
-
-export { createOpenQuranView };
 
 export default QuranViewElement;
