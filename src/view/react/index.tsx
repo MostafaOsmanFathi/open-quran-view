@@ -105,6 +105,7 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
         position: "relative",
         overflow: "hidden",
         fontFamily: "system-ui, -apple-system, sans-serif",
+        direction: "rtl",
       }}
     >
       {loading && (
@@ -144,7 +145,7 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: line.isCentered ? "center" : "flex-start",
-                paddingLeft: line.isCentered
+                paddingInlineStart: line.isCentered
                   ? 0
                   : layout.metrics.pagePadding.left,
               }}
@@ -275,20 +276,24 @@ const NavigationControls: React.FC<NavigationControlsProps> = ({
     >
       <button
         type="button"
-        onClick={onPrev}
-        disabled={currentPage <= 1}
+        onClick={onNext}
+        disabled={currentPage >= totalPages}
         style={{
           padding: "6px 12px",
           border: "none",
           borderRadius: 4,
           background: theme === "dark" ? "#333" : "#667eea",
           color: "#fff",
-          cursor: currentPage <= 1 ? "not-allowed" : "pointer",
-          opacity: currentPage <= 1 ? 0.5 : 1,
+          cursor: currentPage >= totalPages ? "not-allowed" : "pointer",
+          opacity: currentPage >= totalPages ? 0.5 : 1,
         }}
       >
-        السابق
+        التالي
       </button>
+
+      <span style={{ color: theme === "dark" ? "#888" : "#666" }}>
+        من {totalPages}
+      </span>
 
       <input
         type="number"
@@ -307,25 +312,21 @@ const NavigationControls: React.FC<NavigationControlsProps> = ({
         }}
       />
 
-      <span style={{ color: theme === "dark" ? "#888" : "#666" }}>
-        من {totalPages}
-      </span>
-
       <button
         type="button"
-        onClick={onNext}
-        disabled={currentPage >= totalPages}
+        onClick={onPrev}
+        disabled={currentPage <= 1}
         style={{
           padding: "6px 12px",
           border: "none",
           borderRadius: 4,
           background: theme === "dark" ? "#333" : "#667eea",
           color: "#fff",
-          cursor: currentPage >= totalPages ? "not-allowed" : "pointer",
-          opacity: currentPage >= totalPages ? 0.5 : 1,
+          cursor: currentPage <= 1 ? "not-allowed" : "pointer",
+          opacity: currentPage <= 1 ? 0.5 : 1,
         }}
       >
-        التالي
+        السابق
       </button>
     </form>
   );
