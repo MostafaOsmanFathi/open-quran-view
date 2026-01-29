@@ -4,11 +4,20 @@ import { join } from "path";
 
 const ASSETS_SRC = "src/assets";
 const ASSETS_DIST = "dist/assets";
+const FONTS_SRC = "src/data/fonts";
+const FONTS_DIST = "dist/data/fonts";
 
 function copyAssets() {
   if (existsSync(ASSETS_SRC)) {
     mkdirSync(ASSETS_DIST, { recursive: true });
     copyDir(ASSETS_SRC, ASSETS_DIST);
+  }
+}
+
+function copyFonts() {
+  if (existsSync(FONTS_SRC)) {
+    mkdirSync(FONTS_DIST, { recursive: true });
+    copyDir(FONTS_SRC, FONTS_DIST);
   }
 }
 
@@ -42,6 +51,7 @@ export default defineConfig({
   external: ["react"],
   onSuccess: () => {
     copyAssets();
-    console.log("Assets copied to dist/assets");
+    copyFonts();
+    console.log("Assets and fonts copied to dist");
   },
 });
