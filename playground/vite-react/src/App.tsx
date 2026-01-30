@@ -5,8 +5,8 @@ import "./App.css";
 
 const MUSHAF_OPTIONS: { value: MushafLayout; label: string }[] = [
   { value: "hafs-v2", label: "Hafs (QCF V2)" },
-  { value: "hafs-v4", label: "Hafs with Tajweed (QCF V4)" },
-  { value: "hafs-unicode", label: "Hafs Unicode" },
+  { value: "hafs-v4", label: "Hafs (QCF V4 with tajweed)" },
+  { value: "hafs-unicode", label: "Hafs uncode (digital khat)" },
 ];
 
 function App() {

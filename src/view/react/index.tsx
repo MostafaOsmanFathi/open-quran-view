@@ -160,124 +160,135 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
             position: "relative",
           }}
         >
-          {pageLayout.lines.map((line) => (
-            <div
-              key={line.lineNumber}
-              style={{
-                position: "absolute",
-                left: 0,
-                right: 0,
-                height: pageLayout.metrics.lineHeight,
-                top:
-                  line.y -
-                  pageLayout.metrics.lineHeight +
-                  pageLayout.metrics.baselineOffset,
-                display: "flex",
-                alignItems: "center",
-                justifyContent:
-                  line.isCentered ||
-                  CENTERED_PAGES_HORIZONTAL_SET.has(currentPage)
-                    ? "center"
-                    : "flex-start",
-                paddingInlineStart:
-                  line.isCentered ||
-                  CENTERED_PAGES_HORIZONTAL_SET.has(currentPage)
-                    ? 0
-                    : pageLayout.metrics.pagePadding.left,
-              }}
-            >
-              {line.lineType === "header" ? (
-                <div
-                  style={{
-                    fontSize: 42,
-                    fontWeight: "bold",
-                    color: theme === "dark" ? "#fff" : "#2c3e50",
-                    fontFamily:
-                      '"SurahNameFont", system-ui, -apple-system, sans-serif',
-                    width: "100%",
-                    boxSizing: "border-box",
-                    marginTop: 12,
-                    marginBottom: 56,
-                    paddingInline: 12,
-                    paddingBlock: 4,
-                    border: `2px solid ${theme === "dark" ? "#fff" : "#2c3e50"}`,
-                    borderRadius: 8,
-                  }}
-                >
-                  {line.surahNumber
-                    ? surahNumberToFontCode(line.surahNumber)
-                    : "surah000"}
-                </div>
-              ) : (
-                line.words.map((word) => {
-                  const isAyahEnd =
-                    mushafLayout === "hafs-unicode" && word.charType === "end";
+          {pageLayout.lines.map((line) => {
+            const isCenteredLine =
+              line.isCentered || CENTERED_PAGES_HORIZONTAL_SET.has(currentPage);
 
-                  return (
-                    <span
-                      key={word.id}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() =>
-                        onWordClick?.({
-                          id: word.id,
-                          surahNumber: word.surahNumber,
-                          ayahNumber: word.ayahNumber,
-                        })
-                      }
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          onWordClick?.({
-                            id: word.id,
-                            surahNumber: word.surahNumber,
-                            ayahNumber: word.ayahNumber,
-                          });
-                        }
-                      }}
-                      style={{
-                        fontFamily: isAyahEnd
-                          ? '"AyatMarker", "DigitalKhatt", system-ui'
-                          : mushafLayout === "hafs-unicode"
-                            ? '"DigitalKhatt", "Scheherazade New", "Amiri", system-ui, -apple-system, sans-serif'
-                            : '"QuranFont", system-ui, -apple-system, sans-serif',
+            return (
+              <div
+                key={line.lineNumber}
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  height: pageLayout.metrics.lineHeight,
+                  top:
+                    line.y -
+                    pageLayout.metrics.lineHeight +
+                    pageLayout.metrics.baselineOffset,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: isCenteredLine ? "center" : "flex-end",
+                  padding: "2px",
+                }}
+              >
+                {line.lineType === "header" ? (
+                  <div
+                    style={{
+                      fontSize: 42,
+                      fontWeight: "bold",
+                      color: theme === "dark" ? "#fff" : "#2c3e50",
+                      fontFamily:
+                        '"SurahNameFont", system-ui, -apple-system, sans-serif',
+                      width: "100%",
+                      boxSizing: "border-box",
+                      marginTop: 12,
+                      marginBottom: 56,
+                      paddingInline: 12,
+                      paddingBlock: 4,
+                      border: `2px solid ${theme === "dark" ? "#fff" : "#2c3e50"}`,
+                      borderRadius: 8,
+                    }}
+                  >
+                    {line.surahNumber
+                      ? surahNumberToFontCode(line.surahNumber)
+                      : "surah000"}
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      width: "100%",
+                      justifyContent: isCenteredLine
+                        ? "center"
+                        : "space-between",
+                      gap: "4px",
+                    }}
+                  >
+                    {line.words.map((word) => {
+                      const isAyahEnd =
+                        mushafLayout === "hafs-unicode" &&
+                        word.charType === "end";
 
-                        fontSize: 24,
-                        color: theme === "dark" ? "#fff" : "#34495e",
+                      return (
+                        <span
+                          key={word.id}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() =>
+                            onWordClick?.({
+                              id: word.id,
+                              surahNumber: word.surahNumber,
+                              ayahNumber: word.ayahNumber,
+                            })
+                          }
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              onWordClick?.({
+                                id: word.id,
+                                surahNumber: word.surahNumber,
+                                ayahNumber: word.ayahNumber,
+                              });
+                            }
+                          }}
+                          style={{
+                            fontFamily: isAyahEnd
+                              ? '"AyatMarker", "DigitalKhatt", system-ui'
+                              : mushafLayout === "hafs-unicode"
+                                ? '"DigitalKhatt", "Scheherazade New", "Amiri", system-ui, -apple-system, sans-serif'
+                                : '"QuranFont", system-ui, -apple-system, sans-serif',
 
-                        margin: "0 4px",
-                        cursor: "pointer",
-                        padding: "2p",
-                        borderRadius: 4,
-                        transition: "background 0.2s",
+                            fontSize: 24,
+                            color: theme === "dark" ? "#fff" : "#34495e",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
 
-                        display: isAyahEnd ? "inline-block" : "inline-flex",
+                            height: pageLayout.metrics.lineHeight,
+                            lineHeight: `${pageLayout.metrics.lineHeight}px`,
 
-                        textAlign: "center",
-                        alignItems: "center",
-                        justifyContent: "center",
-
-                        lineHeight: isAyahEnd ? "1.4em" : 1,
-                        minWidth: isAyahEnd ? 10 : 28,
-                        verticalAlign: "middle",
-                      }}
-                      onMouseEnter={(event) => {
-                        event.currentTarget.style.background =
-                          theme === "dark" ? "#333" : "#e0e0e0";
-                      }}
-                      onMouseLeave={(event) => {
-                        event.currentTarget.style.background = "transparent";
-                      }}
-                    >
-                      {isAyahEnd
-                        ? `﴾${word.ayahNumber}`
-                        : word.text || `[${word.id}]`}
-                    </span>
-                  );
-                })
-              )}
-            </div>
-          ))}
+                            verticalAlign: "middle",
+                            minWidth: "auto",
+                            width: "auto",
+                            cursor: "pointer",
+                            padding: isAyahEnd ? "0px" : "2px 4px",
+                            borderRadius: 4,
+                            transition: "background 0.2s",
+                            flexShrink: 0,
+                          }}
+                          onMouseEnter={(event) => {
+                            event.currentTarget.style.background =
+                              theme === "dark" ? "#333" : "#e0e0e0";
+                          }}
+                          onMouseLeave={(event) => {
+                            event.currentTarget.style.background =
+                              "transparent";
+                          }}
+                        >
+                          {isAyahEnd
+                            ? `﴾${word.ayahNumber}﴿`
+                            : word.text || `[${word.id}]`}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -311,6 +322,7 @@ const NavigationControls: React.FC<NavigationControlsProps> = ({
   theme,
 }: NavigationControlsProps) => {
   const [inputValue, setInputValue] = useState(String(currentPage));
+  const [showInput, setShowInput] = useState(false);
 
   useEffect(() => {
     setInputValue(String(currentPage));
@@ -322,51 +334,171 @@ const NavigationControls: React.FC<NavigationControlsProps> = ({
 
     if (pageNum >= 1 && pageNum <= totalPages) {
       onGoTo(pageNum);
+      setShowInput(false);
     } else {
       setInputValue(String(currentPage));
     }
   };
 
+  const buttonStyle: React.CSSProperties = {
+    width: 40,
+    height: 40,
+    border: `1px solid ${theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)"}`,
+    background: "transparent",
+    color: theme === "dark" ? "#fff" : "#2c3e50",
+    borderRadius: "50%",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 18,
+    transition: "all 0.2s ease",
+    fontFamily: "system-ui, -apple-system, sans-serif",
+  };
+
+  const buttonHoverStyle = {
+    background: theme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+    borderColor: theme === "dark" ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.2)",
+  };
+
   return (
-    <form
-      onSubmit={handleSubmit}
+    <div
       style={{
         position: "absolute",
-        bottom: 10,
+        bottom: 20,
         left: "50%",
         transform: "translateX(-50%)",
         display: "flex",
-        gap: 10,
+        gap: 12,
         alignItems: "center",
-        padding: "8px 16px",
+        padding: "2px",
         background:
-          theme === "dark" ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.9)",
-        borderRadius: 8,
+          theme === "dark" ? "rgba(26,26,46,0.85)" : "rgba(255,255,255,0.85)",
+        borderRadius: 50,
         backdropFilter: "blur(10px)",
+        boxShadow:
+          theme === "dark"
+            ? "0 4px 20px rgba(0,0,0,0.5)"
+            : "0 4px 20px rgba(0,0,0,0.1)",
+        border: `1px solid ${theme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}`,
       }}
     >
       <button
         type="button"
+        onClick={onPrev}
+        disabled={currentPage <= 1}
+        style={{
+          ...buttonStyle,
+          opacity: currentPage <= 1 ? 0.3 : 1,
+          cursor: currentPage <= 1 ? "not-allowed" : "pointer",
+        }}
+        onMouseEnter={(e) => {
+          if (currentPage > 1) {
+            Object.assign(e.currentTarget.style, buttonHoverStyle);
+          }
+        }}
+        onMouseLeave={(e) => {
+          Object.assign(e.currentTarget.style, {
+            background: "transparent",
+            borderColor:
+              theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
+          });
+        }}
+        title="السابق"
+      >
+        ❮
+      </button>
+
+      {showInput ? (
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: "flex", alignItems: "center" }}
+        >
+          <input
+            type="number"
+            value={inputValue}
+            onChange={(event) => setInputValue(event.target.value)}
+            onBlur={() => {
+              setTimeout(() => setShowInput(false), 200);
+            }}
+            min={1}
+            max={totalPages}
+            style={{
+              width: 60,
+              height: 32,
+              textAlign: "center",
+              border: `1px solid ${theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"}`,
+              borderRadius: 8,
+              background:
+                theme === "dark"
+                  ? "rgba(255,255,255,0.05)"
+                  : "rgba(255,255,255,0.9)",
+              color: theme === "dark" ? "#fff" : "#2c3e50",
+              fontSize: 14,
+              outline: "none",
+              fontFamily: "system-ui, -apple-system, sans-serif",
+            }}
+          />
+        </form>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setShowInput(true)}
+          style={{
+            background: "transparent",
+            border: "none",
+            color:
+              theme === "dark" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)",
+            fontSize: 14,
+            cursor: "pointer",
+            padding: "6px 12px",
+            borderRadius: 8,
+            transition: "all 0.2s ease",
+            fontFamily: "system-ui, -apple-system, sans-serif",
+            fontWeight: 500,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background =
+              theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)";
+            e.currentTarget.style.color = theme === "dark" ? "#fff" : "#2c3e50";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color =
+              theme === "dark" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)";
+          }}
+          title="انتقل إلى صفحة"
+        >
+          {currentPage} / {totalPages}
+        </button>
+      )}
+
+      <button
+        type="button"
         onClick={onNext}
         disabled={currentPage >= totalPages}
+        style={{
+          ...buttonStyle,
+          opacity: currentPage >= totalPages ? 0.3 : 1,
+          cursor: currentPage >= totalPages ? "not-allowed" : "pointer",
+        }}
+        onMouseEnter={(e) => {
+          if (currentPage < totalPages) {
+            Object.assign(e.currentTarget.style, buttonHoverStyle);
+          }
+        }}
+        onMouseLeave={(e) => {
+          Object.assign(e.currentTarget.style, {
+            background: "transparent",
+            borderColor:
+              theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)",
+          });
+        }}
+        title="التالي"
       >
-        التالي
+        ❯
       </button>
-
-      <span>من {totalPages}</span>
-
-      <input
-        type="number"
-        value={inputValue}
-        onChange={(event) => setInputValue(event.target.value)}
-        min={1}
-        max={totalPages}
-      />
-
-      <button type="button" onClick={onPrev} disabled={currentPage <= 1}>
-        السابق
-      </button>
-    </form>
+    </div>
   );
 };
 

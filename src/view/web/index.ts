@@ -44,8 +44,15 @@ const STYLES = `
     right: 0;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    padding-inline-start: 40px;
+    padding: 2px;
+  }
+
+  .quran-line-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    gap: 4px;
   }
 
   .quran-surah-name {
@@ -54,55 +61,93 @@ const STYLES = `
     text-align: center;
     width: 100%;
     box-sizing: border-box;
-    margin: 16px 0 48px 0;
-    padding: 6px 16px;
-    border: 2px solid currentColor;
+    margin-top: 12px;
+    margin-bottom: 56px;
+    padding-inline: 12px;
+    padding-block: 4px;
     border-radius: 8px;
+    font-size: 42px;
   }
 
   .quran-word {
     cursor: pointer;
-    padding: 2px 6px;
+    padding: 2px 4px;
     border-radius: 4px;
     transition: background 0.2s;
+    font-size: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+
+  .quran-word.ayah-end {
+    padding: 0px;
+    min-width: auto;
+    width: auto;
   }
 
   .quran-nav {
     position: absolute;
-    bottom: 10px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 12px;
+    border-radius: 50px;
     backdrop-filter: blur(10px);
   }
 
   .quran-nav button {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     cursor: pointer;
-    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.2s ease;
+    font-family: system-ui, -apple-system, sans-serif;
+    background: transparent;
   }
 
   .quran-nav button:disabled {
-    opacity: 0.5;
+    opacity: 0.3;
     cursor: not-allowed;
+  }
+
+  .quran-nav button:not(:disabled):hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .quran-page-display {
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-weight: 500;
+  }
+
+  .quran-page-display:hover {
+    background: rgba(255,255,255,0.05);
   }
 
   .quran-nav input {
     width: 60px;
-    padding: 6px;
+    height: 32px;
     text-align: center;
-    border: 1px solid;
-    border-radius: 4px;
-  }
-
-  .quran-nav span {
-    font-size: 0.9em;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    font-family: system-ui, -apple-system, sans-serif;
   }
 `;
 
@@ -113,10 +158,10 @@ TEMPLATE.innerHTML = `
     <div class="quran-loading">جاري التحميل...</div>
     <div class="quran-content"></div>
     <div class="quran-nav" style="display: none;">
-      <button class="quran-prev">السابق</button>
-      <input type="number" class="quran-page-input" min="1" />
-      <span class="quran-page-total"></span>
-      <button class="quran-next">التالي</button>
+      <button class="quran-prev" title="السابق">❮</button>
+      <button class="quran-page-display"></button>
+      <input type="number" class="quran-page-input" min="1" style="display: none;" />
+      <button class="quran-next" title="التالي">❯</button>
     </div>
   </div>
 `;
@@ -139,10 +184,12 @@ export class OpenQuranView extends HTMLElement {
   private loading: HTMLElement;
   private nav: HTMLElement;
   private pageInput: HTMLInputElement;
+  private pageDisplay: HTMLButtonElement;
   private prevBtn: HTMLButtonElement;
   private nextBtn: HTMLButtonElement;
   private fontLoaded: boolean = false;
   private fontFaceSheet: HTMLStyleElement | null = null;
+  private showingInput: boolean = false;
 
   static get observedAttributes(): string[] {
     return ["page", "mushaf-layout", "width", "height", "theme"];
@@ -158,6 +205,7 @@ export class OpenQuranView extends HTMLElement {
     this.loading = this.shadowRoot!.querySelector(".quran-loading")!;
     this.nav = this.shadowRoot!.querySelector(".quran-nav")!;
     this.pageInput = this.shadowRoot!.querySelector(".quran-page-input")!;
+    this.pageDisplay = this.shadowRoot!.querySelector(".quran-page-display")!;
     this.prevBtn = this.shadowRoot!.querySelector(".quran-prev")!;
     this.nextBtn = this.shadowRoot!.querySelector(".quran-next")!;
 
@@ -200,12 +248,31 @@ export class OpenQuranView extends HTMLElement {
     this.nextBtn.addEventListener("click", () =>
       this.goToPage(this.currentPage + 1),
     );
-    this.pageInput.addEventListener("change", () => {
-      const page = parseInt(this.pageInput.value, 10);
-      if (page >= 1 && page <= this.totalPages) {
-        this.goToPage(page);
-      } else {
-        this.pageInput.value = String(this.currentPage);
+
+    this.pageDisplay.addEventListener("click", () => {
+      this.showingInput = true;
+      this.pageDisplay.style.display = "none";
+      this.pageInput.style.display = "block";
+      this.pageInput.value = String(this.currentPage);
+      this.pageInput.focus();
+    });
+
+    this.pageInput.addEventListener("blur", () => {
+      setTimeout(() => {
+        this.showingInput = false;
+        this.pageInput.style.display = "none";
+        this.pageDisplay.style.display = "block";
+      }, 200);
+    });
+
+    this.pageInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const page = parseInt(this.pageInput.value, 10);
+        if (page >= 1 && page <= this.totalPages) {
+          this.goToPage(page);
+        }
+        this.pageInput.blur();
       }
     });
   }
@@ -231,8 +298,7 @@ export class OpenQuranView extends HTMLElement {
     await this.loadFont();
 
     try {
-      this.nav.querySelector(".quran-page-total")!.textContent =
-        `من ${this.totalPages}`;
+      this.updatePageDisplay();
       this.nav.style.display = "flex";
       this.renderPage();
     } catch (error) {
@@ -264,32 +330,53 @@ export class OpenQuranView extends HTMLElement {
     const bgColor = theme === "dark" ? "#1a1a2e" : "#fafafa";
     const textColor = theme === "dark" ? "#fff" : "#333";
     const navBg =
-      theme === "dark" ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.9)";
-    const btnBg = theme === "dark" ? "#333" : "#667eea";
-    const inputBg = theme === "dark" ? "#222" : "#fff";
-    const inputBorder = theme === "dark" ? "#444" : "#ddd";
-    const inputColor = theme === "dark" ? "#fff" : "#333";
+      theme === "dark" ? "rgba(26,26,46,0.85)" : "rgba(255,255,255,0.85)";
+    const navBorder =
+      theme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)";
+    const navShadow =
+      theme === "dark"
+        ? "0 4px 20px rgba(0,0,0,0.5)"
+        : "0 4px 20px rgba(0,0,0,0.1)";
+    const buttonBorder =
+      theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)";
+    const buttonColor = theme === "dark" ? "#fff" : "#2c3e50";
+    const inputBg =
+      theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.9)";
+    const inputBorder =
+      theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)";
+    const inputColor = theme === "dark" ? "#fff" : "#2c3e50";
+    const displayColor =
+      theme === "dark" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)";
 
     this.container.style.background = bgColor;
     this.loading.style.color = textColor;
 
     this.nav.style.background = navBg;
-    this.prevBtn.style.background = btnBg;
-    this.nextBtn.style.background = btnBg;
-    this.prevBtn.style.color = "#fff";
-    this.nextBtn.style.color = "#fff";
+    this.nav.style.border = `1px solid ${navBorder}`;
+    this.nav.style.boxShadow = navShadow;
+
+    this.prevBtn.style.border = `1px solid ${buttonBorder}`;
+    this.prevBtn.style.color = buttonColor;
+    this.nextBtn.style.border = `1px solid ${buttonBorder}`;
+    this.nextBtn.style.color = buttonColor;
+
+    this.pageDisplay.style.color = displayColor;
+
     this.pageInput.style.background = inputBg;
     this.pageInput.style.borderColor = inputBorder;
     this.pageInput.style.color = inputColor;
-    this.nav.querySelector(".quran-page-total")!.textContent =
-      `من ${this.totalPages}`;
+    this.pageInput.style.border = `1px solid ${inputBorder}`;
+  }
+
+  private updatePageDisplay(): void {
+    this.pageDisplay.textContent = `${this.currentPage} / ${this.totalPages}`;
   }
 
   private async renderPage(): Promise<void> {
     if (!this.calculator) return;
 
     this.showLoading(true);
-    this.pageInput.value = String(this.currentPage);
+    this.updatePageDisplay();
     this.prevBtn.disabled = this.currentPage <= 1;
     this.nextBtn.disabled = this.currentPage >= this.totalPages;
 
@@ -318,14 +405,20 @@ export class OpenQuranView extends HTMLElement {
   private async renderLayout(pageLayout: PageLayout): Promise<void> {
     this.content.innerHTML = "";
 
+    const CENTERED_PAGES_HORIZONTAL_SET = new Set<number>([
+      1, 2, 602, 603, 604,
+    ]);
+
     for (const line of pageLayout.lines) {
+      const isCenteredLine =
+        line.isCentered || CENTERED_PAGES_HORIZONTAL_SET.has(this.currentPage);
+
       const lineEl = document.createElement("div");
       lineEl.className = "quran-line";
       lineEl.style.cssText = `
         height: ${pageLayout.metrics.lineHeight}px;
         top: ${line.y - pageLayout.metrics.lineHeight + pageLayout.metrics.baselineOffset}px;
-        justify-content: ${line.isCentered ? "center" : "flex-start"};
-        padding-inline-start: ${line.isCentered ? 0 : pageLayout.metrics.pagePadding.left}px;
+        justify-content: ${isCenteredLine ? "center" : "flex-end"};
       `;
 
       const theme = (this.getAttribute("theme") || "light") as "light" | "dark";
@@ -336,7 +429,10 @@ export class OpenQuranView extends HTMLElement {
       if (line.lineType === "header") {
         const surahEl = document.createElement("div");
         surahEl.className = "quran-surah-name";
-        surahEl.style.cssText = `font-size: 42px; color: ${surahColor}; margin: 16px 0; padding: 8px 24px; border: 2px solid ${surahColor}; border-radius: 8px;`;
+        surahEl.style.cssText = `
+          color: ${surahColor}; 
+          border: 2px solid ${surahColor};
+        `;
 
         if (line.surahNumber) {
           surahEl.textContent = surahNumberToFontCode(line.surahNumber);
@@ -346,6 +442,12 @@ export class OpenQuranView extends HTMLElement {
 
         lineEl.appendChild(surahEl);
       } else {
+        const lineContent = document.createElement("div");
+        lineContent.className = "quran-line-content";
+        lineContent.style.cssText = `
+          justify-content: ${isCenteredLine ? "center" : "space-between"};
+        `;
+
         for (const word of line.words) {
           const wordEl = document.createElement("span");
           wordEl.className = "quran-word";
@@ -354,27 +456,25 @@ export class OpenQuranView extends HTMLElement {
             word.charType === "end" && this.layout === "hafs-unicode";
 
           if (isEndMarker) {
-            wordEl.textContent = `﴾${word.ayahNumber}`;
+            wordEl.classList.add("ayah-end");
+            wordEl.textContent = `﴾${word.ayahNumber}﴿`;
             wordEl.style.cssText = `
               font-family: "AyatMarker", "DigitalKhatt", system-ui;
-              font-size: 24px;
               color: ${wordColor};
-              margin: 0 4px;
-              padding: 2px 6px;
-              border-radius: 4px;
-              display: inline-flex;
-              align-items: center;
-              justify-content: center;
-              min-width: 28px;
+              height: ${pageLayout.metrics.lineHeight}px;
+              line-height: ${pageLayout.metrics.lineHeight}px;
             `;
           } else {
             wordEl.textContent = word.text || `[${word.id}]`;
             wordEl.style.cssText = `
-              font-size: 24px;
+              font-family: ${
+                this.layout === "hafs-unicode"
+                  ? '"DigitalKhatt", "Scheherazade New", "Amiri", system-ui, -apple-system, sans-serif'
+                  : '"QuranFont", system-ui, -apple-system, sans-serif'
+              };
               color: ${wordColor};
-              margin: 0 4px;
-              padding: 2px 6px;
-              border-radius: 4px;
+              height: ${pageLayout.metrics.lineHeight}px;
+              line-height: ${pageLayout.metrics.lineHeight}px;
             `;
           }
 
@@ -398,8 +498,10 @@ export class OpenQuranView extends HTMLElement {
             );
           });
 
-          lineEl.appendChild(wordEl);
+          lineContent.appendChild(wordEl);
         }
+
+        lineEl.appendChild(lineContent);
       }
 
       this.content.appendChild(lineEl);
