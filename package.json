@@ -36,7 +36,8 @@
     "playground:build": "pnpm build",
     "playground:setup": "pnpm playground:install && pnpm playground:build",
     "playground:react": "pnpm --filter vite-react-playground dev",
-    "playground:web": "pnpm --filter vite-typescript-playground dev"
+    "playground:web": "pnpm --filter vite-typescript-playground dev",
+    "prepublishOnly": "pnpm run build"
   },
   "peerDependencies": {
     "react": ">=18"
@@ -65,11 +66,15 @@
     "type": "git",
     "url": "git+https://github.com/iTarek/open-quran-view.git"
   },
+  "bugs": {
+    "url": "https://github.com/iTarek/open-quran-view/issues"
+  },
+  "homepage": "https://github.com/iTarek/open-quran-view#readme",
   "keywords": [
     "quran",
     "mushaf",
     "react",
-    "react-native"
+    "typescript"
   ],
   "author": "adelpro <adelpro@github.com>",
   "license": "MIT"
