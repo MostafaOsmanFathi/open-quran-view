@@ -116,6 +116,19 @@ importers:
         specifier: ^7.2.4
         version: 7.3.1(@types/node@24.10.9)(tsx@4.21.0)
 
+  playground/web-example:
+    dependencies:
+      open-quran-view:
+        specifier: workspace:*
+        version: link:../..
+    devDependencies:
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.2.4
+        version: 7.3.1(@types/node@24.10.9)(tsx@4.21.0)
+
 packages:
 
   '@acemir/cssom@0.9.31':

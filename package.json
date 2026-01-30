@@ -36,9 +36,11 @@
     "generate:pages": "tsx scripts/fetch-pages.ts",
     "generate:metadata": "tsx scripts/fetch-metadata.ts",
     "generate:fonts": "tsx scripts/download-fonts.ts",
-    "playground:setup": "pnpm build",
-    "playground:vite": "pnpm --filter vite-ts-playground dev",
-    "playground:web": "npx serve -p 3000 playground/web-example"
+    "playground:install": "pnpm install",
+    "playground:build": "pnpm build",
+    "playground:setup": "pnpm playground:install && pnpm playground:build",
+    "playground:react": "pnpm --filter vite-react-playground dev",
+    "playground:web": "pnpm --filter vite-typescript-playground dev"
   },
   "peerDependencies": {
     "react": ">=18"

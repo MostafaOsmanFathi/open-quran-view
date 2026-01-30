@@ -5,13 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Open Quran View - Web Example</title>
-    <script type="importmap">
-        {
-            "imports": {
-                "open-quran-view/web": "/dist/view/web/index.js"
-            }
-        }
-    </script>
     <style>
         * {
             box-sizing: border-box;
@@ -118,59 +111,7 @@
         </quran-view>
     </div>
 
-    <script type="module">
-        import { registerQuranView } from 'open-quran-view/web';
-
-        registerQuranView();
-
-        const viewer = document.getElementById('quran-viewer');
-        const pageInput = document.getElementById('page-input');
-        const themeSelect = document.getElementById('theme-select');
-        const goBtn = document.getElementById('go-btn');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const wordInfo = document.getElementById('word-info');
-
-        goBtn.addEventListener('click', () => {
-            viewer.setAttribute('page', pageInput.value);
-        });
-
-        pageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                viewer.setAttribute('page', pageInput.value);
-            }
-        });
-
-        prevBtn.addEventListener('click', () => {
-            const currentPage = parseInt(viewer.getAttribute('page') || '1');
-            viewer.setAttribute('page', String(currentPage - 1));
-            pageInput.value = viewer.getAttribute('page');
-        });
-
-        nextBtn.addEventListener('click', () => {
-            const currentPage = parseInt(viewer.getAttribute('page') || '1');
-            viewer.setAttribute('page', String(currentPage + 1));
-            pageInput.value = viewer.getAttribute('page');
-        });
-
-        themeSelect.addEventListener('change', () => {
-            viewer.setAttribute('theme', themeSelect.value);
-        });
-
-        viewer.addEventListener('wordclick', (e) => {
-            const { id, surahNumber, ayahNumber } = e.detail;
-            wordInfo.innerHTML = `
-        <strong>Word Clicked:</strong><br>
-        ID: ${id} | Surah: ${surahNumber} | Ayah: ${ayahNumber}
-      `;
-        });
-
-        viewer.addEventListener('pagechange', (e) => {
-            pageInput.value = String(e.detail.page);
-        });
-
-        console.log('Open Quran View web example loaded successfully');
-    </script>
+    <script type="module" src="/main.ts"></script>
 </body>
 
 </html>
