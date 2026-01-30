@@ -41,8 +41,6 @@
     "playground:web": "npx serve -p 3000 playground/web-example"
   },
   "peerDependencies": {
-    "@shopify/react-native-skia": ">=0.1",
-    "canvaskit-wasm": ">=0.3",
     "react": ">=18"
   },
   "devDependencies": {
@@ -55,13 +53,11 @@
     "@types/react": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
-    "better-sqlite3": "^12.6.2",
     "eslint": "^9.39.2",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^16.5.0",
     "jsdom": "^27.4.0",
-    "react": "^18.0.0",
     "tsup": "^8.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0",
@@ -69,12 +65,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iTarek/Java-Quran-Web.git"
+    "url": "git+https://github.com/iTarek/open-quran-view.git"
   },
   "keywords": [
     "quran",
     "mushaf",
-    "skia",
     "react",
     "react-native"
   ],

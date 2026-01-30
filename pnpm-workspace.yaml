@@ -3,6 +3,4 @@ packages:
   - playground/*
 
 onlyBuiltDependencies:
-  - '@shopify/react-native-skia'
-  - better-sqlite3
   - esbuild
