@@ -335,14 +335,34 @@ export class QuranViewElement extends HTMLElement {
         for (const word of line.words) {
           const wordEl = document.createElement("span");
           wordEl.className = "quran-word";
-          wordEl.textContent = word.text || `[${word.id}]`;
-          wordEl.style.cssText = `
-            font-size: 24px;
-            color: ${wordColor};
-            margin: 0 4px;
-            padding: 2px 6px;
-            border-radius: 4px;
-          `;
+
+          const isEndMarker =
+            word.charType === "end" && this.layout === "hafs-unicode";
+
+          if (isEndMarker) {
+            wordEl.textContent = `﴾${word.ayahNumber}`;
+            wordEl.style.cssText = `
+              font-family: "AyatMarker", "DigitalKhatt", system-ui;
+              font-size: 24px;
+              color: ${wordColor};
+              margin: 0 4px;
+              padding: 2px 6px;
+              border-radius: 4px;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              min-width: 28px;
+            `;
+          } else {
+            wordEl.textContent = word.text || `[${word.id}]`;
+            wordEl.style.cssText = `
+              font-size: 24px;
+              color: ${wordColor};
+              margin: 0 4px;
+              padding: 2px 6px;
+              border-radius: 4px;
+            `;
+          }
 
           wordEl.addEventListener("mouseenter", () => {
             wordEl.style.background = hoverBg;
