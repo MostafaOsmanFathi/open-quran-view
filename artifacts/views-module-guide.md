@@ -362,6 +362,12 @@ onMounted(() => {
 
 ## Theming
 
+### Font Resources
+
+For custom aya marker (verse marker) implementations, see:
+
+- [Ayat Quran 286](https://www.fontspace.com/ayat-quran-286-font-f111904) - Aya marker font reference
+
 ### Light Theme (Default)
 
 | Element | Color |

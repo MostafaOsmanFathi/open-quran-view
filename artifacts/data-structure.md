@@ -242,6 +242,13 @@ type JuzJSON = Juz[];
 | `hafs-v2` | `fonts/hafs-v2/` | 604 | `p1.woff2`, `p180.woff2`, `p604.woff2` |
 | `hafs-v4` | `fonts/hafs-v4/` | 604 | `p1.woff2`, `p180.woff2`, `p604.woff2` |
 
+### Font Resources
+
+For Quranic font development and alternative implementations, see:
+
+- [DigitalKhatt](https://github.com/DigitalKhatt) - Advanced font typesetting for Quranic scripts
+- [Ayat Quran 286](https://www.fontspace.com/ayat-quran-286-font-f111904) - Aya marker font reference
+
 ### File Naming Convention
 
 ```

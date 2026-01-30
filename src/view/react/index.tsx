@@ -251,14 +251,10 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                         borderRadius: 4,
                         transition: "background 0.2s",
 
-                        display: isAyahEnd ? "inline-block" : "inline-flex",
-
                         textAlign: "center",
                         alignItems: "center",
                         justifyContent: "center",
 
-                        lineHeight: isAyahEnd ? "1.4em" : 1,
-                        minWidth: isAyahEnd ? 20 : 28,
                         verticalAlign: "middle",
                       }}
                       onMouseEnter={(event) => {

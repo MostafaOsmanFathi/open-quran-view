@@ -4,6 +4,14 @@ A comprehensive comparison of the main Quran Mushaf layouts available via Quran.
 
 ---
 
+## Related Projects
+
+For additional font rendering and Quranic typography resources, see:
+
+- [DigitalKhatt](https://github.com/DigitalKhatt) - A graphical tool for designing Metafont-based dynamic fonts used in the DigitalKhatt typesetter, with implementations for OpenType variable fonts and HarfBuzz extensions for Arabic justification.
+
+---
+
 ## Quick Answer: Which One Should You Use?
 
 ### 🏆 **Recommended: Mushaf Madinah V2 (QCF V2) - ID: 1**
