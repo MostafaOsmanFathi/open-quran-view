@@ -28,14 +28,14 @@ interface OpenQuranViewProps {
   width: number;
   height: number;
   theme: "light" | "dark";
-  riwaya?: MushafLayout;
+  mushafLayout?: "hafs-v2" | "hafs-v4" | "hafs-unicode";
   onPageChange?: (page: number) => void;
   onWordClick?: (word: { id: number; surahNumber?: number; ayahNumber?: number }) => void;
   onLoad?: (layout: unknown) => void;
 }
 ```
 
-## Available Riwayas
+## Available Mushaf Layouts
 
 | Value | Description |
 |-------|-------------|

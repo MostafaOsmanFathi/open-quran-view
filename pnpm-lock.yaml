@@ -67,7 +67,7 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@24.10.9)(jsdom@27.4.0)(tsx@4.21.0)
 
-  playground/vite-ts:
+  playground/vite-react:
     dependencies:
       open-quran-view:
         specifier: workspace:*
@@ -116,7 +116,7 @@ importers:
         specifier: ^7.2.4
         version: 7.3.1(@types/node@24.10.9)(tsx@4.21.0)
 
-  playground/web-example:
+  playground/vite-typescript:
     dependencies:
       open-quran-view:
         specifier: workspace:*

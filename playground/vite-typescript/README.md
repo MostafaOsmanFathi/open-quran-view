@@ -1,6 +1,6 @@
 # Open Quran View - Vanilla TypeScript Playground
 
-This playground demonstrates the `quran-view` Web Component with pure TypeScript.
+This playground demonstrates the `OpenQuranView` Web Component with pure TypeScript.
 
 ## Usage
 
@@ -16,7 +16,7 @@ pnpm dev
 ## Features
 
 - Vanilla TypeScript (no framework)
-- Web Component custom element (`<quran-view>`)
+- Web Component custom element (`<open-quran-view>`)
 - Vite for fast development
 - Hot Module Replacement (HMR)
 - Workspace dependency resolution (`open-quran-view: workspace:*`)
@@ -24,9 +24,9 @@ pnpm dev
 ## Usage Example
 
 ```typescript
-import { registerQuranView } from "open-quran-view/web";
+import { registerOpenQuranView } from "open-quran-view/view/web";
 
-registerQuranView();
+registerOpenQuranView();
 
 const viewer = document.getElementById("quran-viewer") as HTMLElement;
 
@@ -45,14 +45,15 @@ viewer.addEventListener("wordclick", (e) => {
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `page` | string | Page number (1-604) |
+| `mushaf-layout` | string | Quran reading/style (e.g., "hafs-v2") |
 | `width` | string | Viewer width in pixels |
 | `height` | string | Viewer height in pixels |
 | `theme` | "light" \| "dark" | Color theme |
-| `riwaya` | string | Quran reading/style (e.g., "hafs-v2") |
 
 ## Events
 
 | Event | Detail |
 |-------|--------|
-| `wordclick` | `{ id: number; surahNumber?: number; ayahNumber?: number }` |
+| `load` | `{ lines: [...], metrics: {...} }` |
 | `pagechange` | `{ page: number }` |
+| `wordclick` | `{ id: number; surahNumber?: number; ayahNumber?: number }` |

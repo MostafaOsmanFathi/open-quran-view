@@ -3,12 +3,8 @@
   "version": "0.1.0",
   "description": "Universal, cross-platform Quran component library for high-fidelity Mushaf rendering.",
   "type": "module",
-  "main": "./dist/core/index.js",
+  "main": "./dist/view/react/index.js",
   "exports": {
-    "./core": {
-      "types": "./dist/core/index.d.ts",
-      "import": "./dist/core/index.js"
-    },
     "./view": {
       "types": "./dist/view/react/index.d.ts",
       "import": "./dist/view/react/index.js"

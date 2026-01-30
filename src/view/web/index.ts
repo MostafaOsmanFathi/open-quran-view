@@ -2,6 +2,7 @@ import {
   loadPage,
   loadFont,
   loadSurahNameFont,
+  loadAyatMarkerFont,
   surahNumberToFontCode,
   createLayoutCalculator,
   type MushafLayout,
@@ -120,15 +121,15 @@ TEMPLATE.innerHTML = `
   </div>
 `;
 
-export type QuranViewAttributes = {
+export interface OpenQuranViewProps {
   page?: string;
-  riwaya?: string;
+  mushafLayout?: MushafLayout;
   width?: string;
   height?: string;
   theme?: "light" | "dark";
-};
+}
 
-export class QuranViewElement extends HTMLElement {
+export class OpenQuranView extends HTMLElement {
   private layout: MushafLayout = "hafs-v2";
   private calculator: ReturnType<typeof createLayoutCalculator> | null = null;
   private currentPage: number = 1;
@@ -144,7 +145,7 @@ export class QuranViewElement extends HTMLElement {
   private fontFaceSheet: HTMLStyleElement | null = null;
 
   static get observedAttributes(): string[] {
-    return ["page", "riwaya", "width", "height", "theme"];
+    return ["page", "mushaf-layout", "width", "height", "theme"];
   }
 
   constructor() {
@@ -183,7 +184,7 @@ export class QuranViewElement extends HTMLElement {
         this.currentPage = parseInt(newValue, 10) || 1;
         this.renderPage();
         break;
-      case "riwaya":
+      case "mushaf-layout":
       case "width":
       case "height":
       case "theme":
@@ -213,8 +214,10 @@ export class QuranViewElement extends HTMLElement {
     const width = parseInt(this.getAttribute("width") || "600", 10);
     const height = parseInt(this.getAttribute("height") || "850", 10);
     const theme = (this.getAttribute("theme") || "light") as "light" | "dark";
-    const riwaya = this.getAttribute("riwaya") as MushafLayout | null;
-    this.layout = riwaya || "hafs-v2";
+    const mushafLayout = this.getAttribute(
+      "mushaf-layout",
+    ) as MushafLayout | null;
+    this.layout = mushafLayout || "hafs-v2";
 
     this.calculator = createLayoutCalculator({
       pageWidth: width,
@@ -243,6 +246,9 @@ export class QuranViewElement extends HTMLElement {
 
     await loadFont(this.layout, this.currentPage);
     await loadSurahNameFont();
+    if (this.layout === "hafs-unicode") {
+      await loadAyatMarkerFont();
+    }
 
     this.fontFaceSheet = document.createElement("style");
     this.fontFaceSheet.textContent = `
@@ -292,26 +298,34 @@ export class QuranViewElement extends HTMLElement {
       if (!quranPage) {
         throw new Error("Page not found");
       }
-      const layout = this.calculator.calculatePageLayout(quranPage);
-      await this.renderLayout(layout);
+      const pageLayout = this.calculator.calculatePageLayout(quranPage);
+      await this.renderLayout(pageLayout);
       this.showLoading(false);
+
+      this.dispatchEvent(
+        new CustomEvent("load", {
+          detail: pageLayout,
+          bubbles: false,
+          composed: true,
+        }),
+      );
     } catch (error) {
       this.loading.textContent = "فشل في تحميل الصفحة";
       console.error("Failed to load page:", error);
     }
   }
 
-  private async renderLayout(layout: PageLayout): Promise<void> {
+  private async renderLayout(pageLayout: PageLayout): Promise<void> {
     this.content.innerHTML = "";
 
-    for (const line of layout.lines) {
+    for (const line of pageLayout.lines) {
       const lineEl = document.createElement("div");
       lineEl.className = "quran-line";
       lineEl.style.cssText = `
-        height: ${layout.metrics.lineHeight}px;
-        top: ${line.y - layout.metrics.lineHeight + layout.metrics.baselineOffset}px;
+        height: ${pageLayout.metrics.lineHeight}px;
+        top: ${line.y - pageLayout.metrics.lineHeight + pageLayout.metrics.baselineOffset}px;
         justify-content: ${line.isCentered ? "center" : "flex-start"};
-        padding-inline-start: ${line.isCentered ? 0 : layout.metrics.pagePadding.left}px;
+        padding-inline-start: ${line.isCentered ? 0 : pageLayout.metrics.pagePadding.left}px;
       `;
 
       const theme = (this.getAttribute("theme") || "light") as "light" | "dark";
@@ -372,13 +386,13 @@ export class QuranViewElement extends HTMLElement {
           });
           wordEl.addEventListener("click", () => {
             this.dispatchEvent(
-              new CustomEvent("wordclick", {
+              new CustomEvent("wordClick", {
                 detail: {
                   id: word.id,
                   surahNumber: word.surahNumber,
                   ayahNumber: word.ayahNumber,
                 },
-                bubbles: true,
+                bubbles: false,
                 composed: true,
               }),
             );
@@ -397,10 +411,19 @@ export class QuranViewElement extends HTMLElement {
   }
 
   goToPage(page: number): void {
+    const oldPage = this.currentPage;
     page = Math.max(1, Math.min(page, this.totalPages));
-    if (page !== this.currentPage) {
+    if (page !== oldPage) {
       this.currentPage = page;
       this.renderPage();
+
+      this.dispatchEvent(
+        new CustomEvent("pageChange", {
+          detail: page,
+          bubbles: false,
+          composed: true,
+        }),
+      );
     }
   }
 
@@ -411,14 +434,22 @@ export class QuranViewElement extends HTMLElement {
   set page(value: number) {
     this.setAttribute("page", String(value));
   }
-}
 
-customElements.define("quran-view", QuranViewElement);
+  get mushafLayoutAttr(): MushafLayout {
+    return this.layout;
+  }
 
-export function registerQuranView(): void {
-  if (!customElements.get("quran-view")) {
-    customElements.define("quran-view", QuranViewElement);
+  set mushafLayoutAttr(value: MushafLayout) {
+    this.setAttribute("mushaf-layout", value);
   }
 }
 
-export default QuranViewElement;
+customElements.define("open-quran-view", OpenQuranView);
+
+export function registerOpenQuranView(): void {
+  if (!customElements.get("open-quran-view")) {
+    customElements.define("open-quran-view", OpenQuranView);
+  }
+}
+
+export default OpenQuranView;

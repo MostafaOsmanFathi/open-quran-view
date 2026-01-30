@@ -1,27 +1,30 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  loadPage,
-  loadFont,
-  loadSurahNameFont,
-  loadAyatMarkerFont,
-  surahNumberToFontCode,
   createLayoutCalculator,
+  loadAyatMarkerFont,
+  loadFont,
+  loadPage,
+  loadSurahNameFont,
+  surahNumberToFontCode,
   type MushafLayout,
   type PageLayout,
 } from "../../core";
 
 export const CENTERED_PAGES_VERTICAL = [1, 2] as const;
 export const CENTERED_PAGES_HORIZONTAL = [1, 2, 602, 603, 604] as const;
+
 const CENTERED_PAGES_HORIZONTAL_SET = new Set<number>(
   CENTERED_PAGES_HORIZONTAL,
 );
+
+export type { MushafLayout, PageLayout } from "../../core";
 
 export type OpenQuranViewProps = {
   page?: number;
   width?: number;
   height?: number;
   theme?: "light" | "dark";
-  riwaya?: MushafLayout;
+  mushafLayout?: MushafLayout;
   onPageChange?: (page: number) => void;
   onLoad?: (layout: PageLayout) => void;
   onWordClick?: (word: {
@@ -37,20 +40,21 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
   width = 600,
   height = 850,
   theme = "light",
-  riwaya = "hafs-v2",
+  mushafLayout = "hafs-v2",
   onPageChange,
   onLoad,
   onWordClick,
   className,
 }: OpenQuranViewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const layoutRef = useRef<MushafLayout>(riwaya);
+  const layoutRef = useRef<MushafLayout>(mushafLayout);
   const calculatorRef = useRef<ReturnType<
     typeof createLayoutCalculator
   > | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(page);
-  const [layout, setLayout] = useState<PageLayout | null>(null);
+  const [pageLayout, setPageLayout] = useState<PageLayout | null>(null);
 
   const handleLoadPage = useCallback(
     async (pageNum: number) => {
@@ -61,10 +65,13 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
         await loadFont(layoutRef.current, pageNum);
         const quranPage = await loadPage(layoutRef.current, pageNum);
         if (!quranPage) return;
-        const pageLayout = calculatorRef.current.calculatePageLayout(quranPage);
-        setLayout(pageLayout);
+
+        const calculatedLayout =
+          calculatorRef.current.calculatePageLayout(quranPage);
+
+        setPageLayout(calculatedLayout);
         setCurrentPage(pageNum);
-        onLoad?.(pageLayout);
+        onLoad?.(calculatedLayout);
       } catch (error) {
         console.error("Failed to load page:", error);
       } finally {
@@ -81,7 +88,6 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
     });
 
     handleLoadPage(page);
-
     loadSurahNameFont();
 
     return () => {
@@ -90,21 +96,24 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
   }, [width, height, page, handleLoadPage]);
 
   useEffect(() => {
-    layoutRef.current = riwaya;
+    layoutRef.current = mushafLayout;
     handleLoadPage(page);
-    if (riwaya === "hafs-unicode") {
+
+    if (mushafLayout === "hafs-unicode") {
       loadAyatMarkerFont();
     }
-  }, [riwaya, page, handleLoadPage]);
+  }, [mushafLayout, page, handleLoadPage]);
 
   const handleNextPage = useCallback(async () => {
-    await handleLoadPage(currentPage + 1);
-    onPageChange?.(currentPage + 1);
+    const next = currentPage + 1;
+    await handleLoadPage(next);
+    onPageChange?.(next);
   }, [currentPage, handleLoadPage, onPageChange]);
 
   const handlePrevPage = useCallback(async () => {
-    await handleLoadPage(currentPage - 1);
-    onPageChange?.(currentPage - 1);
+    const prev = currentPage - 1;
+    await handleLoadPage(prev);
+    onPageChange?.(prev);
   }, [currentPage, handleLoadPage, onPageChange]);
 
   const handleGoToPage = useCallback(
@@ -143,7 +152,7 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
         </div>
       )}
 
-      {!loading && layout && (
+      {!loading && pageLayout && (
         <div
           style={{
             width: "100%",
@@ -151,18 +160,18 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
             position: "relative",
           }}
         >
-          {layout.lines.map((line) => (
+          {pageLayout.lines.map((line) => (
             <div
               key={line.lineNumber}
               style={{
                 position: "absolute",
                 left: 0,
                 right: 0,
-                height: layout.metrics.lineHeight,
+                height: pageLayout.metrics.lineHeight,
                 top:
                   line.y -
-                  layout.metrics.lineHeight +
-                  layout.metrics.baselineOffset,
+                  pageLayout.metrics.lineHeight +
+                  pageLayout.metrics.baselineOffset,
                 display: "flex",
                 alignItems: "center",
                 justifyContent:
@@ -174,7 +183,7 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                   line.isCentered ||
                   CENTERED_PAGES_HORIZONTAL_SET.has(currentPage)
                     ? 0
-                    : layout.metrics.pagePadding.left,
+                    : pageLayout.metrics.pagePadding.left,
               }}
             >
               {line.lineType === "header" ? (
@@ -200,61 +209,72 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                     : "surah000"}
                 </div>
               ) : (
-                line.words.map((word) => (
-                  <span
-                    key={word.id}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() =>
-                      onWordClick?.({
-                        id: word.id,
-                        surahNumber: word.surahNumber,
-                        ayahNumber: word.ayahNumber,
-                      })
-                    }
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
+                line.words.map((word) => {
+                  const isAyahEnd =
+                    mushafLayout === "hafs-unicode" && word.charType === "end";
+
+                  return (
+                    <span
+                      key={word.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() =>
                         onWordClick?.({
                           id: word.id,
                           surahNumber: word.surahNumber,
                           ayahNumber: word.ayahNumber,
-                        });
+                        })
                       }
-                    }}
-                    style={{
-                      fontFamily:
-                        riwaya === "hafs-unicode" && word.charType !== "end"
-                          ? '"DigitalKhatt", "Scheherazade New", "Amiri", system-ui, -apple-system, sans-serif'
-                          : riwaya === "hafs-unicode" && word.charType === "end"
-                            ? '"AyatMarker", "DigitalKhatt", system-ui'
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          onWordClick?.({
+                            id: word.id,
+                            surahNumber: word.surahNumber,
+                            ayahNumber: word.ayahNumber,
+                          });
+                        }
+                      }}
+                      style={{
+                        fontFamily: isAyahEnd
+                          ? '"AyatMarker", "DigitalKhatt", system-ui'
+                          : mushafLayout === "hafs-unicode"
+                            ? '"DigitalKhatt", "Scheherazade New", "Amiri", system-ui, -apple-system, sans-serif'
                             : '"QuranFont", system-ui, -apple-system, sans-serif',
-                      fontSize: 24,
-                      color: theme === "dark" ? "#fff" : "#34495e",
-                      margin: "0 4px",
-                      cursor: "pointer",
-                      padding: "2px 6px",
-                      borderRadius: 4,
-                      transition: "background 0.2s",
-                      lineHeight: 1,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      minWidth: 28,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background =
-                        theme === "dark" ? "#333" : "#e0e0e0";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "transparent";
-                    }}
-                  >
-                    {word.charType === "end" && riwaya === "hafs-unicode"
-                      ? `﴾${word.ayahNumber}`
-                      : word.text || `[${word.id}]`}
-                  </span>
-                ))
+
+                        fontSize: 24,
+                        color: theme === "dark" ? "#fff" : "#34495e",
+
+                        margin: "0 4px",
+                        cursor: "pointer",
+                        padding: "2p",
+                        borderRadius: 4,
+                        transition: "background 0.2s",
+
+                        display: isAyahEnd ? "inline-block" : "inline-flex",
+
+                        textAlign: "center",
+                        alignItems: "center",
+                        justifyContent: "center",
+
+                        lineHeight: isAyahEnd ? "1.4em" : 1,
+                        minWidth: isAyahEnd ? 20 : 28,
+                        verticalAlign: "middle",
+                      }}
+                      onMouseEnter={(event) => {
+                        event.currentTarget.style.background =
+                          theme === "dark" ? "#333" : "#e0e0e0";
+                      }}
+                      onMouseLeave={(event) => {
+                        event.currentTarget.style.background = "transparent";
+                      }}
+                    >
+                      {isAyahEnd
+                        ? `﴾${word.ayahNumber}`
+                        : word.text || `[${word.id}]`}
+                    </span>
+                  );
+                })
               )}
             </div>
           ))}
@@ -296,9 +316,10 @@ const NavigationControls: React.FC<NavigationControlsProps> = ({
     setInputValue(String(currentPage));
   }, [currentPage]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const pageNum = parseInt(inputValue, 10);
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const pageNum = Number.parseInt(inputValue, 10);
+
     if (pageNum >= 1 && pageNum <= totalPages) {
       onGoTo(pageNum);
     } else {
@@ -328,54 +349,21 @@ const NavigationControls: React.FC<NavigationControlsProps> = ({
         type="button"
         onClick={onNext}
         disabled={currentPage >= totalPages}
-        style={{
-          padding: "6px 12px",
-          border: "none",
-          borderRadius: 4,
-          background: theme === "dark" ? "#333" : "#667eea",
-          color: "#fff",
-          cursor: currentPage >= totalPages ? "not-allowed" : "pointer",
-          opacity: currentPage >= totalPages ? 0.5 : 1,
-        }}
       >
         التالي
       </button>
 
-      <span style={{ color: theme === "dark" ? "#888" : "#666" }}>
-        من {totalPages}
-      </span>
+      <span>من {totalPages}</span>
 
       <input
         type="number"
         value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        onChange={(event) => setInputValue(event.target.value)}
         min={1}
         max={totalPages}
-        style={{
-          width: 60,
-          padding: 6,
-          textAlign: "center",
-          border: `1px solid ${theme === "dark" ? "#444" : "#ddd"}`,
-          borderRadius: 4,
-          background: theme === "dark" ? "#222" : "#fff",
-          color: theme === "dark" ? "#fff" : "#333",
-        }}
       />
 
-      <button
-        type="button"
-        onClick={onPrev}
-        disabled={currentPage <= 1}
-        style={{
-          padding: "6px 12px",
-          border: "none",
-          borderRadius: 4,
-          background: theme === "dark" ? "#333" : "#667eea",
-          color: "#fff",
-          cursor: currentPage <= 1 ? "not-allowed" : "pointer",
-          opacity: currentPage <= 1 ? 0.5 : 1,
-        }}
-      >
+      <button type="button" onClick={onPrev} disabled={currentPage <= 1}>
         السابق
       </button>
     </form>

@@ -1,26 +1,27 @@
-interface QuranViewerElement extends HTMLElement {
+interface OpenQuranViewElement extends HTMLElement {
   page: number;
+  mushafLayoutAttr: string;
   goToPage(page: number): void;
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "quran-view": QuranViewerElement;
+    "open-quran-view": OpenQuranViewElement;
   }
 }
 
-declare module "*.css" {
-  const content: string;
-  export default content;
-}
+import { registerOpenQuranView } from "open-quran-view/view/web";
 
-import { registerQuranView, type QuranViewAttributes } from "open-quran-view/web";
+registerOpenQuranView();
 
-registerQuranView();
-
-const viewer = document.getElementById("quran-viewer") as QuranViewerElement;
+const viewer = document.getElementById("quran-viewer") as OpenQuranViewElement;
 const pageInput = document.getElementById("page-input") as HTMLInputElement;
-const themeSelect = document.getElementById("theme-select") as HTMLSelectElement;
+const themeSelect = document.getElementById(
+  "theme-select",
+) as HTMLSelectElement;
+const mushafSelect = document.getElementById(
+  "mushaf-select",
+) as HTMLSelectElement;
 const goBtn = document.getElementById("go-btn") as HTMLButtonElement;
 const prevBtn = document.getElementById("prev-btn") as HTMLButtonElement;
 const nextBtn = document.getElementById("next-btn") as HTMLButtonElement;
@@ -58,8 +59,20 @@ themeSelect.addEventListener("change", () => {
   viewer.setAttribute("theme", themeSelect.value);
 });
 
+mushafSelect.addEventListener("change", () => {
+  viewer.setAttribute("mushaf-layout", mushafSelect.value);
+});
+
+viewer.addEventListener("load", (e: Event) => {
+  console.log("Page loaded:", (e as CustomEvent).detail);
+});
+
 viewer.addEventListener("wordclick", (e: Event) => {
-  const detail = (e as CustomEvent).detail as { id: number; surahNumber?: number; ayahNumber?: number };
+  const detail = (e as CustomEvent).detail as {
+    id: number;
+    surahNumber?: number;
+    ayahNumber?: number;
+  };
   wordInfo.innerHTML = `
     <strong>Word Clicked:</strong><br>
     ID: ${detail.id} | Surah: ${detail.surahNumber ?? "N/A"} | Ayah: ${detail.ayahNumber ?? "N/A"}

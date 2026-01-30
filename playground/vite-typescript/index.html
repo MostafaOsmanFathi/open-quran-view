@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Quran View - Web Example</title>
+    <title>Open Quran View - Web Component</title>
     <style>
         * {
             box-sizing: border-box;
@@ -76,7 +76,7 @@
             display: none;
         }
 
-        quran-view {
+        open-quran-view {
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             border-radius: 8px;
             overflow: hidden;
@@ -100,6 +100,14 @@
                     <option value="dark">Dark</option>
                 </select>
             </label>
+            <label>
+                Layout:
+                <select id="mushaf-select">
+                    <option value="hafs-v2">Hafs (QCF V2)</option>
+                    <option value="hafs-v4">Hafs (QCF V4)</option>
+                    <option value="hafs-unicode">Hafs Unicode</option>
+                </select>
+            </label>
             <button id="go-btn">Go</button>
             <button id="prev-btn">Previous</button>
             <button id="next-btn">Next</button>
@@ -107,8 +115,8 @@
 
         <div id="word-info">Click on a word to see details</div>
 
-        <quran-view id="quran-viewer" page="1" width="600" height="850" theme="light">
-        </quran-view>
+        <open-quran-view id="quran-viewer" page="1" mushaf-layout="hafs-v2" width="600" height="850" theme="light">
+        </open-quran-view>
     </div>
 
     <script type="module" src="/main.ts"></script>

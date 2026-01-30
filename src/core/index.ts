@@ -1,5 +1,44 @@
 export * from "./types";
-export * from "./data-loader";
-export * from "./font-loader";
-export * from "./lookup";
-export * from "./layout-calculator";
+
+export {
+  loadPages,
+  loadPage,
+  loadAllPages,
+  loadSurahs,
+  loadJuzs,
+  getSurah,
+  getJuz,
+  getSurahByPage,
+  clearCache,
+} from "./data-loader";
+
+export {
+  loadFont,
+  loadSurahNameFont,
+  loadAyatMarkerFont,
+  surahNumberToFontCode,
+  getFontUrl,
+  getFontBuffer,
+  clearFontCache,
+} from "./font-loader";
+
+export {
+  createLayoutCalculator,
+  type LineLayout,
+  type WordLayout,
+  type PageMetrics,
+  type PageLayout,
+  type LayoutCalculatorOptions,
+} from "./layout-calculator";
+
+export {
+  getPageForVerse,
+  getVerseLocation,
+  getNavigation,
+  getPageRangeForSurah,
+  getFirstVerseOfPage,
+  getLastVerseOfPage,
+  getWordLocation,
+  type VerseLocation,
+  type NavigationInfo,
+} from "./lookup";

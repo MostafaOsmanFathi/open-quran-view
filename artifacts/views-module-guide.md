@@ -20,7 +20,7 @@
 |--------|--------|-------------|
 | `@open-quran-view/view` | React component (default) | `import { OpenQuranView }` |
 | `@open-quran-view/view/react` | React component (explicit) | Same as default |
-| `@open-quran-view/view/web` | Web Component | `import { registerQuranView }` |
+| `@open-quran-view/view/web` | Web Component | `import { registerOpenQuranView }` |
 
 ---
 
@@ -35,6 +35,7 @@ function App() {
   return (
     <OpenQuranView
       page={1}
+      mushafLayout="hafs-v2"
       width={600}
       height={850}
       theme="light"
@@ -54,6 +55,7 @@ function App() {
 | `width` | number | `600` | Component width in pixels |
 | `height` | number | `850` | Component height in pixels |
 | `theme` | `"light" \| "dark"` | `"light"` | Color theme |
+| `mushafLayout` | `"hafs-v2" \| "hafs-v4" \| "hafs-unicode"` | `"hafs-v2"` | Mushaf layout |
 | `onPageChange` | `(page: number) => void` | - | Called when page changes |
 | `onLoad` | `(layout: PageLayout) => void` | - | Called when page loads |
 | `onWordClick` | `(word: WordInfo) => void` | - | Called when word is clicked |
@@ -81,21 +83,21 @@ The React view includes built-in navigation controls:
 ### Registration
 
 ```typescript
-import { registerQuranView } from '@open-quran-view/view/web';
+import { registerOpenQuranView } from '@open-quran-view/view/web';
 
-registerQuranView();
+registerOpenQuranView();
 ```
 
 ### HTML Usage
 
 ```html
-<quran-view
+<open-quran-view
   page="1"
-  riwaya="hafs-v2"
+  mushaf-layout="hafs-v2"
   width="600"
   height="850"
   theme="light"
-></quran-view>
+></open-quran-view>
 ```
 
 ### Attributes
@@ -103,7 +105,7 @@ registerQuranView();
 | Attribute | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `page` | string | `"1"` | Page number (1-604) |
-| `riwaya` | string | `"hafs-v2"` | Mushaf layout |
+| `mushaf-layout` | string | `"hafs-v2"` | Mushaf layout |
 | `width` | string | `"600"` | Component width in pixels |
 | `height` | string | `"850"` | Component height in pixels |
 | `theme` | string | `"light"` | Color theme (`light` or `dark`) |
@@ -112,10 +114,12 @@ registerQuranView();
 
 | Event | Detail | Description |
 |-------|--------|-------------|
-| `wordclick` | `{ id, surahNumber, ayahNumber }` | Fired when a word is clicked |
+| `load` | `PageLayout` | Fired when page loads |
+| `pagechange` | `{ page: number }` | Fired when page changes |
+| `wordclick` | `WordInfo` | Fired when a word is clicked |
 
 ```typescript
-const viewer = document.querySelector('quran-view');
+const viewer = document.querySelector('open-quran-view');
 viewer.addEventListener('wordclick', (e: CustomEvent) => {
   console.log('Word clicked:', e.detail);
 });
@@ -124,17 +128,17 @@ viewer.addEventListener('wordclick', (e: CustomEvent) => {
 ### JavaScript API
 
 ```typescript
-const viewer = document.querySelector('quran-view') as QuranViewElement;
+const viewer = document.querySelector('open-quran-view') as OpenQuranView;
 
 // Navigate to page
 viewer.page = 10;
 viewer.goToPage(10);
 
 // Get current page
-console.log(viewer.page); // 10
+console.log(viewer.page);
 
 // Change layout
-viewer.setAttribute('riwaya', 'hafs-v4');
+viewer.setAttribute('mushaf-layout', 'hafs-v4');
 
 // Change theme
 viewer.setAttribute('theme', 'dark');
@@ -151,7 +155,7 @@ viewer.setAttribute('height', '1000');
 | Feature | React View | Web Component |
 |---------|------------|---------------|
 | Framework | React | Vanilla JS / Any |
-| Bundle Size | ~59KB | ~59KB |
+| Bundle Size | ~18KB | ~19KB |
 | Custom Styling | CSS-in-JS, classes | Shadow DOM, encapsulated |
 | State Management | React hooks | Internal state |
 | Event Handling | React props | Custom events |
@@ -185,6 +189,7 @@ export type OpenQuranViewProps = {
   width?: number;
   height?: number;
   theme?: "light" | "dark";
+  mushafLayout?: "hafs-v2" | "hafs-v4" | "hafs-unicode";
   onPageChange?: (page: number) => void;
   onLoad?: (layout: PageLayout) => void;
   onWordClick?: (word: {
@@ -199,32 +204,34 @@ export type OpenQuranViewProps = {
 ### Web Component Types
 
 ```typescript
-export type QuranViewAttributes = {
+export type OpenQuranViewProps = {
   page?: string;
-  riwaya?: string;
+  mushafLayout?: "hafs-v2" | "hafs-v4" | "hafs-unicode";
   width?: string;
   height?: string;
   theme?: "light" | "dark";
 };
 
-export class QuranViewElement extends HTMLElement {
+export class OpenQuranView extends HTMLElement {
   page: number;
+  mushafLayoutAttr: "hafs-v2" | "hafs-v4" | "hafs-unicode";
   goToPage(page: number): void;
 }
 
-export function registerQuranView(): void;
+export function registerOpenQuranView(): void;
 ```
 
 ---
 
 ## Dependencies
 
-Both views depend on `@open-quran-view/core`:
+Both views depend on internal core modules:
 
 ```typescript
 import {
   loadPage,
-  getFontUrl,
+  loadFont,
+  surahNumberToFontCode,
   createLayoutCalculator,
   type MushafLayout,
   type PageLayout,
@@ -238,10 +245,9 @@ import {
 ```
 src/view/
 ├── react/
-│   ├── index.tsx    # OpenQuranView component
-│   └── adapter.ts   # React adapter (if needed)
+│   └── index.tsx    # OpenQuranView component
 └── web/
-    └── index.ts     # QuranViewElement + registerQuranView
+    └── index.ts     # OpenQuranView + registerOpenQuranView
 ```
 
 ---
@@ -258,6 +264,7 @@ function CustomQuranView() {
     <div className="quran-container">
       <OpenQuranView
         page={1}
+        mushafLayout="hafs-v2"
         width={600}
         height={850}
         theme="dark"
@@ -279,19 +286,19 @@ function CustomQuranView() {
 <html>
 <head>
   <script type="module">
-    import { registerQuranView } from './dist/view/web/index.js';
-    registerQuranView();
+    import { registerOpenQuranView } from './dist/view/web/index.js';
+    registerOpenQuranView();
   </script>
 </head>
 <body>
-  <quran-view
+  <open-quran-view
     id="my-viewer"
     page="1"
-    riwaya="hafs-v2"
+    mushaf-layout="hafs-v2"
     width="600"
     height="850"
     theme="light"
-  ></quran-view>
+  ></open-quran-view>
 
   <script>
     const viewer = document.getElementById('my-viewer');
@@ -299,6 +306,11 @@ function CustomQuranView() {
     // Listen for word clicks
     viewer.addEventListener('wordclick', (e) => {
       console.log('Clicked:', e.detail);
+    });
+
+    // Listen for page changes
+    viewer.addEventListener('pagechange', (e) => {
+      console.log('Page changed to:', e.detail.page);
     });
 
     // Navigate after 3 seconds
@@ -314,22 +326,27 @@ function CustomQuranView() {
 
 ```vue
 <template>
-  <quran-view
+  <open-quran-view
     ref="viewer"
     page="1"
-    riwaya="hafs-v2"
+    mushaf-layout="hafs-v2"
     theme="light"
+    @load="handleLoad"
     @wordclick="handleWordClick"
   />
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { registerQuranView } from '@open-quran-view/view/web';
+import { registerOpenQuranView } from '@open-quran-view/view/web';
 
-registerQuranView();
+registerOpenQuranView();
 
 const viewer = ref(null);
+
+const handleLoad = (e) => {
+  console.log('Layout loaded:', e.detail);
+};
 
 const handleWordClick = (e) => {
   console.log('Word:', e.detail);
@@ -367,13 +384,13 @@ onMounted(() => {
 
 ### Custom Font
 
-Both views use the `QuranFont` family, loaded dynamically:
+Both views use font families loaded dynamically based on the mushaf layout:
 
 ```typescript
-// Font is loaded via FontFace API
+// Fonts are loaded via FontFace API
 const fontFace = new FontFace("QuranFont", `url(${fontUrl})`);
 await fontFace.load();
 document.fonts.add(fontFace);
 ```
 
-Font URL is generated by `@open-quran-view/core` based on layout and page number.
+Fonts are managed internally based on the `mushafLayout` prop/attribute.

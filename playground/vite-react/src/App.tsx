@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { OpenQuranView } from "open-quran-view/view";
-import type { MushafLayout } from "open-quran-view/core";
+import type { MushafLayout } from "open-quran-view/view/react";
 import "./App.css";
 
 const MUSHAF_OPTIONS: { value: MushafLayout; label: string }[] = [
@@ -12,7 +12,7 @@ const MUSHAF_OPTIONS: { value: MushafLayout; label: string }[] = [
 function App() {
   const [page, setPage] = useState(1);
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [riwaya, setRiwaya] = useState<MushafLayout>("hafs-v2");
+  const [mushafLayout, setMushafLayout] = useState<MushafLayout>("hafs-v2");
 
   const handlePageChange = useCallback((newPage: number) => {
     setPage(newPage);
@@ -57,8 +57,8 @@ function App() {
         </h1>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <select
-            value={riwaya}
-            onChange={(e) => setRiwaya(e.target.value as MushafLayout)}
+            value={mushafLayout}
+            onChange={(e) => setMushafLayout(e.target.value as MushafLayout)}
             style={{
               padding: "10px 15px",
               borderRadius: "8px",
@@ -107,7 +107,7 @@ function App() {
           width={500}
           height={700}
           theme={theme}
-          riwaya={riwaya}
+          mushafLayout={mushafLayout}
           onPageChange={handlePageChange}
           onWordClick={handleWordClick}
           onLoad={handleLoad}
@@ -141,8 +141,9 @@ function App() {
               <strong>Current Page:</strong> {page}
             </p>
             <p style={{ color: theme === "dark" ? "#aaa" : "#888" }}>
-              <strong>Riwaya:</strong>{" "}
-              {MUSHAF_OPTIONS.find((o) => o.value === riwaya)?.label || riwaya}
+              <strong>Mushaf Layout:</strong>{" "}
+              {MUSHAF_OPTIONS.find((o) => o.value === mushafLayout)?.label ||
+                mushafLayout}
             </p>
             <p style={{ color: theme === "dark" ? "#aaa" : "#888" }}>
               <strong>Total Pages:</strong> 604
