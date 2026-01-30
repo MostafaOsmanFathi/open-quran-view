@@ -3,6 +3,7 @@ import {
   loadPage,
   loadFont,
   loadSurahNameFont,
+  loadAyatMarkerFont,
   surahNumberToFontCode,
   createLayoutCalculator,
   type MushafLayout,
@@ -91,6 +92,9 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
   useEffect(() => {
     layoutRef.current = riwaya;
     handleLoadPage(page);
+    if (riwaya === "hafs-unicode") {
+      loadAyatMarkerFont();
+    }
   }, [riwaya, page, handleLoadPage]);
 
   const handleNextPage = useCallback(async () => {
@@ -220,9 +224,11 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                     }}
                     style={{
                       fontFamily:
-                        riwaya === "hafs-unicode"
+                        riwaya === "hafs-unicode" && word.charType !== "end"
                           ? '"DigitalKhatt", "Scheherazade New", "Amiri", system-ui, -apple-system, sans-serif'
-                          : '"QuranFont", system-ui, -apple-system, sans-serif',
+                          : riwaya === "hafs-unicode" && word.charType === "end"
+                            ? '"AyatMarker", "DigitalKhatt", system-ui'
+                            : '"QuranFont", system-ui, -apple-system, sans-serif',
                       fontSize: 24,
                       color: theme === "dark" ? "#fff" : "#34495e",
                       margin: "0 4px",
@@ -231,6 +237,10 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                       borderRadius: 4,
                       transition: "background 0.2s",
                       lineHeight: 1,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minWidth: 28,
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background =
@@ -240,23 +250,9 @@ export const OpenQuranView: React.FC<OpenQuranViewProps> = ({
                       e.currentTarget.style.background = "transparent";
                     }}
                   >
-                    {word.charType === "end" && riwaya === "hafs-unicode" ? (
-                      <>
-                        <span
-                          style={{
-                            position: "absolute",
-                            top: -2,
-                            fontSize: 10,
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {word.ayahNumber}
-                        </span>
-                        ۝
-                      </>
-                    ) : (
-                      word.text || `[${word.id}]`
-                    )}
+                    {word.charType === "end" && riwaya === "hafs-unicode"
+                      ? `﴾${word.ayahNumber}`
+                      : word.text || `[${word.id}]`}
                   </span>
                 ))
               )}

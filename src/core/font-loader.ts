@@ -11,6 +11,7 @@ let fontCache: FontCache = {
 let surahNameFontUrl: string | null = null;
 let surahNameFontLoaded: boolean = false;
 let digitalKhattFontLoaded: boolean = false;
+let ayatMarkerFontLoaded: boolean = false;
 
 export function surahNumberToFontCode(surahNumber: number): string {
   return `surah${String(surahNumber).padStart(3, "0")}`;
@@ -84,6 +85,34 @@ export async function loadDigitalKhattFont(): Promise<void> {
   digitalKhattFontLoaded = true;
 }
 
+export async function loadAyatMarkerFont(): Promise<void> {
+  if (ayatMarkerFontLoaded) return;
+
+  const fontUrl = new URL(
+    "../data/fonts/hafs-unicode/AyatQuran2-PVKGm.ttf",
+    import.meta.url,
+  ).href;
+
+  const response = await fetch(fontUrl);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to load AyatMarker font from ${fontUrl}: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const buffer = await response.arrayBuffer();
+  const fontFace = new FontFace("AyatMarker", buffer);
+  await fontFace.load();
+
+  if (typeof document !== "undefined" && document.fonts) {
+    document.fonts.add(fontFace);
+  } else if ((globalThis as any).fonts) {
+    (globalThis as any).fonts.add(fontFace);
+  }
+
+  ayatMarkerFontLoaded = true;
+}
+
 export async function getFontBuffer(
   layout: MushafLayout,
   page: number,
@@ -124,6 +153,7 @@ export async function loadFont(
 ): Promise<void> {
   if (layout === "hafs-unicode") {
     await loadDigitalKhattFont();
+    await loadAyatMarkerFont();
     return;
   }
 
