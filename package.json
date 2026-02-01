@@ -60,7 +60,8 @@
     "tsup": "^8.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "whatwg-fetch": "^3.6.20"
   },
   "repository": {
     "type": "git",

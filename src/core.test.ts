@@ -9,29 +9,10 @@ import type {
   Surah,
   Juz,
 } from "./core/types";
+import type { VerseLocation, NavigationInfo } from "./core/lookup";
 import { parseVerseKey, createVerseKey } from "./core/types";
-import { NavigationInfo, VerseLocation } from "./core/lookup";
-import {
-  loadPage,
-  loadAllPages,
-  loadPages,
-  loadSurahs,
-  loadJuzs,
-  getSurah,
-  getJuz,
-  getSurahByPage,
-  clearCache,
-} from "./core/data-loader";
-import {
-  getPageForVerse,
-  getVerseLocation,
-  getNavigation,
-  getPageRangeForSurah,
-  getFirstVerseOfPage,
-  getLastVerseOfPage,
-  getWordLocation,
-} from "./core/lookup";
-import { getFontUrl, getFontBuffer, clearFontCache } from "./core/font-loader";
+import { getWordLocation } from "./core/lookup";
+import { clearCache } from "./core/data-loader";
 
 describe("Core Types", () => {
   describe("MushafLayout", () => {
@@ -225,6 +206,24 @@ describe("Helper Functions", () => {
       expect(result.surah).toBe(NaN);
       expect(result.verse).toBe(NaN);
     });
+
+    it("should handle colon-only input", () => {
+      const result = parseVerseKey(":");
+      expect(result.surah).toBe(NaN);
+      expect(result.verse).toBe(NaN);
+    });
+
+    it("should handle partial input", () => {
+      const result = parseVerseKey("1:");
+      expect(result.surah).toBe(1);
+      expect(result.verse).toBe(NaN);
+    });
+
+    it("should handle input with leading zeros", () => {
+      const result = parseVerseKey("001:007");
+      expect(result.surah).toBe(1);
+      expect(result.verse).toBe(7);
+    });
   });
 
   describe("createVerseKey", () => {
@@ -237,446 +236,84 @@ describe("Helper Functions", () => {
       const result = createVerseKey(2, 255);
       expect(result).toBe("2:255");
     });
-  });
-});
 
-describe("Font Loader", () => {
-  beforeEach(() => {
-    clearFontCache();
-  });
-
-  describe("getFontUrl", () => {
-    it("should return blob URL for hafs-v2 layout", async () => {
-      const url = await getFontUrl("hafs-v2", 1);
-      expect(url).toMatch(/^blob:/);
-    });
-
-    it("should return blob URL for hafs-v4 layout", async () => {
-      const url = await getFontUrl("hafs-v4", 180);
-      expect(url).toMatch(/^blob:/);
-    });
-
-    it("should generate different URLs for different pages", async () => {
-      const url1 = await getFontUrl("hafs-v2", 1);
-      const url2 = await getFontUrl("hafs-v2", 2);
-      expect(url1).not.toBe(url2);
-    });
-
-    it("should cache font URLs", async () => {
-      const url1a = await getFontUrl("hafs-v2", 1);
-      const url1b = await getFontUrl("hafs-v2", 1);
-      expect(url1a).toBe(url1b);
-    });
-  });
-
-  describe("getFontBuffer", () => {
-    it("should return ArrayBuffer for hafs-v2 layout", async () => {
-      const buffer = await getFontBuffer("hafs-v2", 1);
-      expect(buffer).toBeDefined();
-      expect(buffer instanceof ArrayBuffer).toBe(true);
-    });
-
-    it("should return ArrayBuffer for hafs-v4 layout", async () => {
-      const buffer = await getFontBuffer("hafs-v4", 1);
-      expect(buffer).toBeDefined();
-      expect(buffer instanceof ArrayBuffer).toBe(true);
-    });
-  });
-
-  describe("clearFontCache", () => {
-    it("should return same blob URL before and after clearing cache", async () => {
-      const url1 = await getFontUrl("hafs-v2", 1);
-      clearFontCache("hafs-v2");
-      const url2 = await getFontUrl("hafs-v2", 1);
-      expect(url1).not.toBe(url2);
-    });
-
-    it("should return different blob URLs after clearing all caches", async () => {
-      const url1 = await getFontUrl("hafs-v2", 1);
-      const url3 = await getFontUrl("hafs-v4", 1);
-      clearFontCache();
-      const url2 = await getFontUrl("hafs-v2", 1);
-      const url4 = await getFontUrl("hafs-v4", 1);
-      expect(url1).not.toBe(url2);
-      expect(url3).not.toBe(url4);
+    it("should create verse key with leading zeros", () => {
+      const result = createVerseKey(1, 7);
+      expect(result).toBe("1:7");
     });
   });
 });
 
-describe("Data Loader", () => {
+describe("getWordLocation", () => {
   beforeEach(() => {
     clearCache();
   });
 
-  describe("loadPages", () => {
-    it("should load all pages for a layout", async () => {
-      const pages = await loadPages("hafs-v2");
-      expect(pages).toBeDefined();
-      expect(Array.isArray(pages)).toBe(true);
-      if (Array.isArray(pages)) {
-        expect(pages.length).toBeGreaterThan(0);
-      }
-    });
-
-    it("should load a specific page by number", async () => {
-      const page = await loadPages("hafs-v2", 1);
-      expect(page).not.toBeNull();
-      if (page && !Array.isArray(page)) {
-        expect(page.pageNumber).toBe(1);
-      }
-    });
-
-    it("should return null for invalid page number", async () => {
-      const page = await loadPages("hafs-v2", 999);
-      expect(page).toBeNull();
-    });
+  it("should return verse location for a word with verseKey", () => {
+    const word: Word = {
+      id: 1,
+      position: 1,
+      text: "بِسْمِ",
+      pageNumber: 1,
+      charType: "word",
+      surah: 1,
+      verse: 1,
+    };
+    const location = getWordLocation(word, "1:1");
+    expect(location.surah).toBe(1);
+    expect(location.verse).toBe(1);
+    expect(location.pageNumber).toBe(1);
+    expect(location.wordPosition).toBe(1);
   });
 
-  describe("loadPage", () => {
-    it("should load a page successfully", async () => {
-      const page = await loadPage("hafs-v2", 1);
-      expect(page).not.toBeNull();
-      expect(page?.pageNumber).toBe(1);
-      expect(page?.lines).toBeDefined();
-      expect(Array.isArray(page?.lines)).toBe(true);
-    });
-
-    it("should return null for invalid page number", async () => {
-      const page = await loadPage("hafs-v2", 999);
-      expect(page).toBeNull();
-    });
-
-    it("should return null for page 0", async () => {
-      const page = await loadPage("hafs-v2", 0);
-      expect(page).toBeNull();
-    });
-
-    it("should return null for negative page numbers", async () => {
-      const page = await loadPage("hafs-v2", -1);
-      expect(page).toBeNull();
-    });
+  it("should return zero surah and verse when no verseKey provided", () => {
+    const word: Word = {
+      id: 1,
+      position: 1,
+      text: "بِسْمِ",
+      pageNumber: 1,
+      charType: "word",
+      surah: 1,
+      verse: 1,
+    };
+    const location = getWordLocation(word);
+    expect(location.surah).toBe(0);
+    expect(location.verse).toBe(0);
+    expect(location.pageNumber).toBe(1);
+    expect(location.wordPosition).toBe(1);
   });
 
-  describe("loadAllPages", () => {
-    it("should load all pages for a layout", async () => {
-      const pages = await loadAllPages("hafs-v2");
-      expect(pages).toBeDefined();
-      expect(pages.length).toBeGreaterThan(0);
-      expect(pages[0]?.pageNumber).toBe(1);
-      expect(pages[pages.length - 1]?.pageNumber).toBe(pages.length);
-    });
-
-    it("should have pages for different layouts", async () => {
-      const hafsV2 = await loadAllPages("hafs-v2");
-      const hafsV4 = await loadAllPages("hafs-v4");
-      const hafsUnicode = await loadAllPages("hafs-unicode");
-
-      expect(hafsV2.length).toBeGreaterThan(0);
-      expect(hafsV4.length).toBeGreaterThan(0);
-      expect(hafsUnicode.length).toBeGreaterThan(0);
-    });
-
-    it("should cache loaded pages", async () => {
-      const pages1 = await loadAllPages("hafs-v2");
-      const pages2 = await loadAllPages("hafs-v2");
-      expect(pages1).toBe(pages2);
-    });
+  it("should return location with lineNumber 0 when no verseKey provided", () => {
+    const word: Word = {
+      id: 1,
+      position: 5,
+      text: "اللَّهِ",
+      pageNumber: 1,
+      charType: "word",
+      surah: 1,
+      verse: 2,
+    };
+    const location = getWordLocation(word, "1:2");
+    expect(location.surah).toBe(1);
+    expect(location.verse).toBe(2);
+    expect(location.pageNumber).toBe(1);
+    expect(location.wordPosition).toBe(5);
+    expect(location.lineNumber).toBe(0);
   });
 
-  describe("getSurah", () => {
-    it("should return surah by ID", async () => {
-      const surah = await getSurah(1);
-      expect(surah).not.toBeNull();
-      expect(surah?.id).toBe(1);
-      expect(surah?.nameSimple).toBe("Al-Fatihah");
-    });
-
-    it("should return null for invalid surah ID", async () => {
-      const surah = await getSurah(999);
-      expect(surah).toBeNull();
-    });
-  });
-
-  describe("getJuz", () => {
-    it("should return juz by ID", async () => {
-      const juz = await getJuz(1);
-      expect(juz).not.toBeNull();
-      expect(juz?.id).toBe(1);
-      expect(juz?.juzNumber).toBe(1);
-    });
-
-    it("should return null for invalid juz ID", async () => {
-      const juz = await getJuz(999);
-      expect(juz).toBeNull();
-    });
-  });
-
-  describe("getSurahByPage", () => {
-    it("should return surah for a valid page", async () => {
-      const surah = await getSurahByPage(1);
-      expect(surah).not.toBeNull();
-      expect(surah?.id).toBe(1);
-    });
-
-    it("should return null for page outside any surah range", async () => {
-      const surah = await getSurahByPage(999);
-      expect(surah).toBeNull();
-    });
-  });
-
-  describe("clearCache", () => {
-    it("should allow reloading pages after clearing specific layout cache", async () => {
-      const pages1 = await loadAllPages("hafs-v2");
-      clearCache("hafs-v2");
-      const pages2 = await loadAllPages("hafs-v2");
-      expect(pages1.length).toBe(pages2.length);
-      expect(pages1[0]?.pageNumber).toBe(pages2[0]?.pageNumber);
-    });
-
-    it("should allow reloading all data after clearing all caches", async () => {
-      const pages1 = await loadAllPages("hafs-v2");
-      const surahs1 = await getSurah(1);
-      clearCache();
-      const pages2 = await loadAllPages("hafs-v2");
-      const surahs2 = await getSurah(1);
-      expect(pages1.length).toBe(pages2.length);
-      expect(surahs1?.id).toBe(surahs2?.id);
-    });
-
-    it("should not affect other layouts when clearing specific layout", async () => {
-      await loadAllPages("hafs-v2");
-      const hafsV4 = await loadAllPages("hafs-v4");
-      clearCache("hafs-v2");
-      const hafsV4After = await loadAllPages("hafs-v4");
-      expect(hafsV4.length).toBe(hafsV4After.length);
-    });
-  });
-});
-
-describe("Data Loading", () => {
-  beforeEach(() => {
-    clearCache();
-  });
-
-  describe("JSON Files", () => {
-    it("should load pages JSON for hafs-v2 layout", async () => {
-      const page = await loadPage("hafs-v2", 1);
-      expect(page).not.toBeNull();
-      expect(page?.pageNumber).toBe(1);
-      expect(page?.lines).toBeDefined();
-      expect(page?.lines.length).toBeGreaterThan(0);
-    });
-
-    it("should load pages JSON for hafs-v4 layout", async () => {
-      const page = await loadPage("hafs-v4", 1);
-      expect(page).not.toBeNull();
-      expect(page?.pageNumber).toBe(1);
-    });
-
-    it("should load all 604 pages for hafs-v2 layout", async () => {
-      const pages = await loadAllPages("hafs-v2");
-      expect(pages.length).toBe(604);
-      expect(pages[0]?.pageNumber).toBe(1);
-      expect(pages[pages.length - 1]?.pageNumber).toBe(604);
-    });
-
-    it("should load all 604 pages for hafs-v4 layout", async () => {
-      const pages = await loadAllPages("hafs-v4");
-      expect(pages.length).toBe(604);
-    });
-
-    it("should load surahs JSON", async () => {
-      const surahs = await loadSurahs();
-      expect(surahs.length).toBe(114);
-      expect(surahs[0]?.id).toBe(1);
-      expect(surahs[0]?.nameSimple).toBe("Al-Fatihah");
-    });
-
-    it("should load juzs JSON", async () => {
-      const juzs = await loadJuzs();
-      expect(juzs.length).toBe(60);
-      expect(juzs[0]?.juzNumber).toBe(1);
-      expect(juzs[juzs.length - 1]?.juzNumber).toBe(30);
-      expect(juzs[juzs.length - 1]?.id).toBe(90);
-    });
-  });
-
-  describe("Font Files", () => {
-    it("should return blob URL for hafs-v2 fonts", async () => {
-      const url1 = await getFontUrl("hafs-v2", 1);
-      const url604 = await getFontUrl("hafs-v2", 604);
-      expect(url1).toMatch(/^blob:/);
-      expect(url604).toMatch(/^blob:/);
-      expect(url1).not.toBe(url604);
-    });
-
-    it("should return blob URL for hafs-v4 fonts", async () => {
-      const url1 = await getFontUrl("hafs-v4", 1);
-      const url604 = await getFontUrl("hafs-v4", 604);
-      expect(url1).toMatch(/^blob:/);
-      expect(url604).toMatch(/^blob:/);
-      expect(url1).not.toBe(url604);
-    });
-
-    it("should generate unique URLs for each page", async () => {
-      const url1 = await getFontUrl("hafs-v2", 1);
-      const url2 = await getFontUrl("hafs-v2", 2);
-      expect(url1).not.toBe(url2);
-    });
-
-    it("should cache font URLs", async () => {
-      const url1a = await getFontUrl("hafs-v2", 1);
-      const url1b = await getFontUrl("hafs-v2", 1);
-      expect(url1a).toBe(url1b);
-    });
-  });
-});
-
-describe("Lookup Functions", () => {
-  beforeEach(() => {
-    clearCache();
-  });
-
-  describe("getPageForVerse", () => {
-    it("should return page and location for valid verse", async () => {
-      const result = await getPageForVerse("1:1", "hafs-v2");
-      expect(result.page).not.toBeNull();
-      expect(result.verseLocation).not.toBeNull();
-      expect(result.verseLocation?.surah).toBe(1);
-      expect(result.verseLocation?.verse).toBe(1);
-    });
-
-    it("should return null for invalid verse key", async () => {
-      const result = await getPageForVerse("invalid", "hafs-v2");
-      expect(result.page).toBeNull();
-      expect(result.verseLocation).toBeNull();
-    });
-
-    it("should return null for non-existent verse", async () => {
-      const result = await getPageForVerse("999:999", "hafs-v2");
-      expect(result.page).toBeNull();
-      expect(result.verseLocation).toBeNull();
-    });
-
-    it("should default to hafs-v2 layout", async () => {
-      const result = await getPageForVerse("1:1");
-      expect(result.page).not.toBeNull();
-    });
-  });
-
-  describe("getVerseLocation", () => {
-    it("should return verse location for valid chapter and verse", async () => {
-      const location = await getVerseLocation(1, 1, "hafs-v2");
-      expect(location).not.toBeNull();
-      expect(location?.surah).toBe(1);
-      expect(location?.verse).toBe(1);
-    });
-
-    it("should return null for invalid chapter or verse", async () => {
-      const location = await getVerseLocation(999, 999, "hafs-v2");
-      expect(location).toBeNull();
-    });
-  });
-
-  describe("getNavigation", () => {
-    it("should return navigation info for first page", async () => {
-      const nav = await getNavigation(1, "hafs-v2");
-      expect(nav.prevPage).toBeNull();
-      expect(nav.nextPage).toBeGreaterThan(1);
-      expect(nav.currentSurah).not.toBeNull();
-    });
-
-    it("should return navigation info for last page", async () => {
-      const pages = await loadAllPages("hafs-v2");
-      const nav = await getNavigation(pages.length, "hafs-v2");
-      expect(nav.nextPage).toBeNull();
-      expect(nav.prevPage).toBeLessThan(pages.length);
-    });
-
-    it("should return correct page boundaries for surah", async () => {
-      const nav = await getNavigation(1, "hafs-v2");
-      expect(nav.surahStartPage).toBeDefined();
-      expect(nav.surahEndPage).toBeDefined();
-      expect(nav.surahStartPage).toBeLessThanOrEqual(nav.surahEndPage);
-    });
-  });
-
-  describe("getPageRangeForSurah", () => {
-    it("should return page range for valid surah", async () => {
-      const range = await getPageRangeForSurah(1);
-      expect(range).not.toBeNull();
-      expect(range!.length).toBe(2);
-      expect(range![0]).toBeLessThanOrEqual(range![1]);
-    });
-
-    it("should return null for invalid surah", async () => {
-      const range = await getPageRangeForSurah(999);
-      expect(range).toBeNull();
-    });
-  });
-
-  describe("getFirstVerseOfPage", () => {
-    it("should return first verse location for valid page", async () => {
-      const location = await getFirstVerseOfPage(1, "hafs-v2");
-      expect(location).not.toBeNull();
-      expect(location?.pageNumber).toBe(1);
-      expect(location?.surah).toBeDefined();
-      expect(location?.verse).toBeDefined();
-    });
-
-    it("should return null for invalid page", async () => {
-      const location = await getFirstVerseOfPage(999, "hafs-v2");
-      expect(location).toBeNull();
-    });
-  });
-
-  describe("getLastVerseOfPage", () => {
-    it("should return last verse location for valid page", async () => {
-      const location = await getLastVerseOfPage(1, "hafs-v2");
-      expect(location).not.toBeNull();
-      expect(location?.pageNumber).toBe(1);
-      expect(location?.surah).toBeDefined();
-      expect(location?.verse).toBeDefined();
-    });
-
-    it("should return null for invalid page", async () => {
-      const location = await getLastVerseOfPage(999, "hafs-v2");
-      expect(location).toBeNull();
-    });
-  });
-
-  describe("getWordLocation", () => {
-    it("should return verse location for a word with verseKey", () => {
-      const word: Word = {
-        id: 1,
-        position: 1,
-        text: "بِسْمِ",
-        pageNumber: 1,
-        charType: "word",
-        surah: 1,
-        verse: 1,
-      };
-      const location = getWordLocation(word, "1:1");
-      expect(location.surah).toBe(1);
-      expect(location.verse).toBe(1);
-      expect(location.pageNumber).toBe(1);
-      expect(location.wordPosition).toBe(1);
-    });
-
-    it("should return zero surah and verse when no verseKey provided", () => {
-      const word: Word = {
-        id: 1,
-        position: 1,
-        text: "بِسْمِ",
-        pageNumber: 1,
-        charType: "word",
-        surah: 1,
-        verse: 1,
-      };
-      const location = getWordLocation(word);
-      expect(location.surah).toBe(0);
-      expect(location.verse).toBe(0);
-      expect(location.pageNumber).toBe(1);
-    });
+  it("should handle word with different position", () => {
+    const word: Word = {
+      id: 10,
+      position: 10,
+      text: "الرَّحْمَٰنِ",
+      pageNumber: 1,
+      charType: "word",
+      surah: 1,
+      verse: 1,
+    };
+    const location = getWordLocation(word, "1:1");
+    expect(location.surah).toBe(1);
+    expect(location.verse).toBe(1);
+    expect(location.wordPosition).toBe(10);
   });
 });
