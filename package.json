@@ -20,7 +20,7 @@
   },
   "files": [
     "dist",
-    "assets",
+    "data",
     "docs"
   ],
   "scripts": {
@@ -65,12 +65,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iTarek/open-quran-view.git"
+    "url": "git+https://github.com/adelpro/open-quran-view.git"
   },
   "bugs": {
-    "url": "https://github.com/iTarek/open-quran-view/issues"
+    "url": "https://github.com/adelpro/open-quran-view/issues"
   },
-  "homepage": "https://github.com/iTarek/open-quran-view#readme",
+  "homepage": "https://github.com/adelpro/open-quran-view#readme",
   "keywords": [
     "quran",
     "mushaf",
