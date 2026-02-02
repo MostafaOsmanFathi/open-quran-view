@@ -8,7 +8,15 @@ function runScript(scriptPath: string): Promise<void> {
   return new Promise((resolve, reject) => {
     console.log(`\n▶️  Running: ${scriptPath}\n`);
 
-    const child = spawn("npx", ["tsx", scriptPath], {
+    const tsxPath = join(
+      __dirname,
+      "..",
+      "node_modules",
+      "tsx",
+      "dist",
+      "cli.mjs",
+    );
+    const child = spawn("node", [tsxPath, scriptPath], {
       cwd: join(__dirname, ".."),
       stdio: "inherit",
     });
