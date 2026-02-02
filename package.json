@@ -1,6 +1,6 @@
 {
   "name": "open-quran-view",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Universal, cross-platform Quran component library for high-fidelity Mushaf rendering.",
   "type": "module",
   "main": "./dist/view/react/index.js",
@@ -35,9 +35,10 @@
     "playground:install": "pnpm install",
     "playground:build": "pnpm build",
     "playground:setup": "pnpm playground:install && pnpm playground:build",
-    "playground:react": "pnpm --filter vite-react-playground dev",
-    "playground:web": "pnpm --filter vite-typescript-playground dev",
-    "prepublishOnly": "pnpm run build"
+    "playground:react": "pnpm --filter vite-react dev",
+    "playground:web": "pnpm --filter vite-typescript dev",
+    "prepublishOnly": "pnpm run generate:all && pnpm run build",
+    "publish": "npm publish"
   },
   "peerDependencies": {
     "react": ">=18"
@@ -75,7 +76,13 @@
     "quran",
     "mushaf",
     "react",
-    "typescript"
+    "typescript",
+    "quran-component",
+    "islamic",
+    "arabic",
+    "font-rendering",
+    "web-component",
+    "cross-platform"
   ],
   "author": "adelpro <adelpro@github.com>",
   "license": "MIT"
