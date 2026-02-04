@@ -1,0 +1,111 @@
+# Open Quran View Documentation
+
+High-performance universal Quran rendering library using QUL (Quranic Universal Library) format.
+
+## Overview
+
+`open-quran-view` provides React and Web Component views for rendering Quran pages with high fidelity.
+
+## Documentation Structure
+
+```
+docs/
+├── index.md                    # This file
+├── api/
+│   └── views.md               # Views module API reference
+├── architecture/
+│   ├── data-structure.md      # Data structures & file formats
+│   └── static-assets.md       # Static assets architecture (v0.2.0+)
+└── guides/
+    └── font-loading.md        # Font loading strategy
+```
+
+## Quick Start
+
+### Installation
+
+```bash
+npm install open-quran-view
+```
+
+### React Component
+
+```tsx
+import { OpenQuranView } from 'open-quran-view/view';
+
+function App() {
+  return (
+    <OpenQuranView
+      page={1}
+      mushafLayout="hafs-v2"
+      width={600}
+      height={850}
+      onWordClick={(word) => console.log(word)}
+    />
+  );
+}
+```
+
+### Web Component
+
+```html
+<script type="module">
+  import { registerOpenQuranView } from 'open-quran-view/view/web';
+  registerOpenQuranView();
+</script>
+
+<open-quran-view
+  page="1"
+  mushaf-layout="hafs-v2"
+  width="600"
+  height="850"
+></open-quran-view>
+```
+
+## Features
+
+- **QUL Format Support** - Uses Quranic Universal Library layout format for platform-agnostic data.
+- **Universal Views** - React component and Vanilla Web Component with consistent API.
+- **TypeScript First** - Built with TypeScript for a robust development experience.
+- **Static Assets System** - Pre-generated URLs for reliable font and data loading (v0.2.0+).
+- **Multiple Mushaf Layouts** - Support for hafs-v2, hafs-v4, and hafs-unicode layouts.
+
+## Project Structure
+
+```
+open-quran-view/
+├── src/
+│   ├── core/               # Platform-agnostic core logic
+│   │   ├── static/         # Generated static asset URLs
+│   │   ├── data-loader.ts  # Data loading with caching
+│   │   ├── font-loader.ts  # Font loading utilities
+│   │   └── lookup.ts       # Navigation & verse lookup
+│   ├── view/
+│   │   ├── react/          # React component
+│   │   └── web/            # Web Component
+│   └── data/               # QUL data assets (generated)
+├── docs/                   # Documentation
+├── scripts/                # Data generation scripts
+├── playground/             # Development playgrounds
+└── dist/                   # Build output
+```
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `pnpm generate:all` | Generate all static assets |
+| `pnpm generate:static:fonts` | Generate font URLs |
+| `pnpm generate:static:data` | Generate data URLs |
+| `pnpm build` | Build the package |
+| `pnpm prepare` | Auto-generate + build on install |
+
+See [Static Assets Architecture](architecture/static-assets.md) for details.
+
+## Related
+
+- [Views API](api/views.md) - Detailed API reference for React and Web Component
+- [Data Structure](architecture/data-structure.md) - Data formats and file structures
+- [Static Assets](architecture/static-assets.md) - Font and data URL generation (v0.2.0+)
+- [Font Loading Guide](guides/font-loading.md) - Legacy font loading strategy
+- [CHANGELOG](../CHANGELOG.md) - Version history

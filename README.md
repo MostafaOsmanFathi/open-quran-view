@@ -11,6 +11,7 @@ High-performance universal Quran rendering library using QUL (Quranic Universal 
 - **QUL Format Support** - Uses Quranic Universal Library layout format for platform-agnostic data.
 - **Universal Views** - React component and Vanilla Web Component with consistent API.
 - **TypeScript First** - Built with TypeScript for a robust development experience.
+- **Static Assets** - Self-contained fonts and metadata included in package.
 
 ---
 
@@ -19,15 +20,18 @@ High-performance universal Quran rendering library using QUL (Quranic Universal 
 ```
 open-quran-view/
 ├── src/
-│   ├── core/               # Platform-agnostic logic (internal)
+│   ├── core/               # Platform-agnostic core logic
+│   │   ├── static/         # Static asset URLs
+│   │   ├── data-loader.ts  # Data loading with caching
+│   │   ├── font-loader.ts  # Font loading
+│   │   └── lookup.ts       # Navigation & verse lookup
 │   ├── view/
 │   │   ├── react/          # React component
 │   │   └── web/            # Web Component
-│   └── data/               # QUL data assets
-│       └── pages/
-│           ├── hafs-v2/
-│           ├── hafs-v4/
-│           └── hafs-unicode/
+│   └── data/               # QUL data assets (generated)
+├── docs/                   # Documentation
+├── scripts/                # Data generation scripts
+├── playground/             # Development playgrounds
 └── dist/                   # Build output
 ```
 
@@ -59,7 +63,7 @@ function App() {
 }
 ```
 
-You can also import explicitly:
+Explicit imports:
 
 ```tsx
 import { OpenQuranView } from 'open-quran-view/view/react';
@@ -70,7 +74,6 @@ import { OpenQuranView } from 'open-quran-view/view/react';
 ```html
 <script type="module">
   import { registerOpenQuranView } from 'open-quran-view/view/web';
-
   registerOpenQuranView();
 </script>
 
@@ -124,7 +127,6 @@ type WordInfo = {
 
 ```typescript
 import { registerOpenQuranView, type OpenQuranViewProps } from 'open-quran-view/view/web';
-
 registerOpenQuranView();
 ```
 
@@ -151,29 +153,12 @@ registerOpenQuranView();
 ```typescript
 const viewer = document.querySelector('open-quran-view') as OpenQuranView;
 
-// Navigate to page
 viewer.page = 10;
 viewer.goToPage(10);
-
-// Get current page
 console.log(viewer.page);
-
-// Change layout
 viewer.setAttribute('mushaf-layout', 'hafs-v4');
-
-// Change theme
 viewer.setAttribute('theme', 'dark');
 ```
-
----
-
-## Exports
-
-| Path | Exports |
-|------|---------|
-| `./view` | `OpenQuranView`, `OpenQuranViewProps`, `MushafLayout`, `PageLayout` |
-| `./view/react` | Same as `./view` |
-| `./view/web` | `OpenQuranView`, `registerOpenQuranView`, `OpenQuranViewProps`, `MushafLayout`, `PageLayout` |
 
 ---
 
@@ -184,6 +169,49 @@ viewer.setAttribute('theme', 'dark');
 | `hafs-v2` | Hafs from Asim via the way of Warsh |
 | `hafs-v4` | Hafs from Asim via the way of Shu'bah |
 | `hafs-unicode` | Standard Unicode Quran |
+
+---
+
+## Documentation
+
+See [`docs/`](docs/) directory for:
+
+- [API Reference](docs/api/views.md) - Detailed views module documentation
+- [Architecture](docs/architecture/data-structure.md) - Data structures and file formats
+- [Architecture](docs/architecture/static-assets.md) - Static assets system (v0.2.0+)
+- [Guides](docs/guides/font-loading.md) - Font loading strategy
+
+---
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `pnpm generate:all` | Generate all static assets |
+| `pnpm generate:static:fonts` | Generate font URLs |
+| `pnpm generate:static:data` | Generate data URLs |
+| `pnpm build` | Build the package |
+| `pnpm prepare` | Auto-generate + build on install |
+| `pnpm test` | Run tests |
+| `pnpm lint` | Lint code |
+
+---
+
+## Development
+
+```bash
+# Install dependencies
+pnpm install
+
+# Generate static assets
+pnpm run generate:all
+
+# Build package
+pnpm run build
+
+# Run development playground
+pnpm run playground:react
+```
 
 ---
 

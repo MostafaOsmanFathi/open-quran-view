@@ -8,15 +8,19 @@ The format is based on [Conventional Commits](https://conventionalcommits.org/).
 
 ### Added
 
-- Modular static asset generation scripts for fonts and data
-- Static file copying to dist in tsup build configuration
-- Static asset URL generation for Quran fonts and metadata
+- Static asset generation scripts (`generate-static-fonts.ts`, `generate-static-data.ts`)
+- Static file URL generation for fonts and metadata
+- `prepare` lifecycle for automatic asset generation
 
 ### Fixed
 
-- Font sanitizer rejection errors by ensuring static files are copied to dist
+- Font loading issues by including static files in build output
+- Vite configuration for font MIME types and headers
 
 ### Changed
 
-- Improved font path resolution using import.meta.url and fileURLToPath
-- Updated build workflow to include core/static directory in distribution
+- Build workflow to include `core/static` directory in distribution
+
+## [0.1.0] - 2026-01-XX
+
+Initial release.
