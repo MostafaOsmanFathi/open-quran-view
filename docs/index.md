@@ -14,6 +14,7 @@ docs/
 ├── api/
 │   └── views.md               # Views module API reference
 ├── architecture/
+│   ├── open-quran-view-journey.md  # From idea to production story
 │   ├── data-structure.md      # Data structures & file formats
 │   └── static-assets.md       # Static assets architecture (v0.2.0+)
 └── guides/
@@ -114,6 +115,7 @@ See [Static Assets Architecture](architecture/static-assets.md) for details.
 
 ## Related
 
+- [Open Quran View Journey](architecture/open-quran-view-journey.md) - The complete story from local files to Quran Foundation API
 - [Views API](api/views.md) - Detailed API reference for React and Web Component
 - [Data Structure](architecture/data-structure.md) - Data formats and file structures
 - [Static Assets](architecture/static-assets.md) - Font and data URL generation (v0.2.0+)

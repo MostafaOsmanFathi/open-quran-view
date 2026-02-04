@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Conventional Commits](https://conventionalcommits.org/).
 
+## [0.2.1] - 2026-02-04
+
+### Added
+
+- New architecture article: "Open Quran View Journey" documenting the full story from local files to Quran Foundation API
+- Development infrastructure documentation (PNPM workspace, TypeScript, Tsup, Vitest, playgrounds)
+- Web Component TypeScript example in README
+- Playground commands: `playground:setup`, `playground:react`, `playground:web`
+
+### Changed
+
+- Updated README with Web Component TypeScript example
+- Added playground commands to Development section
+
 ## [0.2.0] - 2026-02-04
 
 ### Added
