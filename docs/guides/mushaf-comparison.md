@@ -1,20 +1,24 @@
 # Mushaf Versions Comparison Guide
 
-A comprehensive comparison of the main Quran Mushaf layouts available via Quran.com API.
+> Comprehensive comparison of Quran Mushaf layouts available via Quran Foundation API.
 
 ---
 
-## Related Projects
+## Table of Contents
 
-For additional font rendering and Quranic typography resources, see:
-
-- [DigitalKhatt](https://github.com/DigitalKhatt) - A graphical tool for designing Metafont-based dynamic fonts used in the DigitalKhatt typesetter, with implementations for OpenType variable fonts and HarfBuzz extensions for Arabic justification.
+1. [Quick Answer](#quick-answer)
+2. [The Three Main Versions](#the-three-main-versions)
+3. [Side-by-Side Comparison](#side-by-side-comparison)
+4. [Technical Differences](#technical-differences)
+5. [When to Use Each](#when-to-use-each)
+6. [Migration Recommendations](#migration-recommendations)
+7. [Summary](#summary)
 
 ---
 
-## Quick Answer: Which One Should You Use?
+## Quick Answer
 
-### 🏆 **Recommended: Mushaf Madinah V2 (QCF V2) - ID: 1**
+### Recommended: Mushaf Madinah V2 (QCF V2) - ID: 1
 
 **Why?**
 
@@ -170,7 +174,8 @@ curl -H "x-auth-token: TOKEN" \
 | **Font Type** | Glyph-based | Unicode | Glyph-based + Color |
 | **Font Files** | 604 (one per page) | 1 (single file) | 604 (one per page) |
 | **Quality** | ⭐⭐⭐⭐⭐ Excellent | ⭐⭐⭐ Good | ⭐⭐⭐⭐⭐ Excellent |
-| **File Size** | ~50MB (all fonts) | ~500KB | ~60MB (all fonts) |
+| **File Size** | ~25MB (pages) | ~15MB (pages) | ~25MB (pages) |
+| **Font Size** | ~25MB | ~500KB | ~30MB |
 | **Rendering** | Pixel-perfect | Standard Unicode | Pixel-perfect + Colors |
 | **Maintenance** | ✅ Active | ⚠️ Legacy | ✅ Active |
 | **Complexity** | High | Low | High |
@@ -185,7 +190,7 @@ curl -H "x-auth-token: TOKEN" \
 
 **QCF V2 & V4 (Glyph-based):**
 
-```javascript
+```typescript
 // Each word uses a special glyph code
 {
   "code_v2": "ﱁ",  // Special glyph
@@ -195,12 +200,12 @@ curl -H "x-auth-token: TOKEN" \
 
 // Must use innerHTML (not textContent)
 span.innerHTML = word.code_v2;
-span.style.fontFamily = `p${word.page_number}-v2`;
+span.style.fontFamily = `p${word.pageNumber}-v2`;
 ```
 
 **KFGQPC (Unicode):**
 
-```javascript
+```typescript
 // Standard Unicode text
 {
   "text_qpc_hafs": "بِسۡمِ"
@@ -215,16 +220,16 @@ span.style.fontFamily = 'UthmanicHafs';
 
 **QCF V2 & V4:**
 
-```javascript
+```typescript
 // Dynamic per-page loading
-async function loadPageFont(pageNumber, version = 'v2') {
+async function loadPageFont(pageNumber: number, version: 'v2' | 'v4' = 'v2') {
   const fontUrl = `https://verses.quran.foundation/fonts/quran/hafs/${version}/woff2/p${pageNumber}.woff2`;
-  
+
   const fontFace = new FontFace(
     `p${pageNumber}-${version}`,
     `url('${fontUrl}')`
   );
-  
+
   await fontFace.load();
   document.fonts.add(fontFace);
 }
@@ -239,35 +244,6 @@ async function loadPageFont(pageNumber, version = 'v2') {
   src: url('https://verses.quran.foundation/fonts/quran/hafs/uthmanic_hafs/UthmanicHafs1Ver18.woff2');
 }
 ```
-
----
-
-## Relationship Between Versions
-
-### Historical Context
-
-```
-King Fahd Quran Printing Complex (Source)
-           ↓
-    Physical Mushaf
-           ↓
-    ┌──────┴──────┐
-    ↓             ↓
-QCF V1        KFGQPC Hafs
-(Legacy)      (Unicode)
-    ↓
-QCF V2 ← ✅ Current Standard
-    ↓
-QCF V4 ← ✅ With Tajweed Colors
-```
-
-### Key Points
-
-1. **Same Source Material:** All three come from King Fahd Complex
-2. **Different Implementations:**
-   - **QCF V2/V4:** Advanced glyph-based rendering
-   - **KFGQPC:** Simple Unicode implementation
-3. **QCF V2 is NOT the same as KFGQPC** even though both are from King Fahd Complex
 
 ---
 
@@ -329,7 +305,7 @@ QCF V4 ← ✅ With Tajweed Colors
 **Trade-offs:**
 
 - Same complexity as QCF V2
-- Larger file size (~60MB)
+- Larger file size (~55MB total)
 - Requires theme handling (light/dark/sepia)
 - Browser-specific handling (Firefox vs Chrome)
 
@@ -342,7 +318,7 @@ QCF V4 ← ✅ With Tajweed Colors
 ```typescript
 // ✅ Recommended
 const MUSHAF_ID = 1;  // QCF V2
-const WORD_FIELDS = 'code_v2,text_qpc_hafs,page_number,line_number';
+const WORD_FIELDS = 'code_v2,text_qpc_hafs,line_number,page_number,position';
 ```
 
 ### If You're Currently Using KFGQPC (ID: 5)
@@ -379,47 +355,9 @@ function switchMushaf(enableTajweed: boolean) {
 
 ---
 
-## Data Generation Scripts
+## Summary
 
-### For QCF V2 (Recommended)
-
-```typescript
-const MUSHAF_CONFIG = {
-  id: 1,
-  name: 'Hafs QCF V2',
-  wordFields: 'code_v2,text_qpc_hafs,line_number,page_number,position',
-  outputDir: 'src/data/pages/hafs-v2',
-};
-
-// Fetch all 604 pages
-for (let page = 1; page <= 604; page++) {
-  const response = await fetch(
-    `${API_BASE}/verses/by_page/${page}?` +
-    `mushaf=1&words=true&word_fields=${MUSHAF_CONFIG.wordFields}`,
-    { headers: { 'x-auth-token': token, 'x-client-id': clientId } }
-  );
-  // Process and save...
-}
-```
-
-### For Tajweed (Optional)
-
-```typescript
-const TAJWEED_CONFIG = {
-  id: 19,
-  name: 'Hafs QCF V4 Tajweed',
-  wordFields: 'code_v2,text_qpc_hafs,line_number,page_number,position',
-  outputDir: 'src/data/pages/hafs-v4',
-};
-
-// Same process as V2, just different mushaf ID
-```
-
----
-
-## Summary & Recommendation
-
-### 🏆 Final Recommendation
+### Final Recommendation
 
 **Use Mushaf Madinah V2 (QCF V2) - ID: 1**
 
@@ -450,15 +388,14 @@ const TAJWEED_CONFIG = {
 
 ---
 
-## Example: Your Package Configuration
+## Package Configuration
 
 ```typescript
 // src/core/types.ts
-export type MushafLayout = 
+export type MushafLayout =
   | 'hafs-v2'        // QCF V2 - RECOMMENDED
   | 'hafs-v4';       // Tajweed - OPTIONAL
 
-// Default configuration
 export const DEFAULT_MUSHAF: MushafLayout = 'hafs-v2';
 
 export const MUSHAF_CONFIGS = {
@@ -483,4 +420,10 @@ export const MUSHAF_CONFIGS = {
 
 **Bottom Line:** Always use **Mushaf Madinah V2 (QCF V2, ID: 1)** unless you have a specific reason to use Tajweed colors, in which case add QCF V4 (ID: 19) as an optional feature.
 
-*Last updated: January 2025*
+---
+
+## Related Documentation
+
+- [Data Structure](architecture/data-structure.md) - File formats and layouts
+- [API Integration Guide](api-integration.md) - Quran Foundation API details
+- [Data Generation Guide](data-generation.md) - How to generate Mushaf data

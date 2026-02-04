@@ -17,7 +17,10 @@ docs/
 │   ├── data-structure.md      # Data structures & file formats
 │   └── static-assets.md       # Static assets architecture (v0.2.0+)
 └── guides/
-    └── font-loading.md        # Font loading strategy
+    ├── api-integration.md     # Quran Foundation API guide
+    ├── data-generation.md      # Data generation scripts
+    ├── font-loading.md        # Font loading strategy (v0.2.0+)
+    └── mushaf-comparison.md   # Mushaf versions comparison
 ```
 
 ## Quick Start
@@ -76,7 +79,7 @@ function App() {
 open-quran-view/
 ├── src/
 │   ├── core/               # Platform-agnostic core logic
-│   │   ├── static/         # Generated static asset URLs
+│   │   ├── static/         # Generated static asset URLs (v0.2.0+)
 │   │   ├── data-loader.ts  # Data loading with caching
 │   │   ├── font-loader.ts  # Font loading utilities
 │   │   └── lookup.ts       # Navigation & verse lookup
@@ -85,6 +88,9 @@ open-quran-view/
 │   │   └── web/            # Web Component
 │   └── data/               # QUL data assets (generated)
 ├── docs/                   # Documentation
+│   ├── api/                # API reference
+│   ├── architecture/       # Architecture docs
+│   └── guides/            # How-to guides
 ├── scripts/                # Data generation scripts
 ├── playground/             # Development playgrounds
 └── dist/                   # Build output
@@ -94,9 +100,13 @@ open-quran-view/
 
 | Script | Description |
 |--------|-------------|
-| `pnpm generate:all` | Generate all static assets |
-| `pnpm generate:static:fonts` | Generate font URLs |
-| `pnpm generate:static:data` | Generate data URLs |
+| `pnpm generate:all` | Generate all data (metadata, pages, fonts, static assets) |
+| `pnpm generate:pages` | Generate page data from Quran Foundation API |
+| `pnpm generate:metadata` | Generate surah and juz metadata |
+| `pnpm generate:fonts` | Download fonts from verses.quran.foundation |
+| `pnpm generate:static:fonts` | Generate static font URLs |
+| `pnpm generate:static:data` | Generate static data URLs |
+| `pnpm generate:static` | Generate both static fonts and data URLs |
 | `pnpm build` | Build the package |
 | `pnpm prepare` | Auto-generate + build on install |
 
@@ -107,5 +117,8 @@ See [Static Assets Architecture](architecture/static-assets.md) for details.
 - [Views API](api/views.md) - Detailed API reference for React and Web Component
 - [Data Structure](architecture/data-structure.md) - Data formats and file structures
 - [Static Assets](architecture/static-assets.md) - Font and data URL generation (v0.2.0+)
-- [Font Loading Guide](guides/font-loading.md) - Legacy font loading strategy
+- [Font Loading Guide](guides/font-loading.md) - Font loading strategy (v0.2.0+)
+- [API Integration](guides/api-integration.md) - Quran Foundation API details
+- [Data Generation](guides/data-generation.md) - Script usage and examples
+- [Mushaf Comparison](guides/mushaf-comparison.md) - Choosing the right Mushaf layout
 - [CHANGELOG](../CHANGELOG.md) - Version history

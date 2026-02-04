@@ -14,7 +14,10 @@ open-quran-view/
 │   │   ├── types.ts              # TypeScript type definitions
 │   │   ├── data-loader.ts        # Data loading with caching
 │   │   ├── font-loader.ts        # Font URL generation
-│   │   └── lookup.ts             # Navigation & verse lookup
+│   │   ├── lookup.ts             # Navigation & verse lookup
+│   │   └── static/               # Generated static assets (v0.2.0+)
+│   │       ├── fonts.ts           # Static font URLs
+│   │       └── data.ts            # Static data URLs
 │   ├── view/                     # View implementations
 │   │   ├── react/                # React components
 │   │   │   ├── index.tsx
@@ -28,13 +31,18 @@ open-quran-view/
 │   ├── core.test.ts              # Test suite
 │   └── test/                     # Test utilities
 │       └── setup.ts
-├── artifacts/                    # Documentation
-│   ├── core-module-reference.md  # Core module documentation
-│   ├── views-module-guide.md     # Views documentation
-│   ├── data-structure.md         # This file
-│   ├── data-generation-guide.md
-│   ├── Mushaf versions comparison.md
-│   └── Quran api page layout guide.md
+├── docs/                         # Documentation
+│   ├── index.md                  # Documentation entry point
+│   ├── api/
+│   │   └── views.md              # Views module API reference
+│   ├── architecture/
+│   │   ├── data-structure.md     # This file
+│   │   └── static-assets.md      # Static assets architecture
+│   └── guides/
+│       ├── api-integration.md     # Quran Foundation API guide
+│       ├── data-generation.md     # Data generation scripts
+│       ├── mushaf-comparison.md  # Mushaf versions comparison
+│       └── font-loading.md       # Font loading strategy
 ├── playground/                   # Development playground
 ├── dist/                         # Build output (generated)
 ├── package.json
@@ -100,7 +108,7 @@ type PagesJSON = Page[];
   words: Word[],            // Words on this line
   metadata: {
     verseId: number,        // Unique verse ID
-    verseKey: string,       // "surah:verse"
+    verseKey: string,        // "surah:verse"
     chapterId: number       // Chapter number
   }
 }
@@ -113,7 +121,7 @@ type PagesJSON = Page[];
   id: number,               // Unique word ID
   position: number,         // Position in verse
   text: string,             // Arabic text
-  code_v2?: string,         // QCF glyph (glyph layouts)
+  code_v2?: string,        // QCF glyph (glyph layouts)
   pageNumber: number,       // Page number
   charType: string,         // "word", "end", "pause", etc.
   surah: number,            // Chapter (from verseKey)
@@ -264,9 +272,10 @@ p{pageNumber}.woff2
 ### Font URL Pattern
 
 ```typescript
-function getFontUrl(layout: MushafLayout, page: number): string {
-  return `/data/fonts/${layout}/p${page}.woff2`;
-}
+import { getFontUrl } from 'open-quran-view/core/static/fonts';
+
+const url = getFontUrl('hafs-v2', 1);
+// Returns: "/data/fonts/hafs-v2/p1.woff2" (at runtime)
 ```
 
 ---
@@ -304,13 +313,15 @@ src/data/fonts/*
 
 ## Data Generation Scripts
 
-See [data-generation-guide.md](data-generation-guide.md) for complete scripts:
+See [Data Generation Guide](guides/data-generation.md) for complete scripts reference:
 
 | Script | Generates | Output |
 |--------|-----------|--------|
 | `fetch-metadata.ts` | Surahs, Juz | `metadata/surahs.json`, `metadata/juz.json` |
 | `fetch-pages.ts` | Page data | `pages/{layout}/pages.json` |
 | `download-fonts.ts` | Font files | `fonts/{layout}/p*.woff2` |
+| `generate-static-fonts.ts` | Static URLs | `core/static/fonts.ts` |
+| `generate-static-data.ts` | Static URLs | `core/static/data.ts` |
 
 ---
 
@@ -339,6 +350,8 @@ See [data-generation-guide.md](data-generation-guide.md) for complete scripts:
 | File Size (pages) | ~25 MB | ~25 MB | ~15 MB |
 | File Size (fonts) | ~25 MB | ~30 MB | N/A |
 
+See [Mushaf Versions Comparison](guides/mushaf-comparison.md) for detailed analysis.
+
 ---
 
 ## Usage Examples
@@ -346,21 +359,21 @@ See [data-generation-guide.md](data-generation-guide.md) for complete scripts:
 ### Loading Pages
 
 ```typescript
-import { loadPage, loadAllPages } from "./core/data-loader";
+import { loadPage, loadAllPages } from 'open-quran-view/core';
 
 // Load single page
-const page = await loadPage("hafs-v2", 1);
+const page = await loadPage('hafs-v2', 1);
 console.log(page.lines.length); // 15
 
 // Load all pages
-const allPages = await loadAllPages("hafs-v2");
+const allPages = await loadAllPages('hafs-v2');
 console.log(allPages.length); // 604
 ```
 
 ### Loading Metadata
 
 ```typescript
-import { loadSurahs, loadJuzs } from "./core/data-loader";
+import { loadSurahs, loadJuzs } from 'open-quran-view/core';
 
 // Load surahs
 const surahs = await loadSurahs();
@@ -376,8 +389,17 @@ console.log(juzs[0].juzNumber); // 1
 ### Getting Font URL
 
 ```typescript
-import { getFontUrl } from "./core/font-loader";
+import { getFontUrl } from 'open-quran-view/core/static/fonts';
 
-const url = await getFontUrl("hafs-v2", 1);
-console.log(url); // "/data/fonts/hafs-v2/p1.woff2"
+const url = getFontUrl('hafs-v2', 1);
+// Returns: "/data/fonts/hafs-v2/p1.woff2" (at runtime)
 ```
+
+---
+
+## Related Documentation
+
+- [Static Assets Architecture](static-assets.md) - How static URLs are generated
+- [API Integration Guide](guides/api-integration.md) - Quran Foundation API details
+- [Data Generation Guide](guides/data-generation.md) - Script usage and examples
+- [Mushaf Comparison](guides/mushaf-comparison.md) - Choosing the right Mushaf layout
