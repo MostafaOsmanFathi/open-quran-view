@@ -1,6 +1,6 @@
 {
   "name": "open-quran-view",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Universal, cross-platform Quran component library for high-fidelity Mushaf rendering.",
   "type": "module",
   "main": "./dist/view/react/index.js",
@@ -40,7 +40,7 @@
     "playground:setup": "pnpm playground:install && pnpm playground:build",
     "playground:react": "pnpm --filter vite-react dev",
     "playground:web": "pnpm --filter vite-typescript dev",
-    "prepublishOnly": "pnpm run generate:all && pnpm run build",
+    "prepare": "pnpm run generate:all && pnpm run build",
     "publish": "npm publish"
   },
   "peerDependencies": {
