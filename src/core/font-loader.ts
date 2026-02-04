@@ -114,20 +114,38 @@ export async function loadAyatMarkerFont(): Promise<void> {
 }
 
 export async function getFontBuffer(
-  layout: MushafLayout,
+  layout: MushafLayout, // Check if this type allows 'undefined'?
   page: number,
 ): Promise<ArrayBuffer> {
+  // 1. FAIL FAST: Debug why this is happening
+  if (!layout) {
+    console.error(
+      `OpenQuranView Error: 'layout' is undefined for page ${page}`,
+    );
+    throw new Error("Layout is required to load fonts.");
+  }
+  if (!page) {
+    console.error(`OpenQuranView Error: 'page' is undefined`);
+    throw new Error("Page number is required.");
+  }
+
+  // 2. Construct URL
+  // This will now resolve relative to 'node_modules/open-quran-view/dist/core/index.js'
+  // and correctly find 'node_modules/open-quran-view/dist/data/fonts/...'
   const fontUrl = new URL(
     `../data/fonts/${layout}/p${page}.woff2`,
     import.meta.url,
   ).href;
 
   const response = await fetch(fontUrl);
+
   if (!response.ok) {
+    // This gives you the EXACT url it tried to fetch in the console
     throw new Error(
-      `Failed to load font from ${fontUrl}: ${response.status} ${response.statusText}`,
+      `Failed to load font. \nExpected: ${fontUrl} \nStatus: ${response.status}`,
     );
   }
+
   return response.arrayBuffer();
 }
 
