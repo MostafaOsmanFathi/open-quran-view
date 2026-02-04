@@ -45,8 +45,14 @@ function generateFonts(): string {
 
     if (layout === "hafs-unicode") {
       for (const font of fonts) {
-        const name = font.replace(/\.(otf|ttf)$/i, "").toLowerCase();
-        output += `    "${name}": new URL("../../data/fonts/${layout}/${font}", import.meta.url).href,\n`;
+        let name = font.replace(/\.(otf|ttf)$/i, "").toLowerCase();
+        if (name === "ayatquran2-pvkgm") {
+          name = "ayatquran";
+        }
+        output += `    ${name}: new URL(\n`;
+        output += `      "../../data/fonts/${layout}/${font}",\n`;
+        output += `      import.meta.url,\n`;
+        output += `    ).href,\n`;
       }
     } else {
       for (const font of fonts) {
@@ -62,12 +68,12 @@ function generateFonts(): string {
   output += `export type StaticFonts = typeof staticFonts;\n\n`;
   output += `export function getFontUrl(layout: MushafLayout, page: number): string {\n`;
   output += `  const pageStr = String(page);\n`;
-  output += `  const url = staticFonts[layout]?.[pageStr as keyof typeof staticFonts[MushafLayout]];\n`;
+  output += `  const url = staticFonts[layout]?.[pageStr as keyof (typeof staticFonts)[MushafLayout]];\n`;
   output += `  if (!url) throw new Error(\`Font not found: \${layout}/\${page}\`);\n`;
   output += `  return url;\n`;
   output += `}\n\n`;
-  output += `export function getUnicodeFontUrl(type: "digitalkhatt" | "ayatquran2_pvkgm"): string {\n`;
-  output += `  const url = staticFonts["hafs-unicode"]?.[type];\n`;
+  output += `export function getUnicodeFontUrl(type: "digitalkhatt" | "ayatquran"): string {\n`;
+  output += `  const url = staticFonts["hafs-unicode"]?.[type as keyof (typeof staticFonts)["hafs-unicode"]];\n`;
   output += `  if (!url) throw new Error(\`Unicode font not found: \${type}\`);\n`;
   output += `  return url;\n`;
   output += `}\n`;

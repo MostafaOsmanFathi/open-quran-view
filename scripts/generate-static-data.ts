@@ -19,7 +19,10 @@ function generateData(): string {
     for (const layout of pagesDir) {
       const pagesPath = join(DATA_SRC, "pages", layout, "pages.json");
       if (existsSync(pagesPath)) {
-        output += `    "${layout}": new URL("../../data/pages/${layout}/pages.json", import.meta.url).href,\n`;
+        output += `    "${layout}": new URL(\n`;
+        output += `      "../../data/pages/${layout}/pages.json",\n`;
+        output += `      import.meta.url,\n`;
+        output += `    ).href,\n`;
       }
     }
     output += `  },\n`;
@@ -44,8 +47,8 @@ function generateData(): string {
     for (const file of sharedDir) {
       const filePath = join(DATA_SRC, "shared", file);
       if (existsSync(filePath)) {
-        const name = file.replace(/\.[^.]+$/, "").replace(/-/g, "");
-        output += `    ${name}: new URL("../../data/shared/${file}", import.meta.url).href,\n`;
+        output += `    surahname: new URL("../../data/shared/${file}", import.meta.url)\n`;
+        output += `      .href,\n`;
       }
     }
     output += `  },\n`;
@@ -64,7 +67,7 @@ function generateData(): string {
   output += `  return url;\n`;
   output += `}\n\n`;
   output += `export function getSurahNameFontUrl(): string {\n`;
-  output += `  const url = staticData.shared?.surahnamefont;\n`;
+  output += `  const url = staticData.shared?.surahname;\n`;
   output += `  if (!url) throw new Error(\`Surah name font not found\`);\n`;
   output += `  return url;\n`;
   output += `}\n`;

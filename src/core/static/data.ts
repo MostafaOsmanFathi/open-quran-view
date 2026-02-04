@@ -1,15 +1,25 @@
 export const staticData = {
   pages: {
-    "hafs-unicode": new URL("../../data/pages/hafs-unicode/pages.json", import.meta.url).href,
-    "hafs-v2": new URL("../../data/pages/hafs-v2/pages.json", import.meta.url).href,
-    "hafs-v4": new URL("../../data/pages/hafs-v4/pages.json", import.meta.url).href,
+    "hafs-unicode": new URL(
+      "../../data/pages/hafs-unicode/pages.json",
+      import.meta.url,
+    ).href,
+    "hafs-v2": new URL(
+      "../../data/pages/hafs-v2/pages.json",
+      import.meta.url,
+    ).href,
+    "hafs-v4": new URL(
+      "../../data/pages/hafs-v4/pages.json",
+      import.meta.url,
+    ).href,
   },
   metadata: {
     juz: new URL("../../data/metadata/juz.json", import.meta.url).href,
     surahs: new URL("../../data/metadata/surahs.json", import.meta.url).href,
   },
   shared: {
-    surahnamev4: new URL("../../data/shared/surah-name-v4.woff2", import.meta.url).href,
+    surahname: new URL("../../data/shared/surah-name-v4.woff2", import.meta.url)
+      .href,
   },
 } as const;
 
@@ -28,7 +38,7 @@ export function getMetadataUrl(type: "surahs" | "juz"): string {
 }
 
 export function getSurahNameFontUrl(): string {
-  const url = staticData.shared?.surahnamev4;
+  const url = staticData.shared?.surahname;
   if (!url) throw new Error(`Surah name font not found`);
   return url;
 }

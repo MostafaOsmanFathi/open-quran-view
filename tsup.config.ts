@@ -10,6 +10,8 @@ const PAGES_SRC = "src/data/pages";
 const PAGES_DIST = "dist/data/pages";
 const METADATA_SRC = "src/data/metadata";
 const METADATA_DIST = "dist/data/metadata";
+const STATIC_SRC = "src/core/static";
+const STATIC_DIST = "dist/core/static";
 
 function copyFonts() {
   if (existsSync(FONTS_SRC)) {
@@ -33,6 +35,13 @@ function copyData() {
   if (existsSync(METADATA_SRC)) {
     mkdirSync(METADATA_DIST, { recursive: true });
     copyDir(METADATA_SRC, METADATA_DIST);
+  }
+}
+
+function copyStatic() {
+  if (existsSync(STATIC_SRC)) {
+    mkdirSync(STATIC_DIST, { recursive: true });
+    copyDir(STATIC_SRC, STATIC_DIST);
   }
 }
 
@@ -68,6 +77,7 @@ export default defineConfig({
     copyFonts();
     copySharedData();
     copyData();
+    copyStatic();
     console.log("✓ Data and fonts copied to dist successfully");
   },
 });

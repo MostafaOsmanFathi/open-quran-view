@@ -1214,8 +1214,14 @@ export const staticFonts = {
     99: new URL("../../data/fonts/hafs-v4/p99.woff2", import.meta.url).href,
   },
   "hafs-unicode": {
-    "ayatquran2-pvkgm": new URL("../../data/fonts/hafs-unicode/AyatQuran2-PVKGm.ttf", import.meta.url).href,
-    "digitalkhatt": new URL("../../data/fonts/hafs-unicode/digitalkhatt.otf", import.meta.url).href,
+    ayatquran: new URL(
+      "../../data/fonts/hafs-unicode/AyatQuran2-PVKGm.ttf",
+      import.meta.url,
+    ).href,
+    digitalkhatt: new URL(
+      "../../data/fonts/hafs-unicode/digitalkhatt.otf",
+      import.meta.url,
+    ).href,
   },
 } as const;
 
@@ -1223,13 +1229,13 @@ export type StaticFonts = typeof staticFonts;
 
 export function getFontUrl(layout: MushafLayout, page: number): string {
   const pageStr = String(page);
-  const url = staticFonts[layout]?.[pageStr as keyof typeof staticFonts[MushafLayout]];
+  const url = staticFonts[layout]?.[pageStr as keyof (typeof staticFonts)[MushafLayout]];
   if (!url) throw new Error(`Font not found: ${layout}/${page}`);
   return url;
 }
 
-export function getUnicodeFontUrl(type: "digitalkhatt" | "ayatquran2-pvkgm"): string {
-  const url = staticFonts["hafs-unicode"]?.[type];
+export function getUnicodeFontUrl(type: "digitalkhatt" | "ayatquran"): string {
+  const url = staticFonts["hafs-unicode"]?.[type as keyof (typeof staticFonts)["hafs-unicode"]];
   if (!url) throw new Error(`Unicode font not found: ${type}`);
   return url;
 }

@@ -73,7 +73,7 @@ export async function loadDigitalKhattFont(): Promise<void> {
 export async function loadAyatMarkerFont(): Promise<void> {
   if (ayatMarkerFontLoaded) return;
 
-  const fontUrl = getUnicodeFontUrlStatic("ayatquran2-pvkgm");
+  const fontUrl = getUnicodeFontUrlStatic("ayatquran");
 
   const response = await fetch(fontUrl);
   if (!response.ok) {
