@@ -42,6 +42,8 @@ async function main() {
     { name: "Metadata", path: "scripts/fetch-metadata.ts" },
     { name: "Pages", path: "scripts/fetch-pages.ts" },
     { name: "Fonts", path: "scripts/download-fonts.ts" },
+    { name: "Static Fonts", path: "scripts/generate-static-fonts.ts" },
+    { name: "Static Data", path: "scripts/generate-static-data.ts" },
   ];
 
   try {

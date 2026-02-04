@@ -19,7 +19,6 @@ export {
   surahNumberToFontCode,
   getFontUrl,
   getFontBuffer,
-  clearFontCache,
 } from "./font-loader";
 
 export {

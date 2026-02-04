@@ -1,14 +1,10 @@
 import type { MushafLayout } from "./types";
+import {
+  getFontUrl as getFontUrlStatic,
+  getUnicodeFontUrl as getUnicodeFontUrlStatic,
+} from "./static/fonts";
+import { getSurahNameFontUrl as getSurahNameFontUrlStatic } from "./static/data";
 
-type FontCache = Record<MushafLayout, Map<number, string>>;
-
-let fontCache: FontCache = {
-  "hafs-v2": new Map(),
-  "hafs-v4": new Map(),
-  "hafs-unicode": new Map(),
-};
-
-let surahNameFontUrl: string | null = null;
 let surahNameFontLoaded: boolean = false;
 let digitalKhattFontLoaded: boolean = false;
 let ayatMarkerFontLoaded: boolean = false;
@@ -18,8 +14,7 @@ export function surahNumberToFontCode(surahNumber: number): string {
 }
 
 export async function getSurahNameFontBuffer(): Promise<ArrayBuffer> {
-  const fontUrl = new URL("../data/shared/surah-name-v4.woff2", import.meta.url)
-    .href;
+  const fontUrl = getSurahNameFontUrlStatic();
 
   const response = await fetch(fontUrl);
   if (!response.ok) {
@@ -31,14 +26,7 @@ export async function getSurahNameFontBuffer(): Promise<ArrayBuffer> {
 }
 
 export async function getSurahNameFontUrl(): Promise<string> {
-  if (surahNameFontUrl) {
-    return surahNameFontUrl;
-  }
-
-  const buffer = await getSurahNameFontBuffer();
-  const blob = new Blob([buffer], { type: "font/woff2" });
-  surahNameFontUrl = URL.createObjectURL(blob);
-  return surahNameFontUrl;
+  return getSurahNameFontUrlStatic();
 }
 
 export async function loadSurahNameFont(): Promise<void> {
@@ -60,10 +48,7 @@ export async function loadSurahNameFont(): Promise<void> {
 export async function loadDigitalKhattFont(): Promise<void> {
   if (digitalKhattFontLoaded) return;
 
-  const fontUrl = new URL(
-    "../data/fonts/hafs-unicode/digitalkhatt.otf",
-    import.meta.url,
-  ).href;
+  const fontUrl = getUnicodeFontUrlStatic("digitalkhatt");
 
   const response = await fetch(fontUrl);
   if (!response.ok) {
@@ -88,10 +73,7 @@ export async function loadDigitalKhattFont(): Promise<void> {
 export async function loadAyatMarkerFont(): Promise<void> {
   if (ayatMarkerFontLoaded) return;
 
-  const fontUrl = new URL(
-    "../data/fonts/hafs-unicode/AyatQuran2-PVKGm.ttf",
-    import.meta.url,
-  ).href;
+  const fontUrl = getUnicodeFontUrlStatic("ayatquran2-pvkgm");
 
   const response = await fetch(fontUrl);
   if (!response.ok) {
@@ -114,10 +96,9 @@ export async function loadAyatMarkerFont(): Promise<void> {
 }
 
 export async function getFontBuffer(
-  layout: MushafLayout, // Check if this type allows 'undefined'?
+  layout: MushafLayout,
   page: number,
 ): Promise<ArrayBuffer> {
-  // 1. FAIL FAST: Debug why this is happening
   if (!layout) {
     console.error(
       `OpenQuranView Error: 'layout' is undefined for page ${page}`,
@@ -129,18 +110,11 @@ export async function getFontBuffer(
     throw new Error("Page number is required.");
   }
 
-  // 2. Construct URL
-  // This will now resolve relative to 'node_modules/open-quran-view/dist/core/index.js'
-  // and correctly find 'node_modules/open-quran-view/dist/data/fonts/...'
-  const fontUrl = new URL(
-    `../data/fonts/${layout}/p${page}.woff2`,
-    import.meta.url,
-  ).href;
+  const fontUrl = getFontUrlStatic(layout, page);
 
   const response = await fetch(fontUrl);
 
   if (!response.ok) {
-    // This gives you the EXACT url it tried to fetch in the console
     throw new Error(
       `Failed to load font. \nExpected: ${fontUrl} \nStatus: ${response.status}`,
     );
@@ -149,20 +123,8 @@ export async function getFontBuffer(
   return response.arrayBuffer();
 }
 
-export async function getFontUrl(
-  layout: MushafLayout,
-  page: number,
-): Promise<string> {
-  const cached = fontCache[layout].get(page);
-  if (cached) {
-    return cached;
-  }
-
-  const buffer = await getFontBuffer(layout, page);
-  const blob = new Blob([buffer], { type: "font/woff2" });
-  const url = URL.createObjectURL(blob);
-  fontCache[layout].set(page, url);
-  return url;
+export function getFontUrl(layout: MushafLayout, page: number): string {
+  return getFontUrlStatic(layout, page);
 }
 
 export async function loadFont(
@@ -175,14 +137,13 @@ export async function loadFont(
     return;
   }
 
-  const fontUrl = await getFontUrl(layout, page);
+  const fontUrl = getFontUrl(layout, page);
   const fontFace = new FontFace("QuranFont", `url(${fontUrl})`);
   await fontFace.load();
 
   if (typeof document !== "undefined" && document.fonts) {
     document.fonts.add(fontFace);
   } else if ((globalThis as any).fonts) {
-    // Fallback for workers or other environments if they support the FontLoading API directly
     (globalThis as any).fonts.add(fontFace);
   }
 }
@@ -190,15 +151,5 @@ export async function loadFont(
 export async function preloadAllFonts(layout: MushafLayout): Promise<void> {
   for (let page = 1; page <= 604; page++) {
     await loadFont(layout, page);
-  }
-}
-
-export function clearFontCache(layout?: MushafLayout): void {
-  if (layout) {
-    fontCache[layout].clear();
-  } else {
-    fontCache["hafs-v2"].clear();
-    fontCache["hafs-v4"].clear();
-    fontCache["hafs-unicode"].clear();
   }
 }

@@ -1,4 +1,5 @@
 import type { Page, Surah, Juz, MushafLayout } from "./types";
+import { getPagesUrl, getMetadataUrl } from "./static/data";
 
 type PagesCache = Record<MushafLayout, Page[] | null>;
 type MetadataCache = {
@@ -22,10 +23,7 @@ export async function loadPages(
   pageNumber?: number,
 ): Promise<Page | Page[] | null> {
   if (pagesCache[layout] === null) {
-    const pagesUrl = new URL(
-      `../data/pages/${layout}/pages.json`,
-      import.meta.url,
-    ).href;
+    const pagesUrl = getPagesUrl(layout);
     const response = await fetch(pagesUrl);
     if (!response.ok) {
       throw new Error(
@@ -61,8 +59,7 @@ export async function loadAllPages(layout: MushafLayout): Promise<Page[]> {
 
 export async function loadSurahs(): Promise<Surah[]> {
   if (metadataCache.surahs === null) {
-    const surahsUrl = new URL("../data/metadata/surahs.json", import.meta.url)
-      .href;
+    const surahsUrl = getMetadataUrl("surahs");
     const response = await fetch(surahsUrl);
     if (!response.ok) {
       throw new Error(
@@ -76,7 +73,7 @@ export async function loadSurahs(): Promise<Surah[]> {
 
 export async function loadJuzs(): Promise<Juz[]> {
   if (metadataCache.juzs === null) {
-    const juzsUrl = new URL("../data/metadata/juz.json", import.meta.url).href;
+    const juzsUrl = getMetadataUrl("juz");
     const response = await fetch(juzsUrl);
     if (!response.ok) {
       throw new Error(
