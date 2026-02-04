@@ -137,6 +137,7 @@ tsx scripts/fetch-metadata.ts
 ```
 
 **What it does:**
+
 1. Loads credentials from `.env`
 2. Fetches all 114 surahs from API
 3. Fetches all 30 juz from API
@@ -151,11 +152,12 @@ tsx scripts/fetch-pages.ts
 ```
 
 **What it does:**
+
 1. Loads credentials from `.env`
 2. Gets access token via OAuth
 3. For each Mushaf (1, 19, 5):
    - Fetches all 604 pages
-   - Transforms API response to QUL format
+   - Transforms API response to internal page format
    - Saves to `src/data/pages/{layout}/pages.json`
 
 ### download-fonts.ts
@@ -167,6 +169,7 @@ tsx scripts/download-fonts.ts
 ```
 
 **What it does:**
+
 1. Downloads 604 fonts for QCF V2
 2. Downloads 604 fonts for QCF V4
 3. Saves to `src/data/fonts/{layout}/`
@@ -182,6 +185,7 @@ tsx scripts/generate-static-fonts.ts
 ```
 
 **What it does:**
+
 1. Scans `src/data/fonts/` for all font files
 2. Generates TypeScript file with static URLs
 3. Outputs to `src/core/static/fonts.ts`
@@ -197,6 +201,7 @@ tsx scripts/generate-static-data.ts
 ```
 
 **What it does:**
+
 1. Scans `src/data/pages/` and `src/data/metadata/`
 2. Generates TypeScript file with static URLs
 3. Outputs to `src/core/static/data.ts`
@@ -214,6 +219,7 @@ pnpm run generate:static
 ```
 
 This runs:
+
 1. `generate-static-fonts.ts` → `src/core/static/fonts.ts`
 2. `generate-static-data.ts` → `src/core/static/data.ts`
 
@@ -279,6 +285,7 @@ pnpm install
 ```
 
 The `prepare` script runs automatically:
+
 - `pnpm run generate:all`
 - `pnpm run build`
 
@@ -310,6 +317,7 @@ pnpm build
 **Problem:** Missing credentials in `.env`
 
 **Solution:**
+
 ```bash
 # Create .env file
 echo "QURAN_CLIENT_ID=your_id" > .env
@@ -321,6 +329,7 @@ echo "QURAN_CLIENT_SECRET=your_secret" >> .env
 **Problem:** API rate limiting or network issues
 
 **Solution:** The scripts have built-in delays. If issues persist:
+
 1. Check your internet connection
 2. Verify API credentials
 3. Try again after a few minutes
@@ -330,10 +339,12 @@ echo "QURAN_CLIENT_SECRET=your_secret" >> .env
 **Problem:** Some fonts fail to download
 
 **Solution:** The download script shows progress. Failures are expected due to:
+
 - Network issues
 - Server rate limiting
 
 Re-run to download missing fonts:
+
 ```bash
 pnpm run generate:fonts
 ```
@@ -343,6 +354,7 @@ pnpm run generate:fonts
 **Problem:** Static assets not generated
 
 **Solution:** Run static asset generation:
+
 ```bash
 pnpm run generate:static
 ```

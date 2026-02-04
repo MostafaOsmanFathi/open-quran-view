@@ -1,7 +1,7 @@
 # Open Quran View Documentation
 
-High-performance universal Quran rendering library using QUL (Quranic Universal Library) format.
-
+High-performance universal Quran rendering library using Quran Foundation API.
+  
 ## Overview
 
 `open-quran-view` provides React and Web Component views for rendering Quran pages with high fidelity.
@@ -67,7 +67,7 @@ function App() {
 
 ## Features
 
-- **QUL Format Support** - Uses Quranic Universal Library layout format for platform-agnostic data.
+- **Quran Foundation API** - Uses Quran Foundation API for platform-agnostic data.
 - **Universal Views** - React component and Vanilla Web Component with consistent API.
 - **TypeScript First** - Built with TypeScript for a robust development experience.
 - **Static Assets System** - Pre-generated URLs for reliable font and data loading (v0.2.0+).
@@ -86,7 +86,7 @@ open-quran-view/
 │   ├── view/
 │   │   ├── react/          # React component
 │   │   └── web/            # Web Component
-│   └── data/               # QUL data assets (generated)
+│   └── data/               # Quran Foundation API data assets (generated)
 ├── docs/                   # Documentation
 │   ├── api/                # API reference
 │   ├── architecture/       # Architecture docs

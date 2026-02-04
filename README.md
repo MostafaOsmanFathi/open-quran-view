@@ -1,6 +1,6 @@
 # open-quran-view
 
-High-performance universal Quran rendering library using QUL (Quranic Universal Library) format.
+High-performance universal Quran rendering library using Quran Foundation API.
 
 `open-quran-view` provides React and Web Component views for rendering Quran pages with high fidelity.
 
@@ -8,7 +8,7 @@ High-performance universal Quran rendering library using QUL (Quranic Universal 
 
 ## Features
 
-- **QUL Format Support** - Uses Quranic Universal Library layout format for platform-agnostic data.
+- **Quran Foundation API** - Uses Quran Foundation API for platform-agnostic data.
 - **Universal Views** - React component and Vanilla Web Component with consistent API.
 - **TypeScript First** - Built with TypeScript for a robust development experience.
 - **Static Assets** - Self-contained fonts and metadata included in package.
@@ -28,10 +28,10 @@ open-quran-view/
 │   ├── view/
 │   │   ├── react/          # React component
 │   │   └── web/            # Web Component
-│   └── data/               # QUL data assets (generated)
+│   ├── data/               # Quran Foundation API data assets (generated)
 ├── docs/                   # Documentation
 ├── scripts/                # Data generation scripts
-├── playground/             # Development playgrounds
+├── playground/             # React & Web Component development playgrounds
 └── dist/                   # Build output
 ```
 
@@ -78,6 +78,17 @@ import { OpenQuranView } from 'open-quran-view/view/react';
 </script>
 
 <open-quran-view page="1" mushaf-layout="hafs-v2" width="600" height="850"></open-quran-view>
+```
+
+TypeScript:
+
+```tsx
+import { registerOpenQuranView, type OpenQuranViewElement } from 'open-quran-view/view/web';
+registerOpenQuranView();
+
+const viewer = document.querySelector('open-quran-view') as OpenQuranViewElement;
+viewer.page = 1;
+viewer.setAttribute('mushaf-layout', 'hafs-v2');
 ```
 
 ---
@@ -187,9 +198,9 @@ See [`docs/`](docs/) directory for:
 
 | Script | Description |
 |--------|-------------|
-| `pnpm generate:all` | Generate all static assets |
-| `pnpm generate:static:fonts` | Generate font URLs |
-| `pnpm generate:static:data` | Generate data URLs |
+| `pnpm generate:all` | Download fonts + fetch data + generate all static assets |
+| `pnpm generate:static:fonts` | Download fonts from Quran Foundation API and generate font URLs |
+| `pnpm generate:static:data` | Fetch Quran data from Quran Foundation API and generate page layouts |
 | `pnpm build` | Build the package |
 | `pnpm prepare` | Auto-generate + build on install |
 | `pnpm test` | Run tests |
@@ -210,7 +221,9 @@ pnpm run generate:all
 pnpm run build
 
 # Run development playground
+pnpm run playground:setup
 pnpm run playground:react
+pnpm run playground:web
 ```
 
 ---
