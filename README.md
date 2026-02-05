@@ -1,5 +1,11 @@
 # open-quran-view
 
+[NPM Package](https://www.npmjs.com/package/open-quran-view)
+·
+[Live Demo](https://open-quran-view-react.netlify.app/)
+·
+[Production Example](https://github.com/adelpro/open-quran-view-react)
+
 High-performance universal Quran rendering library using Quran Foundation API.
 
 `open-quran-view` provides React and Web Component views for rendering Quran pages with high fidelity.
@@ -175,11 +181,11 @@ viewer.setAttribute('theme', 'dark');
 
 ## Mushaf Layouts
 
-| Layout | Description |
-|--------|-------------|
-| `hafs-v2` | Hafs from Asim via the way of Warsh |
-| `hafs-v4` | Hafs from Asim via the way of Shu'bah |
-| `hafs-unicode` | Standard Unicode Quran |
+| Layout | Description | Preview |
+|--------|-------------|---------|
+| `hafs-v2` | Hafs from Asim via the way of Warsh | ![Hafs v2](screenshots/hafs-v2.png) |
+| `hafs-v4` | Hafs from Asim via the way of Shu'bah (with Tajweed) | ![Hafs v4 with Tajweed](screenshots/hafs-v4-tajweed.png) |
+| `hafs-unicode` | Standard Unicode Quran (Digital Khatt) | ![Unicode Digital Khatt](screenshots/hafs-unicode-digital-khatt.png) |
 
 ---
 
