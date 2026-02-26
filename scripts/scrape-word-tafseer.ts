@@ -289,7 +289,7 @@ async function main() {
     }
     mkdirSync('data/tafseers/', {recursive: true});
     writeFileSync("data/tafseers/quran-words.json", JSON.stringify(sortedAggregated, null, 2));
-    console.log("Saved quran_word_level_tafseer.json");
+    console.log("Saved data/tafseers/quran-words.json");
 
     console.log("\n\nstart testing ...\n");
     await testItWithPages(aggregated);
